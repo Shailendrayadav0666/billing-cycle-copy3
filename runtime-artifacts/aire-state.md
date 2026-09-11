@@ -58,9 +58,9 @@
 
 ## Epic-Level Pre-Handoff Smoke Test (Section 4.0.6)
 - **Status**: PASSED (attempt 3 of 3) — https://github.com/Shailendrayadav0666/billing-cycle-copy3/actions/runs/34591439109
-- **Draft PR**: https://github.com/Shailendrayadav0666/billing-cycle-copy3/pull/1 — GREEN, awaiting merge into the epic branch (BLOCKED: auto-mode denied the merge — needs the user to merge PR #1 or authorize it)
+- **Draft PR**: https://github.com/Shailendrayadav0666/billing-cycle-copy3/pull/1 — MERGED (af6e90ff4957a261bba77fd01ce3ed8a76ce3738, by the user)
 - **Fixed during the smoke test**: (1) missing `oxlint` toolInstallCommands entry (Manifest defect), commit cb9d8e1; (2) `D6_complexity` for src/frontend had no real complexity tool (unconditional ERROR), commit ea5b81a
-- **Development Handoff**: BLOCKED until PR #1 is merged, per Section 4.0.6 Step 4
+- **Development Handoff**: unblocked — presenting now
 
 ## SonarQube Setup Gate
 - **Answer**: proceed
@@ -85,7 +85,7 @@
 - [x] Workflow Planning (spec/plans/executions.md — Application Design + all 4 system-level design stages SKIP, Code Generation EXECUTE)
 - [x] Application Design — SKIPPED (no new components/services; existing component boundaries)
 - [x] System-Level Design stages — ALL SKIPPED (Functional/NFR Requirements/NFR Design/Infrastructure Design — see executions.md rationale)
-- [ ] STOP CHECKPOINT / Development Handoff
+- [x] STOP CHECKPOINT / Development Handoff — Design complete — awaiting dev-implement
 - [ ] Code Generation (per story, via dev-implement)
 
 ## team_size
