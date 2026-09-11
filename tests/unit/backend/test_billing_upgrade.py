@@ -44,6 +44,17 @@ def test_compute_prorated_charge_clamped_to_minimum_one_day():
     assert prorated_charge == round((40.0 - 20.0) / 30 * 1, 2)
 
 
+def test_compute_prorated_charge_fails_closed_on_malformed_renew_at():
+    # SECURITY-15: a malformed date must never propagate a raw ValueError/traceback.
+    import pytest
+    from fastapi import HTTPException
+
+    with pytest.raises(HTTPException) as exc_info:
+        app_module.compute_prorated_charge("not-a-date")
+    assert exc_info.value.status_code == 500
+    assert exc_info.value.detail == "Billing data unavailable"
+
+
 # ---------------------------------------------------------------------------
 # charge_card (REQ-F-07, AC-13)
 # ---------------------------------------------------------------------------

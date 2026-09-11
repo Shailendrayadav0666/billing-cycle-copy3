@@ -5,7 +5,7 @@
 **Command**: `src/backend/venv/Scripts/python.exe -m pytest tests/unit/backend/ -v --cov=src/backend --cov-report=term-missing --cov-report=xml:reports/unit-test-evidence/story-1.1/coverage-report.xml`
 **Test runner**: pytest 9.1.1 · **Coverage tool**: pytest-cov 7.1.0 / coverage.py 7.16.0
 
-**Result**: 27/27 tests passing (0 failures).
+**Result**: 28/28 tests passing (0 failures).
 
 **Coverage**:
 - Whole-file (`src/backend/main.py`): 83% (109 stmts, 18 missed) — the 18 missed lines are all **pre-existing** code this story did not touch: the `login`/`register`/`me`/`billing` 401-branch lines, the `/api/tasks` + `/api/tasks` POST endpoints, and the static-file mount at the bottom of the file.
@@ -13,7 +13,7 @@
 - Exceeds `unitTestCoverageMin` (90%, `tests/.evals/config.json`).
 
 **Artifacts**:
-- `unit-test-run.log` — raw pytest output (this run, 27 passed)
+- `unit-test-run.log` — raw pytest output (this run, 28 passed)
 - `coverage-report.xml` — Cobertura XML from `coverage.py`
 
 **Test files**:
@@ -21,6 +21,8 @@
 - `tests/unit/backend/test_billing_upgrade_api.py` — API & Contract Testing Gate (see `reports/api-contract-test-evidence/story-1.1/`)
 
 **Note — a real defect found and fixed during this gate**: the first `compute_prorated_charge` implementation diffed `datetime.strptime(renew_at, ...)` (midnight) against `datetime.today()` (current time-of-day), undercounting `days_remaining` by one for any time after midnight and producing $19.33 instead of the epic's worked example of $20.00 for a fresh 30-day cycle. Fixed by comparing `.date()` on both sides. Caught by `test_compute_prorated_charge_worked_example` / `test_compute_prorated_charge_full_cycle` failing on the first run.
+
+**Note — a second fix during the automated Code Review's security pass (SECURITY-15)**: `compute_prorated_charge` had no error handling around `datetime.strptime`; added a `try/except ValueError` that fails closed with a clean 500 instead of letting a malformed date propagate as a raw exception. Covered by `test_compute_prorated_charge_fails_closed_on_malformed_renew_at` (test count: 28 backend, up from 27).
 
 ## Frontend
 
@@ -43,7 +45,7 @@
 ## Full Regression vs Baseline (code-generation.md Step 11b)
 
 **Baseline** (captured at the Story Branch checkpoint, Step 1.5 Item 4.5): no test suite existed at all.
-**Full regression run** (`full-regression.log`): 27 backend + 10 frontend = **37/37 passing**, exit 0.
+**Full regression run** (`full-regression.log`): 28 backend + 10 frontend = **38/38 passing**, exit 0.
 **Diff vs baseline**: 37 NEW tests, 0 pre-existing failures (there were none to break) — nothing to fix. Clean.
 
 **Generation-time infra note**: `tests/unit/frontend/` lives at the repo root (outside the Vite root `src/frontend/`), per `common/directory-structure.md`. This requires `server.fs.allow` plus a small `resolve.alias` map in `vite.config.js` so Vite's node_modules resolution (which walks up from the *importing file's* own ancestors, never sideways into `src/frontend/node_modules`) can find the test-only packages — the same class of fix `common/behavior-spec.md` Section 4.1a prescribes for cucumber-js step files via `NODE_PATH` (Vite's resolver doesn't honour `NODE_PATH`, so `resolve.alias` is the equivalent here). Added `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `jsdom`, `@vitest/coverage-v8` as devDependencies (`src/frontend/package.json`) — test-only, not shipped in the production build.

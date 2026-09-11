@@ -142,7 +142,13 @@ class UpgradeRequest(BaseModel):
 
 def compute_prorated_charge(renew_at: str) -> tuple[int, float]:
     """Days remaining in the cycle and the prorated Standard->Premium charge for that many days."""
-    renew_at_date = datetime.strptime(renew_at, "%b %d, %Y")
+    try:
+        renew_at_date = datetime.strptime(renew_at, "%b %d, %Y")
+    except ValueError:
+        # Fail closed (SECURITY-15): renew_at is always server-generated, but a malformed value
+        # must never surface a raw ValueError/traceback to the caller — return a clean, generic
+        # error instead of letting it propagate as an unhandled 500.
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Billing data unavailable")
     # Compare calendar dates, not instants: renew_at carries no time-of-day (it round-trips
     # through "%b %d, %Y"), so diffing it against datetime.today()'s current time-of-day would
     # undercount days_remaining by one for any time after midnight. .date() strips both sides
