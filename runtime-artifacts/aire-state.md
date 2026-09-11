@@ -98,7 +98,7 @@ all-at-once (fixed default)
 
 | Story | Title | Requires | Tracker ID | Status | PR | Merged | Start | End | Recorded |
 |-------|-------|----------|------------|--------|-----|--------|-------|-----|----------|
-| 1.1 | Mid-Cycle Subscription Upgrade (Standard → Premium) | none | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-11 09:16 |
+| 1.1 | Mid-Cycle Subscription Upgrade (Standard → Premium) | none | LOCAL | 🔵 In Development | — | — | 2026-09-11 | | 2026-09-11 13:07 |
 
 ## Dependency Graph
 
