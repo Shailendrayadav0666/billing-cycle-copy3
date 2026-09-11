@@ -56,6 +56,12 @@
 ## Design References
 (none registered — Context Opt-In declined; the Epic document itself is the authoritative spec)
 
+## Epic-Level Pre-Handoff Smoke Test (Section 4.0.6)
+- **Status**: PASSED (attempt 3 of 3) — https://github.com/Shailendrayadav0666/billing-cycle-copy3/actions/runs/34591439109
+- **Draft PR**: https://github.com/Shailendrayadav0666/billing-cycle-copy3/pull/1 — GREEN, awaiting merge into the epic branch (BLOCKED: auto-mode denied the merge — needs the user to merge PR #1 or authorize it)
+- **Fixed during the smoke test**: (1) missing `oxlint` toolInstallCommands entry (Manifest defect), commit cb9d8e1; (2) `D6_complexity` for src/frontend had no real complexity tool (unconditional ERROR), commit ea5b81a
+- **Development Handoff**: BLOCKED until PR #1 is merged, per Section 4.0.6 Step 4
+
 ## SonarQube Setup Gate
 - **Answer**: proceed
 - **Recorded**: 2026-09-11T10:30:40Z

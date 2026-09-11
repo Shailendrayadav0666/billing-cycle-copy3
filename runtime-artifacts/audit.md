@@ -170,3 +170,21 @@
 **Context**: ci-pipeline-generation.md Section 4.1.3 — 'proceed' path, continuing STOP CHECKPOINT.
 
 ---
+
+## STOP CHECKPOINT — Epic-Level Pre-Handoff Smoke Test (Section 4.0.6)
+**Timestamp**: 2026-09-11T10:57:05Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a (automatic; unbounded loop per Section 4.0.6, not a gate)
+**AI Response**: "Ran tests/.evals/scripts/smoke-test-epic.sh epic/EPIC-LOCAL-1-mid-cycle-subscription-upgrade EPIC-LOCAL-1. Opened draft PR #1 (ci/epic-smoke-EPIC-LOCAL-1 -> epic branch). Attempt 1 (run 34589783109) FAILED at 'Install dependencies' with a real Manifest defect: oxlint was listed in src/frontend's ci.roots[].tools with no matching toolInstallCommands entry — lib-manifest.sh correctly refused rather than silently skip it. Self-repair hit the identical defect on its own re-run and correctly declined to 'fix' a manifest problem via code edits (V32/Section 6.4 Manifest triage). Fixed directly: added the missing toolInstallCommands entry, committed cb9d8e1 to the epic branch, cherry-picked onto the scratch branch, re-triggered. Attempt 2 (run 34590487780) got past Install but the Verdict FAILed on a second, separate real defect: D6_complexity for src/frontend was an unconditional record_multi_root ERROR (not diff-scoped) because oxlint has no complexity rule — it fired on every run including this zero-diff PR. Self-repair independently diagnosed the SAME root cause and applied an equivalent fix (ESLint + jq, flat config, eslint pinned 10.10.0) but its own re-verification pass still failed (J1/J2 judge score variance on that pass, per Section 4.3's acknowledged LLM-judge run-to-run variance) so it correctly declined to push an unverified commit — nothing lost, no bad commit landed. Fixed directly with an equivalent approach: tests/.evals/eslint-complexity.config.json + a real delta_diff call referencing $AIRE_MAX_CYCLOMATIC_COMPLEXITY, committed ea5b81a, cherry-picked onto the scratch branch, re-triggered. Attempt 3 (run 34591439109) PASSED CLEAN: Verdict PASS, self-repair job correctly SKIPPED (not needed), all real credentials worked end-to-end (CLAUDE_CODE_OAUTH_TOKEN authenticated the judge gates J1/J2 and the (skipped, since no self-repair needed) repair path; SONAR_TOKEN/SONAR_HOST_URL authenticated the SonarQube scan step). This validates: dependency-install resolves cleanly, both roots' tool manifests are complete, the workflow is accepted by GitHub and triggers correctly on this branch pattern, credentials resolve, and the gating/Verdict mechanics work end-to-end — exactly what Section 4.0.6 promises and nothing more (it does NOT validate delta-scoped D1-D7 accuracy on a real diff, or B1/B2 behavior tiers, or unitCoverage's multi-report matching — Story 1.1's own PR is what exercises those for the first time)."
+**Context**: STOP CHECKPOINT Step 4 — smoke test PASSED after 2 real, fixed defects (both Manifest/tooling gaps introduced during generation, neither an application-code bug). Two genuine self-repair-vs-direct-fix races observed and resolved in favor of the direct fix each time, with no data loss.
+
+---
+
+## STOP CHECKPOINT — Smoke-Test PR Merge BLOCKED (auto-mode denial)
+**Timestamp**: 2026-09-11T10:57:05Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**AI Response**: "Attempted `gh pr merge 1 --merge --delete-branch` per Section 4.0.6 Step 4 ('On green: merge the draft PR into the epic branch, delete the scratch branch'). Denied by the Claude Code auto-mode classifier ('Merge Without Review'). Not working around this — stopping to ask the user to merge PR #1 themselves, or explicitly authorize the merge, before proceeding to the Development Handoff (which Section 4.0.6 gates on this merge)."
+**Context**: STOP CHECKPOINT Step 4 cleanup step blocked; Development Handoff paused pending user action on PR #1.
+
+---
