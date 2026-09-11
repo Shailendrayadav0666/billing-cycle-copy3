@@ -266,3 +266,27 @@
 **Context**: dev-implement.md Step 4.5 / behavior-spec.md Section 2 — feature file written before implementation.
 
 ---
+
+## Code Generation Part 2 — Implementation (Story 1.1)
+**Timestamp**: 2026-09-11T13:29:51Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Implemented Steps 1-6 of the plan: src/backend/main.py (PLANS/DAYS_IN_CYCLE/PREMIUM_QUOTAS constants, UpgradeRequest model, compute_prorated_charge helper, charge_card, GET /api/billing/upgrade-preview, POST /api/billing/upgrade); src/frontend/src/pages/Billing.jsx (dynamic plan badge, Upgrade CTA, UpgradeModal component, confirm success/decline handling) + src/frontend/src/App.css (new modal/CTA/banner styles). Manually verified every backend path via curl against a live uvicorn instance on a scratch port (8001, to avoid the user's own already-running dev server on 8000): happy-path proration+upgrade, already-premium 409 guard (both endpoints), unauthenticated 401, decline 402 with zero mutation - all correct. Browser extension unavailable for visual frontend verification (noted honestly, not claimed). oxlint clean (fixed one new exhaustive-deps warning via useCallback); `npm run build` succeeds."
+**Context**: code-generation.md Step 11 — implementation complete, proceeding to Step 11a (Unit Test & Coverage).
+
+---
+
+## Unit Test & Coverage Gate — SH-LOOP-1 (Story 1.1)
+**Timestamp**: 2026-09-11T13:29:51Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Backend: tests/unit/backend/test_billing_upgrade.py + test_billing_upgrade_api.py, 27/27 passing, 100% coverage on new/changed code (83% whole-file, all misses pre-existing). Frontend: tests/unit/frontend/Billing.test.jsx, 10/10 passing, 100% coverage on new/changed code (85.96% whole-file, all misses pre-existing UsageIcon/IncludedUsageCard/usage-grid). REAL DEFECT FOUND AND FIXED (attempt 1, root cause stated before the fix per SH-7): compute_prorated_charge compared a date-only parsed renew_at against datetime.today() (with time-of-day), undercounting days_remaining by 1 for any time after midnight -> $19.33 instead of the epic's own worked example ($20.00 for a fresh 30-day cycle). Fixed by comparing .date() on both sides; re-ran, all green. This is SH-LOOP-1 attempt 1 of 3 - loop exited successfully, no further attempts needed. Proof artifacts: reports/unit-test-evidence/story-1.1/ (backend + frontend logs, coverage-report.xml, frontend-coverage/lcov.info, evidence-manifest.md) and reports/api-contract-test-evidence/story-1.1/ (14/14 API & Contract checklist items, both endpoints, evidence-manifest.md)."
+**Context**: code-generation.md Step 11a/11a.5 — SH-LOOP-1 exited clean on attempt 1; API & Contract Testing Gate (applicable — this story adds an API layer) also clean.
+
+---

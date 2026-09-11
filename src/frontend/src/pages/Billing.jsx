@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import '../App.css'
 
@@ -97,15 +97,125 @@ function OnDemandUsageCard({ data }) {
   )
 }
 
+function UpgradeModal({ preview, loading, error, onConfirm, onCancel, confirming }) {
+  return (
+    <div className="modal-overlay" role="dialog" aria-modal="true">
+      <div className="modal-panel">
+        <h3 className="modal-title">Upgrade to Premium</h3>
+        {loading && <p>Loading upgrade preview...</p>}
+        {!loading && preview && (
+          <div className="modal-body">
+            <div className="modal-row">
+              <span>Current plan</span>
+              <span>{preview.current_plan} (${PLAN_PRICES.Standard}/mo)</span>
+            </div>
+            <div className="modal-row">
+              <span>New plan</span>
+              <span>{preview.new_plan} (${PLAN_PRICES.Premium}/mo)</span>
+            </div>
+            <div className="modal-row">
+              <span>Days remaining</span>
+              <span>{preview.days_remaining}</span>
+            </div>
+            <p className="modal-charge">
+              You will be charged <strong>${preview.prorated_charge.toFixed(2)}</strong> today
+            </p>
+            <p className="modal-renewal">
+              ${preview.next_renewal_price.toFixed(2)}/month starting {preview.renew_at}
+            </p>
+          </div>
+        )}
+        {error && <p className="error-text">{error}</p>}
+        <div className="modal-actions">
+          <button
+            type="button"
+            className="btn"
+            data-testid="billing-upgrade-confirm-button"
+            disabled={loading || confirming || !preview}
+            onClick={onConfirm}
+          >
+            {confirming ? 'Confirming…' : 'Confirm Upgrade'}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary"
+            data-testid="billing-upgrade-cancel-button"
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const PLAN_PRICES = { Standard: '20.00', Premium: '40.00' }
+
 export default function Billing() {
   const { token } = useAuth()
   const [data, setData] = useState(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [preview, setPreview] = useState(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [modalError, setModalError] = useState(null)
+  const [confirming, setConfirming] = useState(false)
+  const [successBanner, setSuccessBanner] = useState(null)
+
+  const fetchBilling = useCallback(
+    () =>
+      fetch(`/api/billing?email=${encodeURIComponent(token)}`)
+        .then((r) => r.json())
+        .then(setData),
+    [token]
+  )
 
   useEffect(() => {
-    fetch(`/api/billing?email=${encodeURIComponent(token)}`)
+    fetchBilling()
+  }, [fetchBilling])
+
+  const openUpgradeModal = () => {
+    setModalOpen(true)
+    setModalError(null)
+    setPreview(null)
+    setPreviewLoading(true)
+    fetch(`/api/billing/upgrade-preview?email=${encodeURIComponent(token)}`)
       .then((r) => r.json())
-      .then(setData)
-  }, [token])
+      .then(setPreview)
+      .catch(() => setModalError('Could not load the upgrade preview. Please try again.'))
+      .finally(() => setPreviewLoading(false))
+  }
+
+  const closeModal = () => {
+    setModalOpen(false)
+    setPreview(null)
+    setModalError(null)
+  }
+
+  const confirmUpgrade = () => {
+    setConfirming(true)
+    setModalError(null)
+    fetch('/api/billing/upgrade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: token }),
+    })
+      .then(async (r) => {
+        const body = await r.json()
+        if (r.ok) {
+          await fetchBilling()
+          setModalOpen(false)
+          setPreview(null)
+          setSuccessBanner(`You're now on Premium! $${body.charge.toFixed(2)} was charged.`)
+        } else if (r.status === 402) {
+          setModalError('Payment failed: Your card was declined. Your plan has not changed.')
+        } else {
+          setModalError(body.detail || 'The upgrade could not be completed.')
+        }
+      })
+      .catch(() => setModalError('The upgrade could not be completed. Please try again.'))
+      .finally(() => setConfirming(false))
+  }
 
   if (!data) {
     return (
@@ -124,9 +234,33 @@ export default function Billing() {
         </div>
       </div>
 
+      {successBanner && <p className="success-banner">{successBanner}</p>}
+
       <p className="current-label">
-        Current plan: <span className="standard-badge">Standard</span>
+        Current plan: <span className="standard-badge">{data.plan_name}</span>
       </p>
+
+      {data.plan_name === 'Standard' && (
+        <button
+          type="button"
+          className="btn upgrade-cta-button"
+          data-testid="billing-upgrade-cta-button"
+          onClick={openUpgradeModal}
+        >
+          Upgrade to Premium
+        </button>
+      )}
+
+      {modalOpen && (
+        <UpgradeModal
+          preview={preview}
+          loading={previewLoading}
+          error={modalError}
+          confirming={confirming}
+          onConfirm={confirmUpgrade}
+          onCancel={closeModal}
+        />
+      )}
 
       <div className="plan-row">
         <div className="plan-card">

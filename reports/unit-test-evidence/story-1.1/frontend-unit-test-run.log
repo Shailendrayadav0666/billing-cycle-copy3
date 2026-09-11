@@ -1,0 +1,24 @@
+
+ RUN  v5.0.0 C:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/billing-cycle-copy3/src/frontend
+      Coverage enabled with v8
+
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  18:59:11
+   Duration  8.07s (environment 60%, tests 17%, setup 13%, import 7%, transform 3%, worker 1%)
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-------------|---------|----------|---------|---------|-------------------
+File         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------|---------|----------|---------|---------|-------------------
+All files    |   85.96 |    81.25 |      85 |   85.96 |                   
+ Billing.jsx |   85.96 |    81.25 |      85 |   85.96 | 24-42,59,288      
+-------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 85.96% ( 49/57 )
+Branches     : 81.25% ( 26/32 )
+Functions    : 85% ( 17/20 )
+Lines        : 85.96% ( 49/57 )
+================================================================================
