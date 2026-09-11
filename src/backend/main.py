@@ -5,10 +5,11 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from pathlib import Path
 from datetime import datetime, timedelta
+from typing import Any
 
 app = FastAPI(title="Billing & Tasks POC")
 
-PLANS = {
+PLANS: dict[str, dict[str, Any]] = {
     "Standard": {"price": 20.0, "label": "$20/month"},
     "Premium": {"price": 40.0, "label": "$40/month"},
 }
@@ -248,7 +249,7 @@ def billing(email: str):
 def billing_upgrade_preview(email: str):
     if email not in users:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    account = billing_data.get(email, billing_data["tpg@example.com"])
+    account: dict[str, Any] = billing_data.get(email, billing_data["tpg@example.com"])
     if account["plan_name"] == "Premium":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="already_premium")
     days_remaining, prorated_charge = compute_prorated_charge(account["renew_at"])
@@ -267,7 +268,7 @@ def billing_upgrade(payload: UpgradeRequest):
     email = payload.email
     if email not in users:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    account = billing_data.get(email, billing_data["tpg@example.com"])
+    account: dict[str, Any] = billing_data.get(email, billing_data["tpg@example.com"])
     if account["plan_name"] == "Premium":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="already_premium")
 
