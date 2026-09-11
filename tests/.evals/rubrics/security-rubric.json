@@ -1,0 +1,31 @@
+{
+  "rubricName": "Security — OWASP Top 10:2025 — Billing-Cycle (Mid-Cycle Subscription Upgrade)",
+  "rubricVersion": "1.0.0",
+  "derivedFrom": ["OWASP Top 10:2025", "spec/plans/architecture.md"],
+  "evalCriteria": [
+    {
+      "id": "SEC-01",
+      "owasp": "A01:2025",
+      "metric": "Broken access control",
+      "weight": 0.40,
+      "prompt": "Review the two new endpoints (GET /api/billing/upgrade-preview, POST /api/billing/upgrade) in the diff. Score 0 if either endpoint reads or mutates billing_data/users for an email without first verifying that email exists in users (the same check GET /api/billing already performs), or if either endpoint allows an already-Premium account to be charged/mutated again without the already_premium guard. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/"
+    },
+    {
+      "id": "SEC-02",
+      "owasp": "A06:2025",
+      "metric": "Insecure design",
+      "weight": 0.35,
+      "prompt": "Check that the decline path (charge_card returning card_declined) cannot leave the account in a partially-upgraded state, and that the prorated charge amount used by POST /api/billing/upgrade is always recomputed server-side from the same helper as the preview endpoint, never accepted as a client-supplied field on UpgradeRequest. Score 0 if UpgradeRequest carries an amount/charge field, or if any code path can set plan to Premium without a prior charge_card success. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A06_2025-Insecure_Design/"
+    },
+    {
+      "id": "SEC-03",
+      "owasp": "A10:2025",
+      "metric": "Mishandling of exceptional conditions",
+      "weight": 0.25,
+      "prompt": "Check every new error response (401, 402, 409) in the diff. Score 0 if any error response includes a raw exception message, a stack trace, or any field beyond the documented detail/message keys, or if an unhandled exception (e.g. a malformed renew_at date) could propagate a 500 with internal details instead of a clean error. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/"
+    }
+  ]
+}

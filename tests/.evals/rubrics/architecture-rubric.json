@@ -1,0 +1,42 @@
+{
+  "rubricName": "Architectural Alignment — Billing-Cycle (Mid-Cycle Subscription Upgrade)",
+  "rubricVersion": "1.0.0",
+  "derivedFrom": ["spec/plans/architecture.md#10-verifiable-constraints"],
+  "evalCriteria": [
+    {
+      "id": "ARCH-01",
+      "metric": "Frontend never computes money",
+      "weight": 0.30,
+      "prompt": "The diff to Billing.jsx contains no arithmetic operator (+ - * /) applied to a variable holding a price/charge/days field pulled from an API response. Score 0 on any occurrence.",
+      "source": "spec/plans/requirements.md REQ-NF-02; spec/plans/stories.md AC-12"
+    },
+    {
+      "id": "ARCH-02",
+      "metric": "Single proration helper, reused",
+      "weight": 0.25,
+      "prompt": "Grep for the formula's characteristic terms (days_remaining, daily_delta, prorated_charge) in the diff finds the computation defined once. Score 0 if the arithmetic (40.0 - 20.0) / 30 (or equivalent) appears in more than one function body.",
+      "source": "spec/plans/requirements.md REQ-F-04"
+    },
+    {
+      "id": "ARCH-03",
+      "metric": "Decline path performs zero mutation",
+      "weight": 0.20,
+      "prompt": "In the diff's decline branch, no assignment to users[email][...] or billing_data[email][...] appears before the HTTPException(402, ...) is raised. Score 0 on any such assignment.",
+      "source": "spec/plans/requirements.md REQ-F-06; spec/plans/stories.md AC-19"
+    },
+    {
+      "id": "ARCH-04",
+      "metric": "Error responses match the existing shape",
+      "weight": 0.15,
+      "prompt": "Every raise HTTPException(...) added in the diff has a detail argument that is a literal string or a dict with only detail/message keys — never str(e) or an unfiltered exception object. Score 0 on any violation.",
+      "source": "spec/plans/requirements.md REQ-NF-04"
+    },
+    {
+      "id": "ARCH-05",
+      "metric": "No new dependency",
+      "weight": 0.10,
+      "prompt": "The diff to src/backend/requirements.txt or src/frontend/package.json is empty. Score 0 if either file changes.",
+      "source": "spec/plans/requirements.md REQ-NF-01"
+    }
+  ]
+}

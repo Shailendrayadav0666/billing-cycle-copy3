@@ -56,6 +56,13 @@
 ## Design References
 (none registered — Context Opt-In declined; the Epic document itself is the authoritative spec)
 
+## SonarQube Setup Gate
+- **Answer**: proceed
+- **Recorded**: 2026-09-11T10:30:40Z
+- **sonarqube.enabled**: true (tests/.evals/config.json)
+- **sonar-project.properties**: user-edited before answering — projectKey `shailendrayadav0666_billing-cycle-copy3`, organization `shailendrayadav0666` (kept as-is)
+- **Secrets** (not verified from here — first pipeline run proves them): CLAUDE_CODE_OAUTH_TOKEN, SONAR_TOKEN, SONAR_HOST_URL — user confirmed added
+
 ## Extension Configuration
 | Extension | Enabled | Decided At |
 |---|---|---|
@@ -66,14 +73,34 @@
 
 ## Stage Progress
 - [x] Workspace Detection
-- [x] Requirements Analysis (awaiting approval)
-- [ ] User Stories
-- [ ] Dependency Graph
-- [ ] Workflow Planning
-- [ ] Application Design
-- [ ] System-Level Design stages
+- [x] Requirements Analysis
+- [x] User Stories (GATE 1 approved — consolidated to a single story by explicit user request)
+- [x] Dependency Graph (trivial — single node)
+- [x] Workflow Planning (spec/plans/executions.md — Application Design + all 4 system-level design stages SKIP, Code Generation EXECUTE)
+- [x] Application Design — SKIPPED (no new components/services; existing component boundaries)
+- [x] System-Level Design stages — ALL SKIPPED (Functional/NFR Requirements/NFR Design/Infrastructure Design — see executions.md rationale)
 - [ ] STOP CHECKPOINT / Development Handoff
 - [ ] Code Generation (per story, via dev-implement)
 
+## team_size
+2 (fixed default — recorded, not achievable with a single story by explicit user request)
+
+## story_creation_mode
+all-at-once (fixed default)
+
 ## Story Tracker
-(populated after User Stories GATE 1 approval)
+
+| Story | Title | Requires | Tracker ID | Status | PR | Merged | Start | End | Recorded |
+|-------|-------|----------|------------|--------|-----|--------|-------|-----|----------|
+| 1.1 | Mid-Cycle Subscription Upgrade (Standard → Premium) | none | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-11 09:16 |
+
+## Dependency Graph
+
+```mermaid
+graph TD
+    S1_1["1.1: Mid-Cycle Subscription Upgrade"]
+```
+
+**Ready stories**: 1.1 (no prerequisites) — immediately startable.
+**Blocked stories**: none.
+**Note**: Single-story set by explicit user request at GATE 1 — no parallelism possible; `team_size: 2` target not met by design (see `spec/plans/dependency-graph.yml`).

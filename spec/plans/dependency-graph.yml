@@ -1,0 +1,21 @@
+version: 1
+generated_at: 2026-09-11
+team_size: 2
+
+shared_files:
+  - src/backend/main.py       # single story touches this file
+  - src/frontend/src/pages/Billing.jsx   # single story touches this file
+
+stories:
+  - id: "1.1"
+    title: Mid-Cycle Subscription Upgrade (Standard -> Premium)
+    tracker_id: LOCAL
+    requires: []
+    enables: []
+
+note: >
+  Story set was consolidated from 7 SPIDR-sliced stories into a single story
+  at the user's explicit request ("single story") at GATE 1. With one story
+  there is no dependency graph to compute and no parallelism available —
+  team_size: 2 target not met by design. See spec/plans/stories.md for the
+  original 7-story slice, preserved for traceability.

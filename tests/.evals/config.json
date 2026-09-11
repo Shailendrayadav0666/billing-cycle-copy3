@@ -1,0 +1,92 @@
+{
+  "evalFrameworkVersion": "1.0.0",
+  "scope": "changed-files",
+  "retryLimitForSelfRepair": 3,
+  "thresholds": {
+    "lintErrorsAllowedDelta": 0,
+    "typeErrorsAllowed": 0,
+    "semgrepFindingsAllowed": { "critical": 0, "high": 0, "medium": 5 },
+    "dependencyVulnerabilitiesAllowed": { "critical": 0, "high": 0 },
+    "disallowedLicenses": ["GPL-2.0", "GPL-3.0", "AGPL-3.0", "SSPL-1.0"],
+    "maxCyclomaticComplexity": 12,
+    "secretFindingsAllowed": 0,
+    "unitTestCoverageMin": 90.0,
+    "behaviorScenarioPassRateMin": 100.0,
+    "llmJudgeArchitectureScoreMin": 0.85,
+    "llmJudgeSecurityScoreMin": 0.85,
+    "securityVulnerabilitiesAllowed": 0
+  },
+  "behavior": {
+    "containerRuntime": "podman",
+    "image": "aire-behavior:local",
+    "containerfile": "tests/.evals/behavior/Containerfile",
+    "entrypoint": "tests/.evals/behavior/run.sh",
+    "_comment": "Same image + command locally and in CI. A missing runtime degrades to native execution, recorded, never blocking."
+  },
+  "sonarqube": {
+    "enabled": true,
+    "_comment": "Set true when CI generation creates sonar-project.properties and the user answers proceed at the setup gate. Additive to semgrep, never a replacement."
+  },
+  "judge": { "model": "claude-sonnet-5", "rubricVersion": "1.0.0" },
+  "ci": {
+    "baseBranch": "main",
+    "integrationBranchPrefixes": ["epic", "bug", "enh", "ci", "story", "ve"],
+    "manifestState": "resolved",
+    "roots": [
+      {
+        "root": "src/backend",
+        "stack": "python",
+        "runtimeVersion": "3.13",
+        "markerFile": "requirements.txt",
+        "installCommands": ["pip install -r requirements.txt"],
+        "buildCommand": null,
+        "coverageCommand": "pytest --cov=. --cov-report=xml",
+        "noTestsExitCode": 5,
+        "dependsOn": [],
+        "toolchainSetup": [],
+        "coverageReportPath": "coverage.xml",
+        "coverageFormat": "cobertura",
+        "sourcePaths": ["src/backend"],
+        "testPaths": ["tests/unit"],
+        "tools": ["semgrep", "pip-audit", "gitleaks", "ruff", "mypy", "radon", "pip-licenses", "pytest", "pytest-cov", "pytest-bdd"],
+        "toolInstallCommands": {
+          "semgrep": "pip install \"semgrep==1.175.0\"",
+          "pip-audit": "pip install \"pip-audit==2.10.1\"",
+          "ruff": "pip install \"ruff==0.16.4\"",
+          "mypy": "pip install \"mypy==1.14.1\"",
+          "radon": "pip install \"radon==6.0.1\"",
+          "pip-licenses": "pip install \"pip-licenses==5.5.5\"",
+          "pytest": "pip install \"pytest==9.1.1\"",
+          "pytest-cov": "pip install \"pytest-cov==7.1.0\"",
+          "pytest-bdd": "pip install \"pytest-bdd==8.1.0\"",
+          "gitleaks": "gitleaks_version=8.21.2; curl -sSfL \"https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz\" | tar xz -C /usr/local/bin gitleaks"
+        }
+      },
+      {
+        "root": "src/frontend",
+        "stack": "node",
+        "runtimeVersion": "22",
+        "markerFile": "package.json",
+        "installCommands": ["npm install"],
+        "buildCommand": "npm run build",
+        "coverageCommand": "npx --yes vitest run --coverage --passWithNoTests",
+        "dependsOn": [],
+        "toolchainSetup": [],
+        "coverageReportPath": "coverage/lcov.info",
+        "coverageFormat": "lcov",
+        "sourcePaths": ["src/frontend/src"],
+        "testPaths": ["src/frontend/src"],
+        "tools": ["semgrep", "gitleaks", "oxlint", "license-checker"],
+        "toolInstallCommands": {
+          "semgrep": "pip install \"semgrep==1.175.0\"",
+          "gitleaks": "gitleaks_version=8.21.2; curl -sSfL \"https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz\" | tar xz -C /usr/local/bin gitleaks",
+          "license-checker": "npm install -g license-checker@25.0.1"
+        }
+      }
+    ],
+    "gates": ["D1_lint", "D2_types", "D3_sast", "D4_deps", "D5_licenses", "D6_complexity", "D7_secrets",
+              "unitCoverage", "behaviorB1", "behaviorB2", "behaviorB3", "J1_architecture", "J2_security", "sonarqube"],
+    "_rootsComment": "🔴 noTestsExitCode is the exit status THIS root's test runner returns when it collects ZERO tests (pytest 5; jest/vitest 1 — prefer adding --passWithNoTests to the command instead; go/maven/gradle/dotnet exit 0 and omit the field). ci-manifest-runner.* records that exit as N/A rather than FAIL, because 'no suite exists yet' is the correct state of a greenfield repo before its first story and of a brownfield repo with no tests — NOT something to self-repair by writing dummy tests. It cannot hide a missing test: coverage_delta() still enforces unitTestCoverageMin on the CHANGED files and records ERROR when one has no coverage data. See ci-pipeline-generation.md Section 3.0.",
+    "_comment": "🔴 CI SINGLE SOURCE OF TRUTH. The generated pipeline AND every local step read THIS block — neither one re-authors or independently re-derives any of these facts, `root` included. See ci-pipeline-generation.md Section 4 and Section 4.0d."
+  }
+}
