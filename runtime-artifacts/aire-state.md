@@ -101,7 +101,7 @@ all-at-once (fixed default)
 
 | Story | Title | Requires | Tracker ID | Status | PR | Merged | Start | End | Recorded |
 |-------|-------|----------|------------|--------|-----|--------|-------|-----|----------|
-| 1.1 | Mid-Cycle Subscription Upgrade (Standard → Premium) | none | LOCAL | 🔵 In Development | — | — | 2026-09-11 | | 2026-09-11 13:07 |
+| 1.1 | Mid-Cycle Subscription Upgrade (Standard → Premium) | none | LOCAL | 🔵 In Development | https://github.com/Shailendrayadav0666/billing-cycle-copy3/pull/2 | no | 2026-09-11 | | 2026-09-11 15:01 |
 
 ## Dependency Graph
 

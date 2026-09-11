@@ -416,3 +416,15 @@
 **Context**: dev-implement.md Section D Step 2.5. Proceeding to push + raise the PR; the CI Attestation Gate (Step 8) will supply full clean-room proof on GitHub's own, unconstrained runners.
 
 ---
+
+## Section D.3 — PR Raised (pr-generator, WORKFLOW mode)
+**Timestamp**: 2026-09-11T15:01:32Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a (workflow-mode, no confirmation — authorized by the dev-implement invocation)
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Invoked the pr-generator skill (WORKFLOW mode). Committed an additional small docs commit (260eb3e, remaining audit-trail entries). Pushed story/1.1-mid-cycle-subscription-upgrade -u to origin. Created labels ai-generated and aire-v1.0 (neither existed by exact name). Opened PR #2 (https://github.com/Shailendrayadav0666/billing-cycle-copy3/pull/2), base=epic/EPIC-LOCAL-1-mid-cycle-subscription-upgrade, head=story/1.1-mid-cycle-subscription-upgrade, title '[STORY] Story 1.1: Mid-Cycle Subscription Upgrade (Standard -> Premium)', both labels applied. NOTE: the first gh pr create attempt was denied by Claude Code's own auto-mode classifier ('Excess Sensitive Detail') over the PR body's Behaviour Gate containerisation note (it named specific registry hostnames/IPs and speculated about a corporate endpoint-security agent) — trimmed that section to the essential facts (Podman installed, network to registries blocked, verified, native fallback used, CI remains authoritative) and retried successfully; no other content changed. Verified (not assumed) the eval scorecard actually landed in the PR body via `gh pr view 2 --json body`. Updated runtime-artifacts/aire-state.md Story Tracker: PR -> the PR URL, Merged -> no, Status UNCHANGED (stays In Development), Recorded -> now."
+**Context**: dev-implement.md Section D Steps 3-5.
+
+---
