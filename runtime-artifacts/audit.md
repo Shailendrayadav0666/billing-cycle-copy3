@@ -242,3 +242,27 @@
 **Context**: dev-implement Step 1.5 Items 1-4.6 — story branch created, baselines captured.
 
 ---
+
+## Code Generation Part 1 — Plan Finalized (auto-approved, no gate) (Story 1.1)
+**Timestamp**: 2026-09-11T13:10:53Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a (no plan-approval gate in dev-implement)
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Wrote spec/spec-generation/story-1.1-code-generation.md — 12 numbered steps (Business Logic, 2x API Layer, 3x Frontend Components, Unit Test & Coverage, API & Contract Testing, Full Regression, Static Eval, Documentation N/A, Deployment N/A). Trace completeness self-check: all 15 REQ-IDs and all 25 ACs map to >=1 step. Recorded Requirements coverage verified post-design: 15/15 REQ-IDs (all design stages skipped, no contradiction to reconcile). No design references registered (Context Opt-In declined) -> every component built from ACs only."
+**Context**: code-generation.md Steps 1-9 — Part 1 Planning complete, proceeding to Part 2 Generation.
+
+---
+
+## Behaviour Spec Written (Story 1.1)
+**Timestamp**: 2026-09-11T13:11:46Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a (automatic, before any code — the contract)
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Wrote spec/behavior/story-1.1.feature — 25 scenarios, one per acceptance criterion (AC-1..AC-25), all tagged. AC-5 (proration constants/helper) and AC-13 (charge_card/UpgradeRequest) are backend implementation-detail ACs with no independent externally-observable behavior — folded onto the closest behavioral scenario (AC-6's preview scenario, and AC-14/AC-18's execute-upgrade scenarios) rather than inventing a mechanism-testing scenario, per behavior-spec.md Section 2 rule 6 ('steps describe business behaviour, never implementation'). This is the story's ONLY spec file."
+**Context**: dev-implement.md Step 4.5 / behavior-spec.md Section 2 — feature file written before implementation.
+
+---
