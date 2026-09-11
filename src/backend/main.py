@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 app = FastAPI(title="Billing & Tasks POC")
@@ -143,7 +143,7 @@ class UpgradeRequest(BaseModel):
 def compute_prorated_charge(renew_at: str) -> tuple[int, float]:
     """Days remaining in the cycle and the prorated Standard->Premium charge for that many days."""
     try:
-        renew_at_date = datetime.strptime(renew_at, "%b %d, %Y")
+        renew_at_date = datetime.strptime(renew_at, "%b %d, %Y").replace(tzinfo=timezone.utc)
     except ValueError:
         # Fail closed (SECURITY-15): renew_at is always server-generated, but a malformed value
         # must never surface a raw ValueError/traceback to the caller — return a clean, generic
