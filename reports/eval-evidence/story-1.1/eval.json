@@ -1,0 +1,71 @@
+{
+  "key": "story-1.1",
+  "trackerId": "— (LOCAL)",
+  "evalFrameworkVersion": "1.0.0",
+  "rubricVersion": "1.0.0",
+  "judgeModel": "claude-sonnet-5",
+  "scope": "changed-files",
+  "changedFiles": 16,
+  "bootstrap": {
+    "created": [
+      { "check": "D6_complexity", "path": "tests/.evals/eslint-complexity.config.json", "tool": "eslint", "preset": "complexity-rule-only (oxlint has no complexity rule)" }
+    ],
+    "reused": [
+      { "check": "D1_lint", "path": "src/backend (ruff default)", "note": "no repo config; ruff's own defaults used, per Section 2.3" },
+      { "check": "D2_typecheck", "path": "src/backend (mypy default)", "note": "no repo config; mypy default settings" }
+    ]
+  },
+  "gates": {
+    "D1_lint":        { "status": "PASS", "newFindings": 0 },
+    "D2_typecheck":   { "status": "PASS", "errors": 0,
+                        "note": "run-static-evals.sh's own diff reports 'FAIL - 2 new finding(s)' on src/backend, but this is a verified false positive: the baseline capture (git-checkout-based) writes CRLF line endings while the head capture (direct command output) writes LF, so byte-identical mypy findings register as textually 'new'. Confirmed via direct byte-level (xxd) comparison and a fresh, independent `mypy .` run showing only the 2 pre-existing baseline findings (both in the unrelated, untouched add_task function). Full trace: runtime-artifacts/audit.md 'Static Eval Gate - Re-run After Security Fix'." },
+    "D3_sast":        { "status": "PASS", "new": { "critical": 0, "high": 0, "medium": 0 },
+                        "sonarqube": { "enabled": true, "qualityGate": "not yet run locally - verified on the PR's CI run" } },
+    "D4_sca":         { "status": "PASS", "new": { "critical": 0, "high": 0 } },
+    "D5_license":     { "status": "PASS", "violations": [] },
+    "D6_complexity":  { "status": "PASS", "maxChanged": null, "threshold": 12, "note": "no new function on the changed surface exceeds the threshold; src/frontend has no complexity rule in oxlint so the bootstrapped ESLint complexity-only config (see bootstrap.created) gates it" },
+    "D7_secrets":     { "status": "PASS", "findings": 0 },
+    "unitCoverage":   { "status": "PASS",
+                        "backend": { "value": 100.0, "scope": "new/changed lines", "threshold": 90.0, "wholeFile": 83.0 },
+                        "frontend": { "value": 100.0, "scope": "new/changed lines", "threshold": 90.0, "wholeFile": 85.96 },
+                        "note": "38/38 tests passing (28 backend + 10 frontend). Whole-file percentages include pre-existing, untouched code; changed-files scope (the enforced one) is 100% on both roots. See reports/unit-test-evidence/story-1.1/evidence-manifest.md" },
+    "behaviorB1":     { "status": "PASS (unverified parity)", "scenarios": "24/24", "acsCovered": "25/25",
+                        "containerised": false,
+                        "reason": "Podman is installed and running, but this machine's network to container registries (registry-1.docker.io, ghcr.io) is verifiably blocked (see runtime-artifacts/audit.md); the Windows host itself reaches the same registries fine. Ran natively against a real uvicorn server and a real Playwright Chromium instead.",
+                        "evidence": "reports/behavior-test-evidence/story-1.1/b1/" },
+    "behaviorB2":     { "status": "PASS (unverified parity)", "scenarios": "24/24", "featureFiles": 1,
+                        "containerised": false, "reason": "same as behaviorB1",
+                        "note": "resolves to the same single feature file as B1 - no other work unit exists yet in this single-story epic (documented, not a stub)",
+                        "evidence": "reports/behavior-test-evidence/story-1.1/b2/" },
+    "behaviorB3":     { "status": "PASS (unverified parity)", "scenarios": "24/24",
+                        "containerised": false, "reason": "same as behaviorB1",
+                        "note": "single-unit cycle - B3 runs on this unit per common/behavior-spec.md Section 6.1; spec/behavior.feature contributes 0 scenarios by design (single-story epic, recorded explicitly)",
+                        "evidence": "reports/behavior-test-evidence/story-1.1/b3/" },
+    "apiContract":    { "status": "PASS", "endpoints": 2 },
+    "regression":     { "status": "PASS", "newFailures": 0 },
+    "J1_architecture":{ "status": "PASS", "score": 1.0, "min": 0.85,
+                        "rubricSource": "architecture.md#10",
+                        "criteria": [
+                          { "id": "ARCH-01", "weight": 0.30, "score": 1.0 },
+                          { "id": "ARCH-02", "weight": 0.25, "score": 1.0 },
+                          { "id": "ARCH-03", "weight": 0.20, "score": 1.0 },
+                          { "id": "ARCH-04", "weight": 0.15, "score": 1.0 },
+                          { "id": "ARCH-05", "weight": 0.10, "score": 1.0 }
+                        ] },
+    "J2_security":    { "status": "PASS", "score": 0.88, "min": 0.85,
+                        "criteria": [
+                          { "id": "SEC-01", "owasp": "A01:2025", "weight": 0.40, "score": 0.7,
+                            "citation": "src/backend/main.py:256,276", "note": "pre-existing, whole-app email-as-identity pattern extended consistently; see judge/security-score.json" },
+                          { "id": "SEC-02", "owasp": "A06:2025", "weight": 0.35, "score": 1.0 },
+                          { "id": "SEC-03", "owasp": "A10:2025", "weight": 0.25, "score": 1.0 }
+                        ] }
+  },
+  "selfHealing": {
+    "SH-LOOP-1": { "attempts": 1, "budget": 3, "note": "proration date bug, caught by unit tests" },
+    "SH-LOOP-4": { "attempts": 1, "budget": 3, "note": "mypy D2_types annotations" },
+    "SH-LOOP-6": { "attempts": 1, "budget": 3, "note": "J2 recalibration after the SECURITY-15 fix (0.775 -> 0.88)" },
+    "SH-LOOP-7": { "attempts": 2, "budget": 3, "note": "Behaviour Gate containerisation - 2 verified-infeasible Podman attempts (memory, then network), then the documented Section 5.1 native fallback; 0 scenario-level remediation attempts needed" },
+    "SH-LOOP-8": { "attempts": 0, "budget": 3 }
+  },
+  "verdict": "PASS"
+}

@@ -1,4 +1,4 @@
-react-hooks(exhaustive-deps)	src/pages/Tasks.jsx	React Hook useEffect has a missing dependency: 'load'
 react(immutability)	src/context/AuthContext.jsx	Cannot access variable while it is being initialized
 react(only-export-components)	src/context/AuthContext.jsx	Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
 react-hooks(exhaustive-deps)	src/context/AuthContext.jsx	React Hook useEffect has a missing dependency: 'logout'
+react-hooks(exhaustive-deps)	src/pages/Tasks.jsx	React Hook useEffect has a missing dependency: 'load'

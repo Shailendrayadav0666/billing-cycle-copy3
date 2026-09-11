@@ -1,4 +1,5 @@
-# Cross-story journeys for this epic — written ONCE per cycle (common/behavior-spec.md Section 3).
+Feature: Cross-story journeys — Mid-Cycle Subscription Upgrade epic
+# Written ONCE per cycle (common/behavior-spec.md Section 3).
 #
 # This epic's story set was consolidated into a SINGLE story (1.1 — Mid-Cycle Subscription Upgrade)
 # at the user's explicit request at GATE 1 (see spec/plans/stories.md's sizing note and

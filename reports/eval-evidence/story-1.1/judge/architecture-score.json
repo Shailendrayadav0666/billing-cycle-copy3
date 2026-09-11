@@ -1,0 +1,48 @@
+{
+  "gate": "J1_architecture",
+  "key": "story-1.1",
+  "judgeModel": "claude-sonnet-5",
+  "rubricVersion": "1.0.0",
+  "rubricSource": "spec/plans/architecture.md#10-verifiable-constraints",
+  "scoredAt": "2026-09-11T15:05:00Z",
+  "criteria": [
+    {
+      "id": "ARCH-01",
+      "metric": "Frontend never computes money",
+      "weight": 0.30,
+      "score": 1.0,
+      "note": "src/frontend/src/pages/Billing.jsx never applies +, -, *, / to a price/charge/days field pulled from an API response. All displayed money values are used verbatim from the API (preview.prorated_charge, preview.next_renewal_price, body.charge) with only .toFixed(2) for formatting, or are the fixed display-only PLAN_PRICES constant."
+    },
+    {
+      "id": "ARCH-02",
+      "metric": "Single proration helper, reused",
+      "weight": 0.25,
+      "score": 1.0,
+      "note": "compute_prorated_charge (src/backend/main.py:143-160) is the only place days_remaining/daily_delta/prorated_charge are computed; both billing_upgrade_preview and billing_upgrade call it rather than re-deriving the formula."
+    },
+    {
+      "id": "ARCH-03",
+      "metric": "Decline path performs zero mutation",
+      "weight": 0.20,
+      "score": 1.0,
+      "note": "src/backend/main.py:282-287 — the card_declined branch returns immediately after charge_card(); the users[email]/account mutations at lines 289-294 are reached only after the decline check, on the success path."
+    },
+    {
+      "id": "ARCH-04",
+      "metric": "Error responses match the existing shape",
+      "weight": 0.15,
+      "score": 1.0,
+      "note": "Every raise HTTPException(...) added in this diff (main.py:151, 250, 256, 260, 276, 279) passes a literal string detail; the one JSONResponse (line 284-287) passes a dict with only detail/message keys. No str(e) or unfiltered exception object anywhere in the diff."
+    },
+    {
+      "id": "ARCH-05",
+      "metric": "No new dependency",
+      "weight": 0.10,
+      "score": 1.0,
+      "note": "src/backend/requirements.txt is unchanged; src/frontend/package.json's new devDependencies (vitest, @testing-library/*, jsdom) are test-only, not shipped in the production build, and requirements-dev.txt is a test-only file, not requirements.txt."
+    }
+  ],
+  "weightedTotal": 1.0,
+  "min": 0.85,
+  "status": "PASS"
+}

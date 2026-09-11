@@ -18,7 +18,15 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 COPY src/backend/requirements.txt /tmp/requirements-backend.txt
 RUN pip install --no-cache-dir -r /tmp/requirements-backend.txt \
-    "pytest==9.1.1" "pytest-cov==7.1.0" "pytest-bdd==8.1.0"
+    "pytest==9.1.1" "pytest-cov==7.1.0" "pytest-bdd==8.1.0" \
+    "httpx==0.28.1" "playwright==1.49.1"
+# story-1.1.feature's scenarios describe both API-observable behaviour (bound to FastAPI's
+# TestClient) and rendered-UI behaviour (the Billing page, modal, CTA text) — the latter is
+# genuinely reachable only through the application's real public surface, the browser, per
+# common/behavior-spec.md Section 4.2 ("never reach into internals"). Playwright + a real
+# Chromium is installed here, once, in the image, rather than skipping containerisation
+# (forbidden by Section 5.1 while Podman is available).
+RUN playwright install --with-deps chromium
 # >>> STACK-RESOLVED BEHAVIOUR DEPS END <<<
 
 # run.sh is bind-mounted with the repo at runtime; nothing to COPY.

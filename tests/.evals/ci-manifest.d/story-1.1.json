@@ -1,0 +1,7 @@
+[
+  {
+    "root": "src/backend",
+    "installCommands": ["pip install -r requirements-dev.txt"],
+    "_comment": "story-1.1 added tests/unit/backend/test_billing_upgrade_api.py, which imports FastAPI's TestClient (backed by httpx). config.json's own installCommands only installs requirements.txt, which does not include httpx as a runtime dependency of the app - it is a test-only dependency, declared in the repo's own src/backend/requirements-dev.txt (which itself does `-r requirements.txt`, so this entry is additive/idempotent with the existing install, per Section 4.0f's append-only, concatenated-array merge). Without this, CI's clean-room coverage step would fail on a TestClient ImportError even though the local gate passed (it reused this agent's ambient venv, which already had httpx installed from an earlier local bootstrap)."
+  }
+]

@@ -1,6 +1,6 @@
 D1_lint	src/backend	PASS	no findings at base or head — QUALIFIED: the tool produced zero output at BOTH ends, so 'clean' and 'scanned nothing' are indistinguishable here. Confirm this gate's command actually covers root 'src/backend' sourcePaths (V9: prove it can fail).
 D1_lint	src/frontend	PASS	no new findings vs baseline
-D2_types	src/backend	PASS	no new findings vs baseline
+D2_types	src/backend	FAIL	2 new finding(s) vs baseline on changed files
 D2_types	src/frontend	N/A	plain JavaScript (.jsx), no tsconfig.json in this root — no type checker in the ecosystem for untyped JS (eval-framework.md Section 2.5.1 Reason 1)
 D4_deps	src/backend	PASS	no findings at base or head — QUALIFIED: the tool produced zero output at BOTH ends, so 'clean' and 'scanned nothing' are indistinguishable here. Confirm this gate's command actually covers root 'src/backend' sourcePaths (V9: prove it can fail).
 D4_deps	src/frontend	PASS	no findings at base or head — QUALIFIED: the tool produced zero output at BOTH ends, so 'clean' and 'scanned nothing' are indistinguishable here. Confirm this gate's command actually covers root 'src/frontend' sourcePaths (V9: prove it can fail).

@@ -114,7 +114,9 @@ describe('AC-9..AC-12: confirmation modal', () => {
 
     const modal = await screen.findByRole('dialog')
     await waitFor(() => expect(within(modal).getByText(/\$10\.00/)).toBeInTheDocument())
-    expect(within(modal).getByText(/15/)).toBeInTheDocument()
+    expect(within(modal).getByText('Standard ($20/mo)')).toBeInTheDocument()
+    expect(within(modal).getByText('Premium ($40/mo)')).toBeInTheDocument()
+    expect(within(modal).getByText('15')).toBeInTheDocument()
     expect(within(modal).getByText(/\$40\.00\/month starting Oct 11, 2026/)).toBeInTheDocument()
   })
 

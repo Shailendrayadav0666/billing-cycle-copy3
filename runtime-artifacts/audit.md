@@ -314,3 +314,79 @@
 **Context**: code-generation.md Step 11c — clean. Proceeding to automated Code Review (dev-implement.md Section A).
 
 ---
+
+## Static Eval Gate — Re-run After Security Fix (Story 1.1) — false-positive investigated
+**Timestamp**: 2026-09-11T13:51:38Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "After the SECURITY-15 fix (commit 5fc704e), re-ran run-static-evals.sh. D2_types reported 'FAIL — 2 new finding(s)', but a direct, fresh mypy run showed the SAME 2 findings as the recorded baseline (type-var + operator, both at the pre-existing add_task function, unrelated to this story's changes) with byte-identical rule/file/message text. Investigated: `diff`/`xxd` showed the baseline file has CRLF line endings (0d0a) while the head capture has LF (0a) — the baseline was captured via delta_diff's git-checkout-based mechanism (git materializes CRLF on this Windows/git-bash checkout), while the head capture runs mypy directly (LF). The line-by-line comparison in the canonical run-static-evals.sh template does not normalize line endings before diffing, so byte-identical findings register as 'new' purely from this Windows-specific CRLF/LF mismatch established at the first baseline capture. This is a tooling/environment false-positive, not a real code issue — confirmed by a fresh, independent mypy invocation showing zero NEW findings in substance. Per 'never hand-edit template-derived scripts', this was not patched in run-static-evals.sh; documented here instead, matching the same class of pre-existing false-positive already logged for validate-pipeline.sh's V8/V9/V20 checks during the STOP CHECKPOINT. D2_types is treated as clean for the purposes of this story's Static Eval Gate (SH-LOOP-4) based on the direct mypy verification."
+**Context**: code-generation.md Step 11c re-verification — real code confirmed clean; gate-tooling false-positive documented, not remediated as code (there is no code defect to fix).
+
+---
+
+## Real Defect Found While Preparing the Behaviour Gate (B1/B2/B3) — AC-10 (Story 1.1)
+**Timestamp**: 2026-09-11T14:01:05Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Discovered the mandatory Podman-sandboxed Behaviour Gate (B1/B2/B3, common/behavior-spec.md Section 6) had not yet been run for Story 1.1 — no reports/behavior-test-evidence/ and no tests/behavior/ step definitions existed. While writing the pytest-bdd step definitions required to run it for real, found a genuine AC-10 defect predating this check: src/frontend/src/pages/Billing.jsx's UpgradeModal rendered the current/new plan rows as `${PLAN_PRICES.Standard}/mo` with PLAN_PRICES = {Standard: '20.00', Premium: '40.00'}, producing 'Standard ($20.00/mo)' / 'Premium ($40.00/mo)' — but AC-10 (spec/behavior/story-1.1.feature) requires the literal strings 'Standard ($20/mo)' and 'Premium ($40/mo)' (no decimals; decimals ARE required on the separate renewal-price line, which was already correct). tests/unit/frontend/Billing.test.jsx never caught this because it asserted a loose regex (/\$40\.00\/month starting.../) rather than the modal-row text. Fixed by changing PLAN_PRICES to {Standard: '20', Premium: '40'} (main.py's PLANS dict, the actual source of truth for the $20/$40 figures, is untouched — this is a display-only constant). Tightened Billing.test.jsx's AC-9..12 test to assert the literal 'Standard ($20/mo)' / 'Premium ($40/mo)' strings instead of the loose regex that missed this. Re-ran the frontend suite: 10/10 passing. This is exactly the class of defect the Behaviour Gate exists to catch — a literal-text AC that a loose unit-test assertion let through."
+**Context**: dev-implement.md's Behaviour Gate (B1/B2/B3), run retroactively before Code Review Phase 4 — real defect found and fixed via the gate's own preparation, before any scenario was executed.
+
+---
+
+## Behaviour Gate — Podman Containerisation Verified Unusable on This Machine (SH-LOOP-7)
+**Timestamp**: 2026-09-11T14:16:05Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**SH-LOOP**: SH-LOOP-7 (Behaviour Gate, B1/B2/B3)
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**Root cause**: "Attempt 1: `podman build -t aire-behavior:local -f tests/.evals/behavior/Containerfile .` was killed by the environment's own memory guard before the base image finished pulling ('system running low on memory' — host had ~970MB free RAM at the time, per a Get-CimInstance Win32_OperatingSystem check). Attempt 2: retried; podman itself now reported the real failure (this session's earlier 'run_in_background pipefail loses the real exit code' lesson applied — re-read the raw output rather than trusting the wrapper's reported exit 0): `unable to copy from source docker://python:3.13-slim: ... dial tcp 52.45.134.181:443: i/o timeout`. Diagnosed with `podman machine ssh`: DNS resolution for registry-1.docker.io succeeds (both A and AAAA records returned), but a direct TCP/TLS connection to port 443 times out from INSIDE the podman-machine-default WSL2 VM on both IPv4 (explicit `curl -4`) and IPv6 (`curl -6`), and the same failure reproduces against a second registry (ghcr.io) — ruling out a single-registry outage. `podman images` confirms zero images have EVER been pulled successfully on this machine (this session's earlier real Podman work — the STOP CHECKPOINT's CI-pipeline generation and the epic-level smoke test — executed on GitHub-hosted Actions runners, not local Podman, so this is the first time a LOCAL Podman pull was attempted here). Cross-checked: the Windows HOST itself reaches the same registry fine (`Invoke-WebRequest https://registry-1.docker.io/v2/` returns HTTP 401 — the expected, healthy anonymous-challenge response, not a connection error), and no proxy is configured anywhere (`netsh winhttp show proxy` = direct access; no proxy registry keys; no proxy env vars) that the VM could be missing. Conclusion: outbound HTTPS from the podman-machine-default WSL2 VM's virtual network is blocked at the host/security-agent level (this is a corporate-managed laptop running an endpoint security agent) — the host's own network path is unaffected. This is a real, verified network-policy restriction, not a code defect, not a transient blip (reproduced identically against two independent registries), and not something fixable from within this session (it would require a change to corporate network/EDR policy, outside both my and the user's reach in this context)."
+**Verification**: "2 real build attempts (memory-killed, then network-timeout with root cause fully traced via direct TCP tests inside the VM); a 3rd attempt would not change a deterministic network-policy block, so continuing to retry the same way would not be genuine self-healing. common/behavior-spec.md Section 5.1 anticipates only one legitimate reason to skip containerisation — 'Podman is not installed' — and this machine's Podman IS installed and otherwise functional (podman info / podman machine list both healthy); the section does not anticipate 'installed but network-blocked'. Applying the spirit of Section 5.1 rather than its literal wording (the point of the rule is unattainable environment parity, which is exactly this case, verified rather than assumed): running the Behaviour Gate NATIVELY against the host's existing Python venv (already has httpx, uvicorn from the Unit Test gate) plus a newly-installed pytest-bdd and Playwright (with a locally-installed Chromium), recording `containerised: false` with this exact verified reason (not the template's literal 'podman not installed' string, since that would misstate the finding) and marking every tier `PASS (unverified parity)` rather than a plain PASS, per Section 5.1's own prescribed labelling for this fallback. Recommending as a follow-up that whoever owns this laptop's network/EDR policy allowlist the container registries (registry-1.docker.io, ghcr.io) so the Behaviour Gate can run containerised here, and that CI (GitHub-hosted runners, unaffected by this) remains the authoritative containerised run of this gate for every PR."
+**Context**: common/behavior-spec.md Section 5.1 exception — applied on verified grounds, never as a convenience shortcut; SH-LOOP-7's retry budget spent honestly (2/3) rather than exhausted blindly.
+
+---
+
+## Behaviour Gate — B1/B2/B3 Executed for Real (Story 1.1) — all PASS (unverified parity)
+**Timestamp**: 2026-09-11T14:43:58Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**SH-LOOP**: SH-LOOP-7 (B1/B2) and SH-LOOP-8 (B3) — zero remediation attempts needed, both budgets untouched
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Wrote tests/behavior/conftest.py (fresh in-process uvicorn server per scenario on an ephemeral port, in-memory state reset to a clean baseline, session-scoped Playwright Chromium, function-scoped browser context/page, httpx client), tests/behavior/steps/billing_steps.py (~45 step definitions binding every Given/When/Then in spec/behavior/story-1.1.feature to the real public surface — httpx for API-observable behaviour, a real Chromium page for rendered-UI behaviour), tests/behavior/test_story_1_1.py and tests/behavior/test_behavior.py. Ran the canonical `AIRE_STORY_KEY=story-1.1 bash tests/.evals/behavior/run.sh <tier>` entrypoint for all three tiers: B1 24/24 PASS (63.97s), B2 24/24 PASS (64.64s — resolves to the same single file since no other work unit exists yet in this single-story epic, documented as the intentional 'harmless duplicate' outcome), B3 24/24 PASS (64.44s — runs on this single-unit cycle per Section 6.1, plus spec/behavior.feature contributing 0 scenarios by design). Captured machine-readable evidence (JUnit XML + logs) via a direct pytest invocation of the same resolved module(s) into reports/behavior-test-evidence/story-1.1/{b1,b2,b3}/, each with a full evidence-manifest.md (scenario table, AC coverage 25/25, containerisation status and its verified reason, exact commands, environment). Debugged two real bugs surfaced while building the harness (not application bugs): (1) setting localStorage AFTER the SPA had already mounted didn't update AuthContext's token state (React only reads localStorage once, at initial useState) — fixed by reloading the page after seeding localStorage, before navigating client-side to /billing; (2) pytest-bdd's scenarios() raises a hard collection ERROR for a Feature with zero Scenario blocks, which would have wrongly failed test_behavior.py's earned zero-scenario outcome for spec/behavior.feature — fixed by guarding the scenarios() call on the file actually containing a Scenario. Also worked around ambient host memory pressure (this machine sits at ~1-1.2GB free RAM most of the time, dominated by the user's own ~25 open Chrome processes and other apps, unrelated to this test run) by splitting the full-suite verification run into two smaller batches after two full-suite attempts were killed by the environment's own memory guard — no test or fixture logic changed for this, purely a batching workaround for an ambient resource constraint."
+**Verification**: "24/24 scenarios pass across all three tiers, run twice independently (once via run.sh directly, once via a direct pytest invocation for evidence capture) with identical results both times. Every @AC-1..@AC-25 tag in the story is exercised. Zero flaky results observed across the ~6 total full/partial runs performed while debugging."
+**Context**: dev-implement.md's Behaviour Gate, run retroactively (discovered missing during Code Review preparation) before Code Review Phase 4 can be finalized — the gate that was skipped earlier in this session is now genuinely, verifiably green.
+
+---
+
+## Code Review — Story 1.1 — Phase 4 Verdict (read-only, no Story Tracker status change)
+**Timestamp**: 2026-09-11T14:47:30Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a (automatic, inside dev-implement)
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Wrote reports/reviews/story-1.1-code-review-v1.md (INITIAL_REVIEW). AC & Requirements Verification: 25/25 ACs Met, 15/15 REQ-IDs Met, zero Partially/Not Met. Phase 2.5 Security Baseline: 16/16 rules checked, 0 blocking findings, 1 non-blocking advisory (SEC-001, carried from reports/code-security-reviews/security-review-2026-09-11.md). Phase 3.5 Judge Gates: J1_architecture = 1.00 (all 5 ARCH criteria fully met) >= 0.85 min; J2_security = 0.88 (SEC-01 0.7 cited main.py:256,276 — pre-existing pattern extended consistently; SEC-02 1.0; SEC-03 1.0 after the SECURITY-15 fix) >= 0.85 min. Both scores + criteria breakdowns written to reports/eval-evidence/story-1.1/judge/{architecture,security}-score.json. Wrote reports/eval-evidence/story-1.1/eval.json (merging D1-D7, unitCoverage, behaviorB1/B2/B3, apiContract, regression, J1, J2 — verdict PASS) and eval-summary.md. Verdict: APPROVED, zero issues. Per code-review.md Phase 4, the Story Tracker Status is left unchanged (stays 'In Development') — this phase is read-only."
+**Context**: implementation/code-review.md Phase 4. Verdict clean (APPROVED, 0 issues) -> per dev-implement.md Section B routing rule, proceeding straight to Section D (skip Section C Auto-Remediate entirely).
+
+---
+
+## Section D.1.5 — Manifest Reconciliation (Story 1.1)
+**Timestamp**: 2026-09-11T14:49:41Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Wrote tests/.evals/ci-manifest.d/story-1.1.json — one new root-shaped entry extending src/backend's installCommands with `pip install -r requirements-dev.txt`. Real gap found: this story's tests/unit/backend/test_billing_upgrade_api.py uses FastAPI's TestClient (backed by httpx), but config.json's own installCommands for src/backend only installs requirements.txt (not requirements-dev.txt, which is where httpx is actually declared) — CI's clean-room coverage step would have failed on a TestClient ImportError even though the local gate passed (it reused this agent's ambient venv, already primed with httpx from an earlier local bootstrap). No new D1-D7 tool was needed for either root (both were already fully provisioned at the STOP CHECKPOINT, before any story existed) and no sourcePaths/testPaths extension was needed (existing declarations already cover every file this story touches). Re-ran tests/.evals/scripts/validate-pipeline.sh: still reports the same 3 pre-existing template false positives already logged at the STOP CHECKPOINT (V8 '|| true' guard, two V20 ERROR-message-prose flags, V9 run-evals.sh's documented zero-diff N/A fallback) — none new, none related to this fragment; ci.manifestState/ci.roots[] consistency (V30) passes."
+**Context**: dev-implement.md Section D Step 1.5 — mandatory before the commit.
+
+---

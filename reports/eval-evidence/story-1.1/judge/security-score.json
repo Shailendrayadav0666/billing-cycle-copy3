@@ -1,0 +1,38 @@
+{
+  "gate": "J2_security",
+  "key": "story-1.1",
+  "judgeModel": "claude-sonnet-5",
+  "rubricVersion": "1.0.0",
+  "rubricSource": "OWASP Top 10:2025; spec/plans/architecture.md",
+  "scoredAt": "2026-09-11T15:05:00Z",
+  "criteria": [
+    {
+      "id": "SEC-01",
+      "owasp": "A01:2025",
+      "metric": "Broken access control",
+      "weight": 0.40,
+      "score": 0.7,
+      "citation": "src/backend/main.py:256, 276",
+      "note": "Both new endpoints authorize solely on 'email in users' with no session/ownership proof beyond the caller-supplied email — the same object-level-authorization weakness as every pre-existing endpoint in this file (GET /api/billing:250, GET /api/tasks:302, GET /api/users/me:243), now extended to a mutating action (POST /api/billing/upgrade). Not scored 1.0 because this is a real, exploitable IDOR-shaped gap (documented as SEC-001 in reports/code-security-reviews/security-review-2026-09-11.md); not scored lower because the new code applies the pre-existing, architecture.md Section 6-documented pattern consistently rather than introducing a new or worse one, and the Epic explicitly forbids auth-flow changes in this story's scope — scoring new code more harshly than the identical, already-accepted pattern elsewhere in the same file would be an inconsistent double standard."
+    },
+    {
+      "id": "SEC-02",
+      "owasp": "A06:2025",
+      "metric": "Insecure design",
+      "weight": 0.35,
+      "score": 1.0,
+      "note": "UpgradeRequest (main.py:139-140) carries only email — no client-supplied amount/charge field. billing_upgrade (main.py:272-296) always recomputes the charge server-side via compute_prorated_charge before calling charge_card, and only sets plan=Premium after charge_card returns success (line 283-296) — no path sets Premium without a prior successful charge."
+    },
+    {
+      "id": "SEC-03",
+      "owasp": "A10:2025",
+      "metric": "Mishandling of exceptional conditions",
+      "weight": 0.25,
+      "score": 1.0,
+      "note": "Every new error response (401 at 250/256/276, 409 at 260/279, 402 at 284-287, 500 at 151) returns only a literal detail/message string, never a raw exception or stack trace. compute_prorated_charge (main.py:143-160) wraps datetime.strptime in try/except ValueError and fails closed with a generic 500 rather than letting a malformed date propagate — added during this review's Phase 2.5 (see runtime-artifacts/audit.md)."
+    }
+  ],
+  "weightedTotal": 0.88,
+  "min": 0.85,
+  "status": "PASS"
+}

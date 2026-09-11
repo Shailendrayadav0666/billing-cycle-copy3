@@ -150,7 +150,7 @@ function UpgradeModal({ preview, loading, error, onConfirm, onCancel, confirming
   )
 }
 
-const PLAN_PRICES = { Standard: '20.00', Premium: '40.00' }
+const PLAN_PRICES = { Standard: '20', Premium: '40' }
 
 export default function Billing() {
   const { token } = useAuth()
