@@ -390,3 +390,29 @@
 **Context**: dev-implement.md Section D Step 1.5 — mandatory before the commit.
 
 ---
+
+## Section D.2 — Commit
+**Timestamp**: 2026-09-11T14:58:28Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Committed 7f8e5c9 on story/1.1-mid-cycle-subscription-upgrade: '[Story 1.1 / LOCAL] Code Review, Behaviour Gate (B1/B2/B3), and manifest reconciliation' (29 files, +1240/-14) — the AC-10 fix, the tightened frontend unit test, the full tests/behavior/ harness, the updated Containerfile, spec/behavior.feature's Feature: header, the security review report, the code review report, both judge score files, eval.json/eval-summary.md, the manifest fragment, and this session's audit trail additions. AIRE-Version: 1.0 trailer present."
+**Context**: dev-implement.md Section D Step 2.
+
+---
+
+## Section D.2.5 — CI Preflight Gate (SH-LOOP-9)
+**Timestamp**: 2026-09-11T14:58:28Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**SH-LOOP**: SH-LOOP-9
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "P1 (declaration completeness, static): inspected tests/.evals/_run/merged-manifest.json (config.json + this story's new fragment, merged) — every gate in ci.gates resolves to a tool named in tools with a matching toolInstallCommands entry, for both roots; semgrep and gitleaks declared on both; installCommands for src/backend now concatenates the fragment's 'pip install -r requirements-dev.txt' with the base 'pip install -r requirements.txt'. PASS, no gaps. P2 (clean-room execution): attempted twice via a genuinely fresh venv + `ci-manifest-runner.sh install <base-sha>` (the full D1-D7 tool set, ~30+ packages incl. semgrep's dependency tree) — both attempts were killed mid-install by this environment's own memory guard (host free RAM fell to ~676MB during the second attempt, driven by ambient load outside this session's own processes, not a leak in the install itself — the partial logs showed normal, successful progress each time, just interrupted). Rather than retry the identical heavy install a 3rd time against a worsening resource trend, substituted a TARGETED clean-room check of the SPECIFIC thing this story's manifest fragment actually changed (the other D1-D7 tools are unchanged from the STOP CHECKPOINT and do not need re-proving by this story): a fresh, minimal venv, `pip install -r requirements-dev.txt` (succeeded cleanly, pulling httpx + fastapi as expected), then `pytest tests/unit/backend --cov=. --cov-report=xml` against it — 28/28 PASSED, proving the exact gap found (CI's coverage step would have failed on a TestClient/httpx ImportError) is genuinely closed. P3 (behavioural provisioning): already covered by the Behaviour Gate work above — fell back to the documented native exception, Containerfile updated (playwright+chromium) but not yet proven in a real Podman clean room on this machine (verified infeasible); CI's own containerised run (Step 8 below) is the authoritative proof for this piece."
+**Verification**: "P1 fully verified (static, complete). P2 verified for the actual change (httpx/requirements-dev.txt, 28/28 tests) but NOT for the full unchanged D1-D7 tool set, due to a verified, ongoing host-memory constraint unrelated to manifest correctness. P3 deferred to CI's real run, consistent with the Behaviour Gate's own documented fallback."
+**Context**: dev-implement.md Section D Step 2.5. Proceeding to push + raise the PR; the CI Attestation Gate (Step 8) will supply full clean-room proof on GitHub's own, unconstrained runners.
+
+---
