@@ -135,6 +135,7 @@ This is your own self-check while writing the plan — satisfy it yourself befor
 # PART 2: GENERATION
 
 ## Step 10: Load Story Code Generation Plan
+- [ ] 🔴 **HARD CHECKPOINT — the plan file must exist on disk before ANY code is generated.** `Read` `spec/spec-generation/story-N.M-code-generation.md`. If it does not exist (was only narrated in chat/audit.md and never written), this is a process violation — STOP, write the file now per Step 4 in full (numbered steps, checkboxes, story context/dependencies, REQ/AC trace summary), log the correction in `runtime-artifacts/audit.md`, and only then proceed. Never generate code against a plan that exists only in the conversation.
 - [ ] Read the complete plan from `spec/spec-generation/story-N.M-code-generation.md`
 - [ ] Identify the next uncompleted step (first [ ] checkbox)
 - [ ] Load the context for that step (story, dependencies, design artifacts)

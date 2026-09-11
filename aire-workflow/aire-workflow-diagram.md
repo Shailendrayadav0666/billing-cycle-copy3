@@ -7,16 +7,12 @@
 3. [Bug End-to-End Flow — From Defect Ticket to Merged Fix](#3-bug-end-to-end-flow--from-defect-ticket-to-merged-fix)
 4. [Enhancement End-to-End Flow — From Enhancement Ticket to Merged Change](#4-enhancement-end-to-end-flow--from-enhancement-ticket-to-merged-change)
 5. [Unified Ticket Router — `ticket-implement` Routes to Bug or Enhancement](#5-unified-ticket-router--ticket-implement-routes-to-bug-or-enhancement)
-6. [ve Bug Lifecycle — From the ve Raising the Bug to Ready for Testing](#6-ve-bug-lifecycle--from-the-ve-raising-the-bug-to-ready-for-testing)
-7. [ve Toolkit — Which Skill to Use When](#7-ve-toolkit--which-skill-to-use-when)
+6. [Verification Engineer Bug Lifecycle — From the Verification Engineer Raising the Bug to Ready for Testing](#6-verification-engineer-bug-lifecycle--from-the-verification-engineer-raising-the-bug-to-ready-for-testing)
+7. [Verification Engineer Toolkit — Which Skill to Use When](#7-verification-engineer-toolkit--which-skill-to-use-when)
 8. [Reverse Engineering Docs Lifecycle — How the Docs Always Stay Fresh](#8-reverse-engineering-docs-lifecycle--how-the-docs-always-stay-fresh)
-9. [Approval Model — the framework has NO numbered gates](#9-approval-model--the-framework-has-no-numbered-gates)
-    - 9.1 [Epic flow — fully automatic from the story set onward](#91-epic-flow--fully-automatic-from-the-story-set-onward)
-    - 9.2 [Bug flow — one yes/no, then fully automatic](#92-bug-flow--one-yesno-then-fully-automatic)
-    - 9.3 [Enhancement flow — one yes/no, then fully automatic](#93-enhancement-flow--one-yesno-then-fully-automatic)
-10. [Distribution & Governance](#10-distribution--governance)
-11. [AI Defect Ratio Detection — Line-Level Provenance Flow](#11-ai-defect-ratio-detection--line-level-provenance-flow)
-12. [How Code Gets Evaluated — End to End](#12-how-code-gets-evaluated--end-to-end)
+9. [Distribution & Governance](#9-distribution--governance)
+10. [AI Defect Ratio Detection — Line-Level Provenance Flow](#10-ai-defect-ratio-detection--line-level-provenance-flow)
+11. [How Code Gets Evaluated — End to End](#11-how-code-gets-evaluated--end-to-end)
 
 
 ---
@@ -28,172 +24,159 @@
 ```mermaid
 flowchart TD
     %% ═══════════════════════════════════════════════════
-    %% PHASE 0: IDEATION — Before AIRE Workflow
+    %% PHASE 0: IDEATION — Before the AIRE Workflow
     %% ═══════════════════════════════════════════════════
 
-    IDEA([" User has an idea"])
-    IDEA --> INTAKE["<b>intent-intake skill (manual)</b><br/>Gather 6 baseline fields:<br/>Outcome, KPI, Success signal,<br/>Out-of-scope, Constraints, Confidence"]
-    INTAKE -->|"tracker-dispatch createEpic"| JIRA_EPIC["Epic created in the configured tracker<br/>(baseline — thin)"]
-
-    JIRA_EPIC --> REFINE["<b>intent-refinement skill (manual)</b><br/>Elaborate Epic to full detail:<br/>Measurable criteria, constraints,<br/>domain context, NFRs, risks"]
-    REFINE -->|"tracker-dispatch updateEpic"| JIRA_EPIC_FINAL["Final Epic in the configured tracker<br/>(fully detailed, ready to build)"]
-
-    %% Optional shortcut — Atlas via Helix MCP, bypasses intent-intake/intent-refinement
-    ATLAS[("Atlas — existing-system truth<br/>(knowledge graph + deep dive doc)")]
-    ATLAS -->|"Helix MCP<br/>(tracker-agnostic — works with JIRA/ADO/GITHUB/LOCAL)<br/>skips intent-intake / intent-refinement"| JIRA_EPIC_FINAL
+    IDEA([" The User has an idea"])
+    IDEA --> INTAKE["<b>The User runs the intent-intake skill (manual)</b><br/>The framework gathers six baseline fields that justify an Epic:<br/>the intended outcome, its measure of success, the success signal,<br/>what is out of scope, the known constraints, and the confidence level."]
+    INTAKE -->|"The framework creates the Epic in the user-selected tracker"| REFINE["<b>The User runs the intent-refinement skill (manual)</b><br/>The framework elaborates the Epic to full detail:<br/>measurable criteria, constraints, domain context,<br/>quality expectations, and risks."]
+    REFINE -->|"The framework updates the Epic in the user-selected tracker"| JIRA_EPIC_FINAL["The Epic is now fully detailed in the user-selected tracker<br/>and is ready to build."]
 
     %% ═══════════════════════════════════════════════════
     %% PHASE 1: PLANNING — Planning & Architecture
     %% ═══════════════════════════════════════════════════
 
-    JIRA_EPIC_FINAL --> TRIGGER(["User enters:<br/><b>using aire implement &lt;EPIC KEY/ID&gt;</b><br/>(JIRA key / ADO work-item ID / GitHub issue ref;<br/>LOCAL needs no ID — describe the epic inline)<br/>— or, for an Atlas-backed epic:<br/><b>using aire-helix implement the epic in my solution on Helix</b>"])
+    JIRA_EPIC_FINAL --> TRIGGER["<b>The User starts the framework</b><br/>by typing <b>using aire implement &lt;EPIC KEY / ID&gt;</b><br/>(a JIRA key, an ADO work-item ID, or a GitHub issue reference;<br/>for Local no ID is needed — the User describes the Epic inline).<br/>The Epic can also come from Atlas when the Helix MCP is configured,<br/>by typing <b>using aire implement the Epic from the solution document through Helix MCP</b>."]
 
-    TRIGGER --> WD["<b>Workspace Detection</b><br/>• Greenfield (empty workspace)<br/>• Fetch Epic content → epic-brief.md<br/>• Record ## Tracker in runtime-artifacts/aire-state.md"]
-    WD --> BRANCH["<b>Create Epic Branch</b><br/>by the name of epic/epic-number-epic-title<br/>Record base branch + epic branch<br/>in runtime-artifacts/aire-state.md"]
+    TRIGGER --> WD["<b>Workspace Detection</b><br/>The framework confirms this is a greenfield workspace (no existing code).<br/>It fetches the Epic content into <b>epic-brief.md</b> so every later stage<br/>works from the same Epic, and records the chosen tracker<br/>in <b>runtime-artifacts/aire-state.md</b>."]
+    WD --> BRANCH["<b>The framework creates the Epic branch</b><br/>named <b>epic/&lt;epic-number&gt;-&lt;epic-title&gt;</b>.<br/>It records the base branch and the Epic branch<br/>in <b>runtime-artifacts/aire-state.md</b>. All work happens on this branch."]
 
-    BRANCH --> RA["<b>Requirements Analysis</b><br/>• Read epic-brief.md (defines WHAT to build)<br/>• Determine depth (minimal/standard/comprehensive)<br/>• Generate clarifying questions .md<br/>• Include Extension opt-in prompts"]
-    RA --> RA_GATE{"User answers<br/>all questions"}
-    RA_GATE -->|"Ambiguity detected"| RA_FOLLOW["Follow-up questions<br/>(resolve before proceeding)"]
+    BRANCH --> RA["<b>Requirements Analysis</b><br/>The framework reads <b>epic-brief.md</b> (which defines what to build),<br/>chooses the appropriate depth (minimal, standard, or comprehensive),<br/>and writes any open decisions as clarifying questions for the User.<br/>The optional extensions are also offered here."]
+    RA --> RA_GATE{"The User answers<br/>every clarifying question."}
+    RA_GATE -->|"A decision is still unclear"| RA_FOLLOW["The framework asks follow-up questions<br/>and resolves them before continuing."]
     RA_FOLLOW --> RA_GATE
-    RA_GATE -->|"All clear"| RA_GEN["Generate requirements.md<br/>+ Security Mandatory + Record Extension Configuration"]
-    RA_GEN --> RA_APPROVE{"User approves<br/>requirements"}
-    RA_APPROVE -->|"Changes needed"| RA
-    RA_APPROVE -->|"Approved "| RA_COMMIT["Commit planning artifacts<br/>on epic branch + push to GitHub<br/>(no Epic PR raised here —<br/>raised manually at cycle end via pr-generator)"]
+    RA_GATE -->|"All decisions are clear"| RA_GEN["The framework writes <b>requirements.md</b>,<br/>which explains what the system must do, how well it must operate,<br/>and how each requirement will be traced.<br/>The mandatory security baseline and the chosen extensions are recorded."]
+    RA_GEN --> RA_APPROVE{"The User reviews <b>requirements.md</b>.<br/>The framework continues only after<br/>the User approves the complete requirements."}
+    RA_APPROVE -->|"Changes requested"| RA
+    RA_APPROVE -->|"Approved"| RA_COMMIT["The framework commits the planning artifacts on the Epic branch<br/>and pushes them. No Epic pull request is raised here."]
 
     %% ═══════════════════════════════════════════════════
     %% USER STORIES
     %% ═══════════════════════════════════════════════════
 
-    RA_COMMIT --> TEAM["<b>User Stories — Part 1</b><br/>team_size FIXED at 2 — never asked<br/>(drives story granularity: ≥ 2)"]
-    TEAM --> MODE["Story creation mode FIXED:<br/><b>all at once</b> — never asked<br/>(no per-story approval loop)"]
-    MODE --> US_GEN["<b>User Stories — Part 2: Generation</b><br/>Generate stories.md + personas.md<br/>Populate Story Tracker<br/>(Status:  Ready for Development)"]
+    RA_COMMIT --> US_GEN["<b>User Story Generation</b><br/>The framework creates <b>stories.md</b> and <b>personas.md</b>.<br/>Every story records its outcome, acceptance criteria, and linked requirements,<br/>and the Story Tracker is populated (Status: Ready for Development)."]
 
-    US_GEN --> GATE1{"<b>GATE 1 — Story Set Approval (MANDATORY)</b><br/>Story set announced, Requirements coverage check passes<br/>User: Request Changes / Approve &amp; Continue"}
+    US_GEN --> GATE1{"<b>GATE 1 — Story Set Approval</b><br/>The framework announces the complete story set and confirms<br/>that every approved requirement is covered by at least one story.<br/>The User chooses: Request Changes, or Approve &amp; Continue."}
     GATE1 -->|"Request Changes"| US_GEN
-    GATE1 -->|"Approve & Continue"| PUSH_JIRA["<b>User Stories — Part 3: Push to Tracker</b><br/>• Confirm Project Key / Repo / Org<br/>• Create each story in the configured tracker<br/>• Transition to 'Ready for Development'<br/>• Link each story to Parent Epic (verify)<br/>• Write Tracker IDs back to stories.md"]
-    PUSH_JIRA -->|"tracker-dispatch createStory × N + link"| JIRA_STORIES[("Configured tracker: N stories<br/>linked to Parent Epic")]
+    GATE1 -->|"Approve &amp; Continue"| PUSH_JIRA["<b>User Stories — Part 3: Push to the tracker</b><br/>The framework confirms the project / repo / org, creates each story<br/>in the user-selected tracker, moves it to Ready for Development,<br/>links it to the Parent Epic, and writes the tracker IDs back to stories.md.<br/>(For Local, nothing leaves the workspace.)"]
+    PUSH_JIRA -->|"The framework creates each story and links it to the Epic"| JIRA_STORIES[("The user-selected tracker now holds N stories,<br/>each linked to the Parent Epic.")]
 
     %% ═══════════════════════════════════════════════════
     %% DEPENDENCY GRAPH + WORKFLOW PLANNING
     %% ═══════════════════════════════════════════════════
 
-    PUSH_JIRA --> DG["<b>Dependency Graph</b><br/>• It tell how stories are dependent on each other<br/>• Write dependency-graph.yml<br/>• Add Mermaid graph to runtime-artifacts/aire-state.md<br/>• Show: M stories ready now "]
-    DG --> DG_GATE["Graph announced — NO GATE<br/>(enforced later by the Doability Gate<br/>and the branch-cut merge check)"]
-    DG_GATE --> WP["<b>Workflow Planning</b><br/>• Determine EXECUTE/SKIP per design stage<br/>• Generate executions.md<br/>• Mermaid visualization"]
-    WP --> WP_GATE["Plan announced — NO GATE<br/>(each selected stage keeps its own approval)"]
-    WP_GATE --> IMPLEMENTATION
+    PUSH_JIRA --> DG["<b>Dependency Graph</b><br/>The framework works out how the stories depend on one another,<br/>writes <b>dependency-graph.yml</b>, adds a Mermaid graph<br/>to runtime-artifacts/aire-state.md, and shows which stories<br/>can begin immediately in parallel."]
+    DG --> WP["<b>Workflow Planning</b><br/>The framework decides which design stages this Epic needs<br/>and which can be skipped, records the reasons in <b>executions.md</b>,<br/>and produces a Mermaid visualization of the plan."]
+    WP --> IMPLEMENTATION
 
     %% ═══════════════════════════════════════════════════
     %% IMPLEMENTATION PHASE — DESIGN (System-Level, Single Pass)
     %% ═══════════════════════════════════════════════════
 
-    IMPLEMENTATION["<b>IMPLEMENTATION PHASE</b><br/>System-Level Design Stages<br/>(single pass, NO code generated here)"]
-    IMPLEMENTATION --> FD["Functional Design<br/>(CONDITIONAL)"]
-    FD --> NFR_R["NFR Requirements<br/>(CONDITIONAL)"]
-    NFR_R --> NFR_D["NFR Design<br/>(CONDITIONAL)"]
-    NFR_D --> INFRA["Infrastructure Design<br/>(CONDITIONAL)"]
+    IMPLEMENTATION["<b>IMPLEMENTATION PHASE — System-Level Design</b><br/>The framework runs the selected design stages once for the whole system.<br/>No code is generated here. Every selected stage asks focused questions,<br/>writes its document, and waits for the User to approve it before continuing."]
+    IMPLEMENTATION --> FD["<b>Functional Design</b> (only when required)<br/>The domain model, business rules, validation, data flows,<br/>integrations, and edge cases, written to <b>functional-design.md</b>."]
+    FD --> NFR_R["<b>NFR Requirements</b> (only when required)<br/>How fast, secure, reliable, available, and scalable the system must be,<br/>recorded as measurable expectations in <b>nfr.md</b>."]
+    NFR_R --> NFR_D["<b>NFR Design</b> (only when required)<br/>How those quality expectations will be achieved —<br/>resilience, scaling, performance, security, and recovery — added to <b>nfr.md</b>."]
+    NFR_D --> INFRA["<b>Infrastructure Design</b> (only when required)<br/>Where and how the solution runs — environments, hosting, storage,<br/>messaging, networking, monitoring — written to <b>infrastructure-design.md</b>."]
 
-    INFRA --> ARCHDOC["<b> architecture.md + RUBRIC + CI</b> (automatic, no gate)<br/>1. Consolidate the design stages → spec/plans/architecture.md<br/>&nbsp;&nbsp;&nbsp;incl. Section 10 Verifiable Constraints<br/>2. Derive tests/.evals/rubrics/architecture-rubric.json from Section 10<br/>&nbsp;&nbsp;&nbsp;(1:1, same weights) — this is the BLOCKING J1 gate<br/>&nbsp;&nbsp;&nbsp;+ create tests/.evals/rubrics/security-rubric.json (OWASP-based) — the J2 gate<br/>3. Generate .github/workflows/agentic-eval-pipeline.yml from a fixed,<br/>&nbsp;&nbsp;&nbsp;versioned manifest-driven runner (lib-manifest/read-manifest/<br/>&nbsp;&nbsp;&nbsp;ci-manifest-runner) — values read from THIS repo's stack +<br/>&nbsp;&nbsp;&nbsp;tests/.evals/config.json thresholds, never hand-typed into the YAML<br/>4. CI setup gate: present verbatim, HALT for proceed/skip"]
-    ARCHDOC --> SMOKE["<b> Epic-level pre-handoff SMOKE TEST</b> (automatic)<br/>Zero-diff scratch PR (ci/epic-smoke-*) proves the CI<br/>environment is viable — NOT the delta-scoped gate logic<br/><i>Watch loop is UNBOUNDED — ends only when auto-fix-agent<br/>itself stops producing a new run (its own retryLimitForSelfRepair<br/>exhaustion, or a genuine fix)</i><br/>Pass → scratch PR auto-merged + deleted<br/>Fail (exhausted) → scratch PR left OPEN, <b>Handoff does NOT happen</b>"]
-    SMOKE --> STOP[" <b>MANDATORY STOP — Development Handoff</b><br/>Design artifacts are <b>committed + pushed on the epic branch</b><br/>(automatic)<br/><br/> N stories created<br/> M stories ready to start<br/>Design stages: [ran/skipped]<br/><br/><b>DEV: pull the epic branch, then type dev-implement</b> (once per story)<br/><b>ve: pull the epic branch, then type /ve-implement &lt;story&gt;</b> (once per story)<br/><i>both run in parallel from here — ve never waits for dev code</i>"]
+    INFRA --> ARCHDOC["<b>Architecture, rubrics, and CI pipeline</b><br/>The framework combines the approved design documents into one system design,<br/><b>spec/plans/architecture.md</b>, and from it derives the evaluation rubrics<br/>used to score the delivered code — the architecture rubric and an<br/>OWASP-based security rubric. It then generates the automated evaluation<br/>pipeline from this repo's own stack and quality thresholds.<br/>The framework presents the CI setup instructions and waits for the User<br/>to choose <b>proceed</b> or <b>skip</b>."]
+    ARCHDOC --> SMOKE["<b>Epic-level pre-handoff smoke test</b> (automatic)<br/>A zero-diff scratch pull request proves the CI environment is viable —<br/>not the delta-scoped gate logic. Its watch loop is unbounded and ends only<br/>when the self-repair agent itself stops producing a new run.<br/>On success the scratch PR is merged and deleted; on exhaustion it is left open<br/>and the Development Handoff does not happen."]
+    SMOKE --> STOP[" <b>MANDATORY STOP — Development Handoff</b><br/>The design artifacts are committed and pushed on the Epic branch (automatic).<br/>The framework announces how many stories were created, which are ready to start,<br/>and which design stages ran or were skipped.<br/><br/><b>Developer: pull the Epic branch, then type dev-implement</b> (once per story).<br/><b>Verification Engineer: pull the Epic branch, then type /ve-implement &lt;story&gt;</b> (once per story).<br/>Both tracks run in parallel from here — the Verification Engineer never waits for code."]
 
     %% ═══════════════════════════════════════════════════
     %% DEV-IMPLEMENT — Per-Story Code Generation
     %% ═══════════════════════════════════════════════════
 
-    STOP -->|"User types: <b>dev-implement</b><br/>(once per story)"| SS
+    STOP -->|"The Developer types <b>dev-implement</b><br/>(once per story)"| SS
 
-    SS["<b>Story Selection</b><br/>Show ready stories<br/>(every requires: Ready for Testing, or its PR merged)<br/>User picks by story ID or Tracker ID"]
-    SS --> DOABLE{"<b>Doability Checkpoint</b><br/>prerequisite PR merged?<br/><i>never merges it itself, even if approved</i>"}
-    DOABLE -->|"No — blocked (unmerged, whether<br/>unapproved / approved / conflicts / checks failing)"| BLOCK["List outstanding prerequisites<br/>+ their live PR status<br/>+ show which stories ARE ready"]
+    SS{"<b>Story Selection &amp; Doability check</b><br/>The framework shows the stories that are ready and the Developer picks one<br/>by story ID or tracker ID. It then checks that every prerequisite story's PR<br/>is merged into the Epic branch. The framework never merges a prerequisite itself,<br/>even one that is already approved."}
+    SS -->|"No — a prerequisite is still unmerged"| BLOCK["The framework lists the outstanding prerequisites<br/>with their live PR status, and shows which stories are ready instead."]
     BLOCK --> SS
-    DOABLE -->|"Yes — doable"| INDEV["<b>Story → In Development</b><br/>Update Story Tracker + Start date<br/>Tracker Sync: auto-transition to In Development<br/>+ add <b>AIRE version label</b> on the tracker item (JIRA/ADO/GITHUB; LOCAL updates local tracker only)<br/>(version read from CLAUDE.md)"]
+    SS -->|"Yes — the story is doable"| INDEV["<b>The story moves to In Development</b><br/>The framework updates the Story Tracker and start date, auto-transitions the<br/>tracker item to In Development, and adds the AIRE version label<br/>(on JIRA / ADO / GitHub; Local updates only the local tracker).<br/>The version is read live from CLAUDE.md."]
 
-    INDEV --> SBG{"<b>Story Branch Checkpoint</b><br/>All prerequisite story PRs<br/>MERGED into epic branch?"}
-    SBG -->|"No — prerequisite PR unmerged<br/> WARN + STOP<br/>Revert story to  Ready"| SS
-    SBG -->|"Yes — all merged"| SBR["<b>Create Story Branch</b><br/>by the name of story/N.M-story-title<br/>(cut FROM epic branch, NEVER base)"]
+    INDEV --> SBR["<b>The framework creates the story branch</b><br/>named <b>story/&lt;N.M&gt;-&lt;story-title&gt;</b>,<br/>cut from the Epic branch and never from base."]
 
-    SBR --> BASE["<b>BASELINE Regression Run</b><br/>(automatic, on the story branch,<br/>before any code is written)<br/>• Run ENTIRE repo test suite<br/>• Record the current tests result<br/><br/>→ baseline-regression.log<br/>"]
+    SBR --> BASE["<b>Baseline capture</b> (automatic, before any code is written)<br/>The framework runs the entire repository test suite on the story branch<br/>and records the current results in <b>baseline-regression.log</b>.<br/>Only new problems introduced by this story will count for self-repair."]
 
-    BASE --> PLAN["<b>Code Gen Part 1: PLAN</b><br/>• Analyze story + acceptance criteria<br/>• Create implementation steps<br/>• Structure, logic, API, tests, docs"]
-    PLAN --> PLAN_GATE["Plan announced — NO GATE<br/>executed immediately"]
-    PLAN_GATE --> SPECB["<b> BEHAVIOUR SPEC</b> — one file<br/>spec/behavior/<br/>story-N.M.feature<br/><i>One scenario per AC, @AC-n tagged.<br/>Written BEFORE the code — it is the contract.<br/>The story's ONLY spec file.</i>"]
-    SPECB --> GEN["<b>Code Gen Part 2: GENERATE</b><br/>• Execute each plan step<br/>• All application code → <b>src/</b><br/>• Tests → tests/ · nothing into spec/<br/>• Mark [x] after each step"]
+    BASE --> PLAN["<b>Code Generation — Part 1: Plan</b><br/>The framework analyzes the story and its acceptance criteria<br/>and lays out the implementation steps: structure, logic, API, tests, and docs."]
+    PLAN --> SPECB["<b>Behavior specification</b> — a single file,<br/><b>spec/behavior/story-N.M.feature</b>.<br/>One scenario per acceptance criterion, tagged @AC-n, written BEFORE the code<br/>because it is the contract."]
+    SPECB --> GEN["<b>Code Generation — Part 2: Generate</b><br/>The framework executes each plan step, writing all application code into <b>src/</b><br/>and all tests into <b>tests/</b> (nothing goes into spec/),<br/>and marks each step complete as it finishes."]
 
-    GEN --> COV{"<b>Unit Test + Coverage</b><br/>• Generate tests, RUN them<br/>• Measure coverage on new/changed code<br/><b>Threshold: ≥ 90%</b><br/>• <b>Coverage proof</b>: RUN LOGS + machine-readable<br/>coverage report captured as evidence"}
-    COV -->|"test fails, or coverage &lt; 90%"| COVFIX["<b>FIX THE CODE</b><br/>Diagnose the root cause, then fix the<br/><b>implementation</b>. Add tests only for paths<br/>that are genuinely untested.<br/><i>Never delete or weaken a test to go green.</i>"]
-    COVFIX --> COVRUN["<b>RE-RUN THE UNIT TESTS</b><br/>Re-measure coverage on changed code"]
+    GEN --> COV{"<b>Unit tests and coverage</b><br/>The framework generates the tests, runs them, and measures coverage<br/>on the new and changed code. The threshold is <b>at least 90%</b>.<br/>The run logs and a machine-readable coverage report are captured as evidence."}
+    COV -->|"a test fails, or coverage is below 90% —<br/>the framework self-heals and reruns, up to 3 times"| COVFIX["<b>The framework fixes the code</b><br/>It diagnoses the root cause and corrects the implementation,<br/>adding tests only for paths that are genuinely untested.<br/>It never deletes or weakens a test to go green."]
+    COVFIX --> COVRUN["The framework re-runs the unit tests<br/>and re-measures coverage on the changed code."]
     COVRUN --> COV
-    COV -->|"3 attempts spent"| HALTN
 
-    COV -->|"green + ≥ 90%"| BEHV{"<b> BEHAVIOURAL TESTS (Gherkin)</b><br/>Run every scenario in this unit's .feature<br/>via tests/behavior/steps/<br/><b>All pass · every @AC tag executed</b>"}
-    BEHV -->|"a scenario fails — fix the CODE<br/>(max 3 attempts)"| BEHV
-    BEHV -->|"3 attempts spent"| HALTN
+    COV -->|"green and at least 90%"| BEHV{"<b>Behavioral tests (Gherkin)</b><br/>The framework runs every scenario in this story's .feature file<br/>through tests/behavior/steps/. All scenarios must pass<br/>and every @AC tag must execute."}
+    BEHV -->|"a scenario fails"| BEHVFIX["The framework self-heals<br/>and reruns, up to 3 times."]
+    BEHVFIX --> BEHV
 
-    BEHV -->|"all green"| REG["<b>New FULL Regression vs Prev BASELINE</b><br/>(automatic)<br/>• Re-run ENTIRE suite and compare against the baseline<br/>• NEW failure = broken BY this story<br/>→ fixed in the same run (max 3 attempts)<br/>→ then  Static Eval D1–D7 vs baseline"]
-    REG -->|"3 attempts spent"| HALTN
+    BEHV -->|"all green"| API_TESTS{"<b>API and contract tests</b> (when the story touches an API layer)<br/>Changed interfaces must return correct results and status codes,<br/>enforce access, reject invalid requests,<br/>and preserve the agreed response structure."}
+    API_TESTS -->|"a check fails"| APIFIX["The framework self-heals<br/>and reruns, up to 3 times."]
+    APIFIX --> API_TESTS
 
-    REG --> ACR["<b>AUTO Code Review</b><br/>(not asked — always runs)<br/>• Verify each acceptance criterion<br/>• Diff-scoped Security Baseline (16 rules)<br/>•  <b>BLOCKING judge gates</b>: J1 ≥ 0.85 (rubric from<br/>architecture.md Section 10) · J2 ≥ 0.80<br/>• Versioned report: story-N.M-code-review-vX.md"]
-    ACR -->|"J1/J2 below minimum — fix the cited<br/>criteria (max 3 attempts)"| ACR
-    ACR -->|"3 attempts spent"| HALTN
+    API_TESTS -->|"all green (or not applicable)"| REG["<b>Full regression vs the baseline</b> (automatic)<br/>The framework re-runs the entire suite and compares it with the baseline.<br/>Any new failure was introduced by this story and is self-healed,<br/>up to 3 times."]
 
-    ACR --> RDG{"<b>Verdict routing — AUTOMATIC</b><br/>clean, or findings?"}
-    RDG -->|"Findings — no question asked"| REM["<b>AUTO-Remediate Loop</b><br/>• Every 🔴/🟠 finding in scope (no confirmation)<br/>• Fix each: fix → unit test → green<br/>• Re-run FULL regression vs baseline<br/>• Annotate report with resolution"]
-    REM --> REM_DECIDE{"Re-review<br/>AUTOMATICALLY"}
-    REM_DECIDE -->|"loop until verdict is clean<br/>(max 3 rounds)"| ACR
-    REM_DECIDE -->|"3 rounds spent, or stall<br/>(no change + identical findings)"| HALTN
+    REG --> STATIC["<b>Static quality evaluation (D1–D7)</b><br/>The framework checks coding mistakes, type compatibility, security patterns,<br/>dependency vulnerabilities, software licences, complexity, and exposed secrets,<br/>compared against the baseline. Unacceptable new findings are self-healed,<br/>up to 3 times."]
 
-    RDG -->|"Clean — proceed automatically"| COMMIT["<b>Commit Story Branch</b><br/>git add + commit on story branch"]
+    STATIC --> ACR["<b>Automated code review</b> (always runs — never asked)<br/>A read-only review that checks the implementation against every acceptance<br/>criterion and linked requirement, the mandatory security baseline (16 rules),<br/>and the two blocking judge gates that score the code against the architecture<br/>rubric and the security rubric. A versioned report is written."]
+    ACR -->|"a judge gate is below the minimum"| ACRFIX["The framework self-heals the cited criteria<br/>and re-reviews, up to 3 times."]
+    ACRFIX --> ACR
 
-    COMMIT --> PREFLIGHT{"<b>CI PREFLIGHT GATE — SH-LOOP-9</b><br/>Clean-room run of CI's OWN entrypoints<br/>(ci-manifest-runner install→build→coverage,<br/>run-static-evals) against the COMMITTED diff<br/>— zero missing tools, zero undeclared deps,<br/>zero Manifest defects, no N/A on a touched root"}
-    PREFLIGHT -->|"Fail — fix the DECLARATION<br/>(this story's ci-manifest.d fragment,<br/>or the repo's own dep declaration;<br/>never the gate)<br/>(max 3 attempts)"| PREFLIGHT
-    PREFLIGHT -->|"3 attempts spent"| HALTN
-    PREFLIGHT -->|"Clean"| STORY_PR["<b>pr-generator</b> (invoked by workflow)<br/>Push story branch<br/>Open STORY PR → EPIC BRANCH<br/>Add 'ai-generated' label<br/>+ the <b>AIRE version label</b>"]
-    STORY_PR --> GH_STORY[("GitHub:<br/>Story PR → epic branch")]
+    ACR --> RDG{"<b>Verdict routing — automatic</b><br/>Is the review clean, or are there findings?"}
+    RDG -->|"Findings — no question is asked"| REM["<b>Automatic remediation loop</b><br/>The framework fixes every in-scope critical and high finding without confirmation:<br/>fix, unit test, green, then re-run the full regression against the baseline,<br/>and annotates the report with each resolution."]
+    REM --> REM_DECIDE{"The framework re-reviews<br/>automatically."}
+    REM_DECIDE -->|"loop until the verdict is clean, up to 3 rounds"| ACR
 
-    STORY_PR --> PR_REV["<b>AUTO pr-review</b><br/>on the story PR<br/>"]
+    RDG -->|"Clean — the framework proceeds automatically"| SCORECARD["<b>Evaluation scorecard</b><br/>Once every evaluation has passed, the framework writes <b>eval.json</b><br/>and <b>eval-summary.md</b> with the results and supporting evidence."]
+    SCORECARD --> COMMIT["<b>The framework commits the story branch</b><br/>git add and commit on the story branch."]
 
-    PR_REV --> RFD["<b>Story STAYS  In Development</b><br/>after the PR is raised —<br/>End date + PR link recorded,<br/>tracker comment with PR link added<br/>"]
+    COMMIT --> PREFLIGHT{"<b>CI preflight gate</b><br/>The framework runs CI's own entrypoints in a clean room<br/>(install, build, coverage, and the static evals) against the committed diff —<br/>zero missing tools, zero undeclared dependencies, and no skipped root."}
+    PREFLIGHT -->|"Fail"| PREFIX["The framework fixes the declaration<br/>(this story's manifest fragment or the repo's dependency declaration,<br/>never the gate) and self-heals, up to 3 times."]
+    PREFIX --> PREFLIGHT
+    PREFLIGHT -->|"Clean"| STORY_PR["<b>The framework raises the story pull request</b> (via pr-generator)<br/>It pushes the story branch and opens a PR into the Epic branch,<br/>adding the 'ai-generated' label and the AIRE version label.<br/>The scorecard and review evidence travel with the PR."]
+    STORY_PR --> GH_STORY[("GitHub: the story PR<br/>targets the Epic branch.")]
+
+    STORY_PR --> CI_EVAL["<b>Continuous integration evaluation</b><br/>The same evaluations run again in a clean environment.<br/>If any evaluation fails, the framework self-heals and reruns the pipeline,<br/>up to 3 times."]
+    CI_EVAL --> PR_REV["<b>Automatic PR review</b><br/>The framework posts its review on the story PR."]
+
+    PR_REV --> RFD["<b>The story stays In Development</b> after the PR is raised.<br/>The framework records the end date and PR link<br/>and adds a tracker comment with the PR link."]
 
     %% ═══════════════════════════════════════════════════
     %% MERGE + NEXT STORY LOOP
     %% ═══════════════════════════════════════════════════
 
-    RFD --> MERGE_STORY["<b>User merges Story PR</b><br/>into EPIC BRANCH<br/>(required before dependent stories<br/>can pass Story Branch checkpoint)"]
+    RFD --> MERGE_STORY["<b>The User merges the story PR</b> into the Epic branch.<br/>This is required before any dependent story<br/>can pass the Doability check."]
 
     MERGE_STORY -.-> SYNC
-    MERGE_STORY --> MORE{"More stories<br/>to implement?"}
-    MORE -->|"Yes — user types<br/>dev-implement again"| MCHK["<b>LIVE prerequisite check</b> (Doability checkpoint, per pick)<br/>Only for the prerequisites of the story being picked:<br/>is that prerequisite's PR MERGED into the epic branch?<br/>YES → proceed<br/>NOT merged (even if approved) → STOP with the reason<br/>gate never merges it itself<br/>"]
+    MERGE_STORY --> MORE{"Are there more stories<br/>to implement?"}
+    MORE -->|"Yes — the Developer types<br/>dev-implement again"| MCHK["<b>Live prerequisite check</b> (the Doability check, per pick)<br/>Only for the prerequisites of the story being picked:<br/>is that prerequisite's PR merged into the Epic branch?<br/>If yes, proceed. If not merged (even if approved), stop with the reason.<br/>The framework never merges it itself."]
     MCHK --> SS
-    MORE -->|"No — all stories done"| ALL_DONE
+    MORE -->|"No — all stories are done"| ALL_DONE
 
     %% ═══════════════════════════════════════════════════
-    %% POST-DEVELOPMENT: EPIC CLOSE + RELEASE
+    %% Verification Engineer PARALLEL TRACK — starts as soon as stories exist,
+    %% does NOT wait for dev. Not an Implementation stage.
     %% ═══════════════════════════════════════════════════
 
+    STOP -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>The Verification Engineer types /ve-implement &lt;story&gt;</b> on the Epic branch.<br/>The framework cuts a branch <b>ve/&lt;story-TICKET-ID&gt;-&lt;story-title&gt;</b> from the latest Epic branch.<br/>Without reading application source code, it reads the story's acceptance criteria<br/>(tracker item, requirements, and design) and writes manual test steps into<br/>spec/test-plans/&lt;story&gt;/ — integration, e2e, API, contract, security, and performance —<br/>with every acceptance criterion covered. A test-plan summary is produced."]
+    veBT --> VE_APPROVAL{"The User reviews the manual test plans.<br/>The framework continues only after the User confirms<br/>that the planned tests provide sufficient coverage."}
+    VE_APPROVAL -->|"Changes requested"| veBT
+    VE_APPROVAL -->|"Approved"| VE_PR["<b>The framework raises the test-plan pull request</b><br/>into the Epic branch, labeled 'ai-generated' and with the AIRE version label,<br/>and logs it in runtime-artifacts/audit.md."]
+    VE_PR -.-> SYNC
 
-    %% ═══════════════════════════════════════════════════
-    %% ve PARALLEL TRACK — starts as soon as stories exist,
-    %% does NOT wait for dev. Not a Implementation stage.
-    %% ═══════════════════════════════════════════════════
+    ALL_DONE["All stories are developed<br/>and all story PRs are merged into the Epic branch (manual merge)."]
 
-    STOP -.->|"ve works in PARALLEL —<br/>never waits for dev code"| veBT["<b>ve types /ve-implement &lt;story-TICKET-ID&gt;</b> on the epic branch<br/>A branch <b>ve/&lt;story-TICKET-ID&gt;-&lt;story-title&gt;</b> is cut<br/>from the LATEST epic branch — Run Test section of implementation phase per story<br/>Reads the story's ACCEPTANCE CRITERIA<br/>(tracker item + requirements + design)<br/><b>never reads application source code</b><br/>Writes MANUAL test steps →<br/>spec/test-plans/&lt;story-TICKET-ID&gt;-title/<br/>integration · e2e · api ·<br/>contract · security · performance<br/><i>Every AC covered, then committed and a PR raised<br/>to the epic branch; logged in runtime-artifacts/audit.md.<br/>Conflicts are avoided by .gitattributes (append merge)</i>"]
-    veBT -.->|"repeat per story,<br/>"| veBT
-    veBT -.-> SYNC
+    ALL_DONE --> SYNC["<b>The Verification Engineer runs /ve-list-work</b> on the Epic branch.<br/>The framework pulls the latest Epic branch and lists every story whose PR has merged<br/>but is still In Development. The Verification Engineer executes the manual test steps<br/>generated by /ve-implement, then runs /ve-list-work again and takes one decision per story:<br/><b>&lt;story&gt; approve</b> or <b>&lt;story&gt; reject</b> (for example, PROJ-102 approve, PROJ-103 reject).<br/><br/><b>Approve</b> → a 'Verification Engineer approved the story' comment, the ve-approved label,<br/>and a move to Ready for Testing.<br/><b>Reject</b> → a 'Verification Engineer rejected the story' comment, the ve-rejected label,<br/>and the story deliberately stays In Development (the defect is logged with /raise-defect).<br/><br/>Both outcomes are logged in runtime-artifacts/audit.md. When every story in the Epic<br/>is approved, the framework offers to move the Parent Epic to Ready for Testing."]
 
-    ALL_DONE["All stories developed<br/>+ all story PRs merged into epic branch (manual merge)"]
+    SYNC --> EPIC_PR["<b>The User runs pr-generator</b> on the Epic branch,<br/>once the Epic branch holds all the merged stories,<br/>to raise or update the Epic pull request into the base branch."]
+    EPIC_PR --> GH_EPIC_FINAL[("GitHub: the Epic PR targets the base branch<br/>and includes all story code.")]
 
-    ALL_DONE --> SYNC["<b>/ve-list-work</b><br/>run MANUALLY by ve on the EPIC BRANCH and ve chooses option A<br/><br/>1. Pulls the latest epic branch<br/>2. Lists every story whose PR has MERGED,<br/>&nbsp;&nbsp;&nbsp;which is still In Development<br/>3. ve tests them by executing the manual test steps generated by /ve-implement skill<br/>&nbsp;&nbsp;&nbsp;(can be run in a separate terminal)<br/>The ve runs /ve-list-work again and chooses option B and takes one decision per story:<br/>&nbsp;&nbsp;&nbsp;<b>&lt;story&gt; approve</b> &nbsp;or&nbsp; <b>&lt;story&gt; reject</b><br/>&nbsp;&nbsp;&nbsp;e.g. Proj-102 approve, PROJ-103 reject<br/><br/><b>APPROVE</b> → tracker comment 've approved the story'<br/>+ <b>ve-approved</b> label + Transition to → <b>Ready for Testing</b><br/>(Story Tracker)<br/><b>REJECT</b> → tracker comment 've rejected the story'<br/>+ <b>ve-rejected</b> label<b> + Ticket stays In Development</b><br/>(ve manually log the defect with /raise-defect)<br/><br/>Both outcomes logged in runtime-artifacts/audit.md<i> Run it per story as soon as THAT story's PR merges —<br/></i><br/> When ALL stories are approved in an Epic → it offers to transition<br/><b>Parent Epic → Ready for Testing</b>"]
+    EPIC_PR --> ARCHIVE["<b>archive-epic runs (automatic) on the Epic branch</b><br/>The framework archives spec/, reports/, and runtime-artifacts/ into<br/>aire-archives/epics/&lt;EPIC-ID&gt;-name/ (no reverse-engineering delta, no stitch),<br/>then commits and pushes on the Epic branch of the open Epic PR."]
 
-    SYNC --> EPIC_PR["<b>Manually run pr-generator</b> (on epic branch)<br/>when Epic branch is up-to-date with all stories<br/>Raise/update EPIC PR → BASE BRANCH"]
-    EPIC_PR --> GH_EPIC_FINAL[("GitHub:<br/>Epic PR → base branch<br/>(all story code included)")]
+    ARCHIVE --> MERGE_EPIC["<b>The User merges the Epic PR</b> into the base branch.<br/>This is a human decision."]
 
-    EPIC_PR --> ARCHIVE["<b>archive-epic (automatic) on epic branch </b><br/>1. Archive spec/ + reports/ + runtime-artifacts/ →<br/>   aire-archives/epics/EPIC-ID-name/<br/>   (no RE delta, no stitch)<br/>2. Commit + push on epic branch<br/>   (resides the open Epic PR)"]
-
-    ARCHIVE --> MERGE_EPIC["<b>User merges Epic PR</b><br/>into BASE BRANCH<br/>(human decision)"]
-
-
-    ARCHIVE --> DONE(["<b>EPIC COMPLETE</b>"])
+    MERGE_EPIC --> DONE(["<b>EPIC COMPLETE</b>"])
 
     %% ═══════════════════════════════════════════════════
     %% STYLING
@@ -202,12 +185,9 @@ flowchart TD
     %% Ideation (lavender)
     style IDEA fill:#EDE7F6,stroke:#5E35B1,stroke-width:2px
     style INTAKE fill:#D1C4E9,stroke:#5E35B1,stroke-width:2px
-    style JIRA_EPIC fill:#D1C4E9,stroke:#5E35B1
     style REFINE fill:#D1C4E9,stroke:#5E35B1,stroke-width:2px
     style JIRA_EPIC_FINAL fill:#B39DDB,stroke:#5E35B1,stroke-width:2px
 
-    %% Atlas via Helix MCP (amber — external system, tracker-agnostic)
-    style ATLAS fill:#FFCC80,stroke:#E65100,stroke-width:2px
 
     %% Trigger
     style TRIGGER fill:#CE93D8,stroke:#6A1B9A,stroke-width:3px
@@ -219,8 +199,6 @@ flowchart TD
     style RA_GEN fill:#BBDEFB,stroke:#1565C0
     style RA_FOLLOW fill:#BBDEFB,stroke:#1565C0
     style RA_COMMIT fill:#90CAF9,stroke:#1565C0,stroke-width:2px
-    style TEAM fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
-    style MODE fill:#BBDEFB,stroke:#1565C0
     style US_GEN fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
     style PUSH_JIRA fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
     style DG fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
@@ -230,9 +208,7 @@ flowchart TD
     style GATE1 fill:#FFF9C4,stroke:#F57F17,stroke-width:3px
     style RA_GATE fill:#FFF9C4,stroke:#F57F17
     style RA_APPROVE fill:#FFF9C4,stroke:#F57F17
-    style DG_GATE fill:#FFF9C4,stroke:#F57F17
-    style WP_GATE fill:#FFF9C4,stroke:#F57F17
-    style PLAN_GATE fill:#FFF9C4,stroke:#F57F17
+    style VE_APPROVAL fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
 
     %% Implementation design (purple)
     style IMPLEMENTATION fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px
@@ -245,24 +221,30 @@ flowchart TD
     style STOP fill:#FFCDD2,stroke:#C62828,stroke-width:3px
 
     %% dev-implement (green)
-    style SS fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
+    style SS fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
     style BLOCK fill:#FFCDD2,stroke:#C62828
     style INDEV fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
     style SBR fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
     style PLAN fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
     style GEN fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
     style BASE fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
-    HALTN(["<b> RETRY LIMIT REACHED — RUN HALTS</b><br/>3 of 3 attempts spent on a self-healing loop.<br/>No commit · no push · no PR · no tracker change.<br/>Retry-Limit Report → <i>&quot;3 retries ended.<br/>Please suggest next steps.&quot;</i>"])
 
     style COV fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
     style COVFIX fill:#FFE082,stroke:#FF6F00,stroke-width:3px
     style COVRUN fill:#FFF9C4,stroke:#F57F17
+    style BEHVFIX fill:#FFE082,stroke:#FF6F00
+    style APIFIX fill:#FFE082,stroke:#FF6F00
+    style ACRFIX fill:#FFE082,stroke:#FF6F00
+    style PREFIX fill:#FFE082,stroke:#FF6F00
     style BEHV fill:#C5E1A5,stroke:#33691E,stroke-width:3px
+    style API_TESTS fill:#C5E1A5,stroke:#33691E,stroke-width:2px
+    style STATIC fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
     style SPECB fill:#D1C4E9,stroke:#4527A0,stroke-width:3px
     style ARCHDOC fill:#B39DDB,stroke:#4527A0,stroke-width:3px
     style SMOKE fill:#FFAB91,stroke:#BF360C,stroke-width:3px
-    style HALTN fill:#EF9A9A,stroke:#B71C1C,stroke-width:3px
     style REG fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
+    style SCORECARD fill:#D8ECEA,stroke:#356C68,stroke-width:2px
+    style CI_EVAL fill:#D8ECEA,stroke:#356C68,stroke-width:2px
 
     %% Code Review (light blue)
     style ACR fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
@@ -270,8 +252,6 @@ flowchart TD
     style PR_REV fill:#B3E5FC,stroke:#0277BD
 
     %% Decision gates in dev-implement
-    style DOABLE fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
-    style SBG fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
     style RDG fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
     style REM_DECIDE fill:#FFF9C4,stroke:#F57F17
 
@@ -295,10 +275,11 @@ flowchart TD
     style GH_EPIC_FINAL fill:#FFF9C4,stroke:#F57F17
     style JIRA_STORIES fill:#FFF9C4,stroke:#F57F17
 
-    %% More decision
+    %% More decision + Verification Engineer track
     style MORE fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
     style MCHK fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
     style veBT fill:#B2DFDB,stroke:#00695C,stroke-width:2px
+    style VE_PR fill:#B2DFDB,stroke:#00695C,stroke-width:2px
 ```
 # 2. Brownfield End-to-End Flow — From Idea to Epic Release
 
@@ -310,179 +291,170 @@ flowchart TD
     %% PHASE 0: IDEATION + REVERSE ENGINEERING (Independent)
     %% ═══════════════════════════════════════════════════
 
-    IDEA([" User has an idea"])
-    IDEA --> INTAKE["<b>intent-intake skill (manual)</b><br/>Gather 6 baseline fields:<br/>Outcome, KPI, Success signal,<br/>Out-of-scope, Constraints, Confidence"]
-    INTAKE -->|"tracker-dispatch createEpic"| JIRA_EPIC["Epic created in the configured tracker<br/>(baseline — thin)"]
-
-    JIRA_EPIC --> REFINE["<b>intent-refinement skill (manual)</b><br/>Elaborate Epic to full detail:<br/>Measurable criteria, constraints,<br/>domain context, NFRs, risks"]
-    REFINE -->|"tracker-dispatch updateEpic"| JIRA_EPIC_FINAL["Final Epic in the configured tracker<br/>(fully detailed, ready to build)"]
-
-    %% Optional shortcut — Atlas via Helix MCP, bypasses intent-intake/intent-refinement
-    ATLAS[("Atlas — existing-system truth<br/>(knowledge graph + deep dive doc)")]
-    ATLAS -->|"Helix MCP<br/>(tracker-agnostic — works with JIRA/ADO/GITHUB/LOCAL)<br/>skips intent-intake / intent-refinement"| JIRA_EPIC_FINAL
+    IDEA([" The User has an idea"])
+    IDEA --> INTAKE["<b>The User runs the intent-intake skill (manual)</b><br/>The framework gathers six baseline fields that justify an Epic:<br/>the intended outcome, its measure of success, the success signal,<br/>what is out of scope, the known constraints, and the confidence level."]
+    INTAKE -->|"The framework creates the Epic in the user-selected tracker"| REFINE["<b>The User runs the intent-refinement skill (manual)</b><br/>The framework elaborates the Epic to full detail:<br/>measurable criteria, constraints, domain context,<br/>quality expectations, and risks."]
+    REFINE -->|"The framework updates the Epic in the user-selected tracker"| JIRA_EPIC_FINAL["The Epic is now fully detailed in the user-selected tracker<br/>and is ready to build."]
 
     %% Reverse Engineering — Independent, done ONCE for the repo
-    RRE["<b>reverse-engineering-root</b><br/>(run ONCE Manually on base branch)<br/>Generates root RE artifacts for whole repo<br/>Reused by ALL future epics"]
+    RRE["<b>The User runs reverse-engineering-root once</b> (manual, on the base branch)<br/>The framework generates the reverse-engineering artifacts for the whole repository —<br/>business overview, architecture, code structure, APIs, component inventory,<br/>technology stack, and dependencies. Every future Epic reuses these artifacts.<br/>When Atlas is connected, the current-system truth is pulled from Atlas instead of re-derived."]
 
     %% ═══════════════════════════════════════════════════
     %% PHASE 1: PLANNING — Planning & Architecture
     %% ═══════════════════════════════════════════════════
 
-    JIRA_EPIC_FINAL --> TRIGGER(["User enters:<br/><b>using aire implement &lt;EPIC KEY/ID&gt;</b><br/>(JIRA key / ADO work-item ID / GitHub issue ref;<br/>LOCAL needs no ID — describe the epic inline)<br/>— or, for an Atlas-backed epic:<br/><b>using aire-helix implement the epic in my solution on Helix</b>"])
+    JIRA_EPIC_FINAL --> TRIGGER["<b>The User starts the framework</b><br/>by typing <b>using aire implement &lt;EPIC KEY / ID&gt;</b><br/>(a JIRA key, an ADO work-item ID, or a GitHub issue reference;<br/>for Local no ID is needed — the User describes the Epic inline).<br/>The Epic can also come from Atlas when the Helix MCP is configured,<br/>by typing<br/><b>using aire implement the Epic from</b><br/><b>the solution document through Helix MCP</b>."]
 
-    TRIGGER --> WD["<b>Workspace Detection</b><br/>• Brownfield (existing code found)<br/>• Ensure spec/context-project/ (check first, create only if missing)<br/>• RE artifacts already exist → skip RE<br/>• Fetch Epic content → epic-brief.md<br/>• Record ## Tracker in runtime-artifacts/aire-state.md"]
-    RRE -.->|"Artifacts already present<br/>in workspace (done once)"| WD
-    WD --> CTX{"<b>Context Project artifacts?</b><br/>'Are there any context-project artifacts<br/>I should use for this task?'<br/>A) Yes — paste exact path<br/>B) No — continue<br/>(asked ONCE, recorded as ## Context Project in runtime-artifacts/aire-state.md)"}
-    CTX -->|"A) Yes — path read as current-system context"| CREF
+    TRIGGER --> WD["<b>Workspace Detection</b><br/>The framework finds existing code, so this is a brownfield workspace.<br/>It ensures spec/context-project/ exists, reuses the reverse-engineering artifacts<br/>if they are already present, fetches the Epic content into <b>epic-brief.md</b>,<br/>and records the chosen tracker in runtime-artifacts/aire-state.md."]
+    RRE -.->|"The reverse-engineering artifacts are already<br/>in the workspace (generated once)"| WD
+
+    WD -->|"When the Epic changes an existing system"| ATLAS_CUR["<b>Atlas provides the current-system truth through the Helix MCP.</b><br/>The framework saves the current architecture, components, interfaces,<br/>dependencies, and data flows in <b>deep-dive.md</b> and the supporting<br/>current-system documents. This is a read-only input and is never edited to fit a plan."]
+
+    WD --> CTX{"<b>Are there any context-project documents to use?</b><br/>The framework asks the User once, and records the answer<br/>as ## Context Project in runtime-artifacts/aire-state.md.<br/>A) Yes — the User pastes the exact path.<br/>B) No — continue."}
+    ATLAS_CUR --> CTX
+    CTX -->|"A) Yes — the path is read as current-system context"| CREF
     CTX -->|"B) No"| CREF
-    CREF{"<b>Context References?</b><br/>'Do you have any reference materials<br/>for this work? (UX wireframes, design mockups,<br/>API specs, etc. under spec/context-project/new-references/)'<br/>A) Yes — paste path(s)<br/>B) No — continue<br/>(asked ONCE, recorded as ## Context References in runtime-artifacts/aire-state.md)"}
-    CREF -->|"A) Yes — paths read as new-work guidance"| BRANCH
+    CREF{"<b>Are there any reference materials for the new work?</b><br/>The framework asks the User once, and records the answer<br/>as ## Context References in runtime-artifacts/aire-state.md.<br/>These may be UX wireframes, design mockups, or API specs<br/>placed under spec/context-project/new-references/.<br/>A) Yes — the User pastes the path(s).  B) No — continue."}
+    CREF -->|"A) Yes — the paths are read as guidance for the new work"| BRANCH
     CREF -->|"B) No"| BRANCH
-    BRANCH["<b>Create Epic Branch</b><br/>by the name of epic/epic-number-epic-title<br/>Record base branch + epic branch<br/>in runtime-artifacts/aire-state.md"]
+    BRANCH["<b>The framework creates the Epic branch</b><br/>named <b>epic/&lt;epic-number&gt;-&lt;epic-title&gt;</b>.<br/>It records the base branch and the Epic branch<br/>in runtime-artifacts/aire-state.md. All work happens on this branch."]
 
-    BRANCH --> RA["<b>Requirements Analysis</b><br/>• Read epic-brief.md (defines WHAT to build)<br/>• Determine depth (minimal/standard/comprehensive)<br/>• Generate clarifying questions .md<br/>• Include Extension opt-in prompts"]
-    RA --> RA_GATE{"User answers<br/>all questions"}
-    RA_GATE -->|"Ambiguity detected"| RA_FOLLOW["Follow-up questions<br/>(resolve before proceeding)"]
+    BRANCH --> RA["<b>Requirements Analysis</b><br/>The framework reads <b>epic-brief.md</b> (which defines what to build)<br/>alongside the reverse-engineering artifacts and the Atlas current-system truth,<br/>chooses the appropriate depth, and writes any open decisions<br/>as clarifying questions. The optional extensions are also offered here."]
+    RA --> RA_GATE{"The User answers<br/>every clarifying question."}
+    RA_GATE -->|"A decision is still unclear"| RA_FOLLOW["The framework asks follow-up questions<br/>and resolves them before continuing."]
     RA_FOLLOW --> RA_GATE
-    RA_GATE -->|"All clear"| RA_GEN["Generate requirements.md<br/>+ Security Mandatory + Record Extension Configuration"]
-    RA_GEN --> RA_APPROVE{"User approves<br/>requirements"}
-    RA_APPROVE -->|"Changes needed"| RA
-    RA_APPROVE -->|"Approved "| RA_COMMIT["Commit planning artifacts<br/>on epic branch + push to GitHub<br/>(no Epic PR raised here —<br/>raised manually at cycle end via pr-generator)"]
+    RA_GATE -->|"All decisions are clear"| RA_GEN["The framework writes <b>requirements.md</b>,<br/>which explains what the system must do, how well it must operate,<br/>and how each requirement will be traced.<br/>The mandatory security baseline and the chosen extensions are recorded."]
+    RA_GEN --> RA_APPROVE{"The User reviews <b>requirements.md</b>.<br/>The framework continues only after<br/>the User approves the complete requirements."}
+    RA_APPROVE -->|"Changes requested"| RA
+    RA_APPROVE -->|"Approved"| RA_COMMIT["The framework commits the planning artifacts on the Epic branch<br/>and pushes them. No Epic pull request is raised here."]
 
     %% ═══════════════════════════════════════════════════
     %% USER STORIES
     %% ═══════════════════════════════════════════════════
 
-    RA_COMMIT --> TEAM["<b>User Stories — Part 1</b><br/>team_size FIXED at 2 — never asked<br/>(drives story granularity: ≥ 2)"]
-    TEAM --> MODE["Story creation mode FIXED:<br/><b>all at once</b> — never asked<br/>(no per-story approval loop)"]
-    MODE --> US_GEN["<b>User Stories — Part 2: Generation</b><br/>Generate stories.md + personas.md<br/>Populate Story Tracker<br/>(Status:  Ready for Development)"]
+    RA_COMMIT --> US_GEN["<b>User Story Generation</b><br/>The framework creates <b>stories.md</b> and <b>personas.md</b>.<br/>Every story records its outcome, acceptance criteria, and linked requirements,<br/>and the Story Tracker is populated (Status: Ready for Development)."]
 
-    US_GEN --> GATE1{"<b>GATE 1 — Story Set Approval (MANDATORY)</b><br/>Story set announced, Requirements coverage check passes<br/>User: Request Changes / Approve &amp; Continue"}
+    US_GEN --> GATE1{"<b>GATE 1 — Story Set Approval</b><br/>The framework announces the complete story set and confirms<br/>that every approved requirement is covered by at least one story.<br/>The User chooses: Request Changes, or Approve &amp; Continue."}
     GATE1 -->|"Request Changes"| US_GEN
-    GATE1 -->|"Approve & Continue"| PUSH_JIRA["<b>User Stories — Part 3: Push to Tracker</b><br/>• Confirm Project Key / Repo / Org<br/>• Create each story in the configured tracker<br/>• Transition to 'Ready for Development'<br/>• Link each story to Parent Epic (verify)<br/>• Write Tracker IDs back to stories.md"]
-    PUSH_JIRA -->|"tracker-dispatch createStory × N + link"| JIRA_STORIES[("Configured tracker: N stories<br/>linked to Parent Epic")]
+    GATE1 -->|"Approve &amp; Continue"| PUSH_JIRA["<b>User Stories — Part 3: Push to the tracker</b><br/>The framework confirms the project / repo / org, creates each story<br/>in the user-selected tracker, moves it to Ready for Development,<br/>links it to the Parent Epic, and writes the tracker IDs back to stories.md.<br/>(For Local, nothing leaves the workspace.)"]
+    PUSH_JIRA -->|"The framework creates each story and links it to the Epic"| JIRA_STORIES[("The user-selected tracker now holds N stories,<br/>each linked to the Parent Epic.")]
 
     %% ═══════════════════════════════════════════════════
     %% DEPENDENCY GRAPH + WORKFLOW PLANNING
     %% ═══════════════════════════════════════════════════
 
-    PUSH_JIRA --> DG["<b>Dependency Graph</b><br/>• It tell how stories are dependent on each other<br/>• Write dependency-graph.yml<br/>• Add Mermaid graph to runtime-artifacts/aire-state.md<br/>• Show: M stories ready now "]
-    DG --> DG_GATE["Graph announced — NO GATE<br/>(enforced later by the Doability Gate<br/>and the branch-cut merge check)"]
-    DG_GATE --> WP["<b>Workflow Planning</b><br/>• Determine EXECUTE/SKIP per design stage<br/>• Generate executions.md<br/>• Mermaid visualization"]
-    WP --> WP_GATE["Plan announced — NO GATE<br/>(each selected stage keeps its own approval)"]
-    WP_GATE --> IMPLEMENTATION
+    PUSH_JIRA --> DG["<b>Dependency Graph</b><br/>The framework works out how the stories depend on one another,<br/>writes <b>dependency-graph.yml</b>, adds a Mermaid graph<br/>to runtime-artifacts/aire-state.md, and shows which stories<br/>can begin immediately in parallel."]
+    DG --> WP["<b>Workflow Planning</b><br/>The framework decides which design stages this Epic needs<br/>and which can be skipped, records the reasons in <b>executions.md</b>,<br/>and produces a Mermaid visualization of the plan."]
+    WP --> IMPLEMENTATION
 
     %% ═══════════════════════════════════════════════════
     %% IMPLEMENTATION PHASE — DESIGN (System-Level, Single Pass)
     %% ═══════════════════════════════════════════════════
 
-    IMPLEMENTATION["<b>IMPLEMENTATION PHASE</b><br/>System-Level Design Stages<br/>(single pass, NO code generated here)"]
-    IMPLEMENTATION --> FD["Functional Design<br/>(CONDITIONAL)"]
-    FD --> NFR_R["NFR Requirements<br/>(CONDITIONAL)"]
-    NFR_R --> NFR_D["NFR Design<br/>(CONDITIONAL)"]
-    NFR_D --> INFRA["Infrastructure Design<br/>(CONDITIONAL)"]
+    IMPLEMENTATION["<b>IMPLEMENTATION PHASE — System-Level Design</b><br/>The framework runs the selected design stages once for the whole system.<br/>No code is generated here. On brownfield the existing architecture is the starting state,<br/>and each design records the delta from it. Every selected stage asks focused questions,<br/>writes its document, and waits for the User to approve it before continuing."]
+    IMPLEMENTATION --> FD["<b>Functional Design</b> (only when required)<br/>The domain model, business rules, validation, data flows,<br/>integrations, and edge cases, written to <b>functional-design.md</b>."]
+    FD --> NFR_R["<b>NFR Requirements</b> (only when required)<br/>How fast, secure, reliable, available, and scalable the system must be,<br/>recorded as measurable expectations in <b>nfr.md</b>."]
+    NFR_R --> NFR_D["<b>NFR Design</b> (only when required)<br/>How those quality expectations will be achieved —<br/>resilience, scaling, performance, security, and recovery — added to <b>nfr.md</b>."]
+    NFR_D --> INFRA["<b>Infrastructure Design</b> (only when required)<br/>Where and how the solution runs — environments, hosting, storage,<br/>messaging, networking, monitoring — written to <b>infrastructure-design.md</b>."]
 
-    INFRA --> ARCHDOC["<b> architecture.md + RUBRIC + CI</b> (automatic, no gate)<br/>1. Consolidate the design stages → spec/plans/architecture.md<br/>&nbsp;&nbsp;&nbsp;incl. Section 10 Verifiable Constraints<br/>2. Derive tests/.evals/rubrics/architecture-rubric.json from Section 10<br/>&nbsp;&nbsp;&nbsp;(1:1, same weights) — this is the BLOCKING J1 gate<br/>&nbsp;&nbsp;&nbsp;+ create tests/.evals/rubrics/security-rubric.json (OWASP-based) — the J2 gate<br/>3. Generate .github/workflows/agentic-eval-pipeline.yml from a fixed,<br/>&nbsp;&nbsp;&nbsp;versioned manifest-driven runner (lib-manifest/read-manifest/<br/>&nbsp;&nbsp;&nbsp;ci-manifest-runner) — values read from THIS repo's stack +<br/>&nbsp;&nbsp;&nbsp;tests/.evals/config.json thresholds, never hand-typed into the YAML<br/>4. CI setup gate: present verbatim, HALT for proceed/skip"]
-    ARCHDOC --> SMOKE["<b> Epic-level pre-handoff SMOKE TEST</b> (automatic)<br/>Zero-diff scratch PR (ci/epic-smoke-*) proves the CI<br/>environment is viable — NOT the delta-scoped gate logic<br/><i>Watch loop is UNBOUNDED — ends only when auto-fix-agent<br/>itself stops producing a new run (its own retryLimitForSelfRepair<br/>exhaustion, or a genuine fix)</i><br/>Pass → scratch PR auto-merged + deleted<br/>Fail (exhausted) → scratch PR left OPEN, <b>Handoff does NOT happen</b>"]
-    SMOKE --> STOP[" <b>MANDATORY STOP — Development Handoff</b><br/>Design artifacts are <b>committed + pushed on the epic branch</b><br/>(automatic — this is what unblocks ve)<br/><br/> N stories created<br/> M stories ready to start<br/> Design stages: [ran/skipped]<br/><br/><b>DEV: pull the epic branch, then type dev-implement</b> (once per story)<br/><b>ve: pull the epic branch, then type /ve-implement &lt;story&gt;</b> (once per story)<br/><i>both run in parallel from here — ve never waits for dev code</i>"]
+    INFRA --> ARCHDOC["<b>Architecture, rubrics, and CI pipeline</b><br/>The framework combines the approved design documents into one system design,<br/><b>spec/plans/architecture.md</b>, and from it derives the evaluation rubrics<br/>used to score the delivered code — the architecture rubric and an<br/>OWASP-based security rubric. It then generates the automated evaluation<br/>pipeline from this repo's own stack and quality thresholds.<br/>The framework presents the CI setup instructions and waits for the User<br/>to choose <b>proceed</b> or <b>skip</b>."]
+    ARCHDOC --> SMOKE["<b>Epic-level pre-handoff smoke test</b> (automatic)<br/>A zero-diff scratch pull request proves the CI environment is viable —<br/>not the delta-scoped gate logic. Its watch loop is unbounded and ends only<br/>when the self-repair agent itself stops producing a new run.<br/>On success the scratch PR is merged and deleted; on exhaustion it is left open<br/>and the Development Handoff does not happen."]
+    SMOKE --> STOP[" <b>MANDATORY STOP — Development Handoff</b><br/>The design artifacts are committed and pushed on the Epic branch (automatic).<br/>The framework announces how many stories were created, which are ready to start,<br/>and which design stages ran or were skipped.<br/><br/><b>Developer: pull the Epic branch, then type dev-implement</b> (once per story).<br/><b>Verification Engineer: pull the Epic branch, then type /ve-implement &lt;story&gt;</b> (once per story).<br/>Both tracks run in parallel from here — the Verification Engineer never waits for code."]
 
     %% ═══════════════════════════════════════════════════
     %% DEV-IMPLEMENT — Per-Story Code Generation
     %% ═══════════════════════════════════════════════════
 
-    STOP -->|"User types: <b>dev-implement</b><br/>(once per story)"| SS
+    STOP -->|"The Developer types <b>dev-implement</b><br/>(once per story)"| SS
 
-    SS["<b>Story Selection</b><br/>Show ready stories<br/>(every requires: Ready for Testing, or its PR merged)<br/>User picks by story ID or Tracker ID"]
-    SS --> DOABLE{"<b>Doability Checkpoint</b>"}
-    DOABLE -->|"No — blocked"| BLOCK["List outstanding prerequisites<br/>+ show which stories ARE ready"]
+    SS{"<b>Story Selection &amp; Doability check</b><br/>The framework shows the stories that are ready and the Developer picks one<br/>by story ID or tracker ID. It then checks that every prerequisite story's PR<br/>is merged into the Epic branch. The framework never merges a prerequisite itself,<br/>even one that is already approved."}
+    SS -->|"No — a prerequisite is still unmerged"| BLOCK["The framework lists the outstanding prerequisites<br/>and shows which stories are ready instead."]
     BLOCK --> SS
-    DOABLE -->|"Yes — doable"| INDEV["<b>Story →  In Development</b><br/>Update Story Tracker + Start date<br/>Tracker Sync: auto-transition<br/>+ add <b>AIRE version label</b> on the tracker item (JIRA/ADO/GITHUB; LOCAL updates local tracker only)<br/>(version read from CLAUDE.md)"]
+    SS -->|"Yes — the story is doable"| INDEV["<b>The story moves to In Development</b><br/>The framework updates the Story Tracker and start date, auto-transitions the<br/>tracker item to In Development, and adds the AIRE version label<br/>(on JIRA / ADO / GitHub; Local updates only the local tracker).<br/>The version is read live from CLAUDE.md."]
 
-    INDEV --> SBG{"<b>Story Branch checkpoint</b><br/>All prerequisite story PRs<br/>MERGED into epic branch?"}
-    SBG -->|"No — prerequisite PR unmerged<br/> WARN + STOP<br/>Revert story to  Ready"| SS
-    SBG -->|"Yes — all merged"| SBR["<b>Create Story Branch</b><br/>git fetch + checkout epic branch + pull --ff-only<br/>git checkout -b story/N.M-kebab-title<br/>(cut FROM epic branch, NEVER base)"]
+    INDEV --> SBR["<b>The framework creates the story branch</b><br/>fetch and checkout the Epic branch, pull fast-forward only,<br/>then create <b>story/&lt;N.M&gt;-&lt;kebab-title&gt;</b>,<br/>cut from the Epic branch and never from base."]
 
-    SBR --> BASE["<b>BASELINE Regression Run</b><br/>(automatic, on the story branch,<br/>before any code is written)<br/>• Run ENTIRE repo test suite<br/>• Record the current test results<br/><br/>→ baseline-regression.log<br/>"]
+    SBR --> BASE["<b>Baseline capture</b> (automatic, before any code is written)<br/>The framework runs the entire repository test suite on the story branch<br/>and records the current results in <b>baseline-regression.log</b>.<br/>Only new problems introduced by this story will count for self-repair."]
 
-    BASE --> PLAN["<b>Code Gen Part 1: PLAN</b><br/>• Analyze story + acceptance criteria<br/>• Create implementation steps<br/>• Structure, logic, API, tests, docs"]
-    PLAN --> PLAN_GATE["Plan announced — NO GATE<br/>executed immediately"]
-    PLAN_GATE --> SPECB["<b> BEHAVIOUR SPEC</b> — one file<br/>spec/behavior/<br/>story-N.M.feature<br/><i>One scenario per AC, @AC-n tagged.<br/>Written BEFORE the code — it is the contract.<br/>The story's ONLY spec file.</i>"]
-    SPECB --> GEN["<b>Code Gen Part 2: GENERATE</b><br/>• Execute each plan step<br/>• All application code → <b>src/</b><br/>• Tests → tests/ · nothing into spec/<br/>• Mark [x] after each step"]
+    BASE --> PLAN["<b>Code Generation — Part 1: Plan</b><br/>The framework analyzes the story and its acceptance criteria<br/>and lays out the implementation steps: structure, logic, API, tests, and docs."]
+    PLAN --> SPECB["<b>Behavior specification</b> — a single file,<br/><b>spec/behavior/story-N.M.feature</b>.<br/>One scenario per acceptance criterion, tagged @AC-n, written BEFORE the code<br/>because it is the contract."]
+    SPECB --> GEN["<b>Code Generation — Part 2: Generate</b><br/>The framework executes each plan step, writing all application code into <b>src/</b><br/>and all tests into <b>tests/</b> (nothing goes into spec/),<br/>and marks each step complete as it finishes."]
 
-    GEN --> COV{"<b>Unit Test + Coverage</b><br/>• Generate tests, RUN them<br/>• Measure coverage on new/changed code<br/><b>Threshold: ≥ 90%</b><br/>• <b>Coverage proof</b>: RUN LOGS + machine-readable<br/>coverage report captured as evidence"}
-    COV -->|"test fails, or coverage &lt; 90%"| COVFIX["<b>FIX THE CODE</b><br/>Diagnose the root cause, then fix the<br/><b>implementation</b>. Add tests only for paths<br/>that are genuinely untested.<br/><i>Never delete or weaken a test to go green.</i>"]
-    COVFIX --> COVRUN["<b>RE-RUN THE UNIT TESTS</b><br/>Re-measure coverage on changed code"]
+    GEN --> COV{"<b>Unit tests and coverage</b><br/>The framework generates the tests, runs them, and measures coverage<br/>on the new and changed code. The threshold is <b>at least 90%</b>.<br/>The run logs and a machine-readable coverage report are captured as evidence."}
+    COV -->|"a test fails, or coverage is below 90% —<br/>the framework self-heals and reruns, up to 3 times"| COVFIX["<b>The framework fixes the code</b><br/>It diagnoses the root cause and corrects the implementation,<br/>adding tests only for paths that are genuinely untested.<br/>It never deletes or weakens a test to go green."]
+    COVFIX --> COVRUN["The framework re-runs the unit tests<br/>and re-measures coverage on the changed code."]
     COVRUN --> COV
-    COV -->|"3 attempts spent"| HALTN
 
-    COV -->|"green + ≥ 90%"| BEHV{"<b> BEHAVIOURAL TESTS (Gherkin)</b><br/>Run every scenario in this unit's .feature<br/>via tests/behavior/steps/<br/><b>All pass · every @AC tag executed</b>"}
-    BEHV -->|"a scenario fails — fix the CODE<br/>(max 3 attempts)"| BEHV
-    BEHV -->|"3 attempts spent"| HALTN
+    COV -->|"green and at least 90%"| BEHV{"<b>Behavioral tests (Gherkin)</b><br/>The framework runs every scenario in this story's .feature file<br/>through tests/behavior/steps/. All scenarios must pass<br/>and every @AC tag must execute."}
+    BEHV -->|"a scenario fails"| BEHVFIX["The framework self-heals<br/>and reruns, up to 3 times."]
+    BEHVFIX --> BEHV
 
-    BEHV -->|"all green"| REG["<b>New FULL Regression vs Prev BASELINE</b><br/>(automatic)<br/>• Re-run ENTIRE suite and compare against the baseline<br/>• NEW failure = broken BY this story<br/>→ fixed in the same run (max 3 attempts)<br/>→ then  Static Eval D1–D7 vs baseline"]
-    REG -->|"3 attempts spent"| HALTN
+    BEHV -->|"all green"| API_TESTS{"<b>API and contract tests</b> (when the story touches an API layer)<br/>Changed interfaces must return correct results and status codes,<br/>enforce access, reject invalid requests,<br/>and preserve the agreed response structure."}
+    API_TESTS -->|"a check fails"| APIFIX["The framework self-heals<br/>and reruns, up to 3 times."]
+    APIFIX --> API_TESTS
 
-    REG --> ACR["<b>AUTO Code Review</b><br/>(not asked — always runs)<br/>• Verify each acceptance criterion<br/>• Diff-scoped Security Baseline (16 rules)<br/>•  <b>BLOCKING judge gates</b>: J1 ≥ 0.85 (rubric from<br/>architecture.md Section 10) · J2 ≥ 0.80<br/>• Versioned report: story-N.M-code-review-vX.md"]
-    ACR -->|"J1/J2 below minimum — fix the cited<br/>criteria (max 3 attempts)"| ACR
-    ACR -->|"3 attempts spent"| HALTN
+    API_TESTS -->|"all green (or not applicable)"| REG["<b>Full regression vs the baseline</b> (automatic)<br/>The framework re-runs the entire suite and compares it with the baseline.<br/>Any new failure was introduced by this story and is self-healed,<br/>up to 3 times."]
 
-    ACR --> RDG{"<b>Verdict routing — AUTOMATIC</b><br/>clean, or findings?"}
-    RDG -->|"Findings — no question asked"| REM["<b>AUTO-Remediate Loop</b><br/>• Every 🔴/🟠 finding in scope (no confirmation)<br/>• Fix each: fix → unit test → green<br/>• Re-run FULL regression vs baseline<br/>• Annotate report with resolution"]
-    REM --> REM_DECIDE{"Re-review<br/>AUTOMATICALLY"}
-    REM_DECIDE -->|"loop until verdict is clean<br/>(max 3 rounds)"| ACR
-    REM_DECIDE -->|"3 rounds spent, or stall<br/>(no change + identical findings)"| HALTN
+    REG --> STATIC["<b>Static quality evaluation (D1–D7)</b><br/>The framework checks coding mistakes, type compatibility, security patterns,<br/>dependency vulnerabilities, software licences, complexity, and exposed secrets,<br/>compared against the baseline. Unacceptable new findings are self-healed,<br/>up to 3 times."]
 
-    RDG -->|"Clean — proceed automatically"| COMMIT["<b>Commit Story Branch</b><br/>git add + commit on story branch"]
+    STATIC --> ACR["<b>Automated code review</b> (always runs — never asked)<br/>A read-only review that checks the implementation against every acceptance<br/>criterion and linked requirement, the mandatory security baseline (16 rules),<br/>and the two blocking judge gates that score the code against the architecture<br/>rubric and the security rubric. A versioned report is written."]
+    ACR -->|"a judge gate is below the minimum"| ACRFIX["The framework self-heals the cited criteria<br/>and re-reviews, up to 3 times."]
+    ACRFIX --> ACR
 
-    COMMIT --> PREFLIGHT{"<b>CI PREFLIGHT GATE — SH-LOOP-9</b><br/>Clean-room run of CI's OWN entrypoints<br/>(ci-manifest-runner install→build→coverage,<br/>run-static-evals) against the COMMITTED diff<br/>— zero missing tools, zero undeclared deps,<br/>zero Manifest defects, no N/A on a touched root"}
-    PREFLIGHT -->|"Fail — fix the DECLARATION<br/>(this story's ci-manifest.d fragment,<br/>or the repo's own dep declaration;<br/>never the gate)<br/>(max 3 attempts)"| PREFLIGHT
-    PREFLIGHT -->|"3 attempts spent"| HALTN
-    PREFLIGHT -->|"Clean"| STORY_PR["<b>pr-generator</b> (invoked by workflow)<br/>Push story branch<br/>Open STORY PR → EPIC BRANCH<br/>Add 'ai-generated' label<br/>+ the same <b>AIRE version label</b>"]
-    STORY_PR --> GH_STORY[("GitHub:<br/>Story PR → epic branch")]
+    ACR --> RDG{"<b>Verdict routing — automatic</b><br/>Is the review clean, or are there findings?"}
+    RDG -->|"Findings — no question is asked"| REM["<b>Automatic remediation loop</b><br/>The framework fixes every in-scope critical and high finding without confirmation:<br/>fix, unit test, green, then re-run the full regression against the baseline,<br/>and annotates the report with each resolution."]
+    REM --> REM_DECIDE{"The framework re-reviews<br/>automatically."}
+    REM_DECIDE -->|"loop until the verdict is clean, up to 3 rounds"| ACR
 
-    STORY_PR --> PR_REV["<b>AUTO pr-review</b><br/>on the story PR<br/>"]
+    RDG -->|"Clean — the framework proceeds automatically"| SCORECARD["<b>Evaluation scorecard</b><br/>Once every evaluation has passed, the framework writes <b>eval.json</b><br/>and <b>eval-summary.md</b> with the results and supporting evidence."]
+    SCORECARD --> COMMIT["<b>The framework commits the story branch</b><br/>git add and commit on the story branch."]
 
-    PR_REV --> RFD["<b>Story STAYS  In Development</b><br/>after the PR is raised —<br/>End date + PR link recorded,<br/>tracker comment with PR link added<br/>"]
+    COMMIT --> PREFLIGHT{"<b>CI preflight gate</b><br/>The framework runs CI's own entrypoints in a clean room<br/>(install, build, coverage, and the static evals) against the committed diff —<br/>zero missing tools, zero undeclared dependencies, and no skipped root."}
+    PREFLIGHT -->|"Fail"| PREFIX["The framework fixes the declaration<br/>(this story's manifest fragment or the repo's dependency declaration,<br/>never the gate) and self-heals, up to 3 times."]
+    PREFIX --> PREFLIGHT
+    PREFLIGHT -->|"Clean"| STORY_PR["<b>The framework raises the story pull request</b> (via pr-generator)<br/>It pushes the story branch and opens a PR into the Epic branch,<br/>adding the 'ai-generated' label and the AIRE version label.<br/>The scorecard and review evidence travel with the PR."]
+    STORY_PR --> GH_STORY[("GitHub: the story PR<br/>targets the Epic branch.")]
+
+    STORY_PR --> CI_EVAL["<b>Continuous integration evaluation</b><br/>The same evaluations run again in a clean environment.<br/>If any evaluation fails, the framework self-heals and reruns the pipeline,<br/>up to 3 times."]
+    CI_EVAL --> PR_REV["<b>Automatic PR review</b><br/>The framework posts its review on the story PR."]
+
+    PR_REV --> RFD["<b>The story stays In Development</b> after the PR is raised.<br/>The framework records the end date and PR link<br/>and adds a tracker comment with the PR link."]
 
     %% ═══════════════════════════════════════════════════
     %% MERGE + NEXT STORY LOOP
     %% ═══════════════════════════════════════════════════
 
-    RFD --> MERGE_STORY["<b>User merges Story PR</b><br/>into EPIC BRANCH<br/>(required before dependent stories<br/>can pass Story Branch checkpoint)"]
-
+    RFD --> MERGE_STORY["<b>The User merges the story PR</b> into the Epic branch.<br/>This is required before any dependent story<br/>can pass the Doability check."]
 
     MERGE_STORY -.-> SYNC
-    MERGE_STORY --> MORE{"More stories<br/>to implement?"}
-    MORE -->|"Yes — user types<br/>dev-implement again"| MCHK["<b>LIVE prerequisite check</b> (Doability checkpoint, per pick)<br/>Only for the prerequisites of the story being picked:<br/>is that prerequisite's PR MERGED into the epic branch?<br/>YES → proceed<br/>NOT merged (even if approved) →  STOP with the reason<br/>gate never merges it itself<br/>"]
+    MERGE_STORY --> MORE{"Are there more stories<br/>to implement?"}
+    MORE -->|"Yes — the Developer types<br/>dev-implement again"| MCHK["<b>Live prerequisite check</b> (the Doability check, per pick)<br/>Only for the prerequisites of the story being picked:<br/>is that prerequisite's PR merged into the Epic branch?<br/>If yes, proceed. If not merged (even if approved), stop with the reason.<br/>The framework never merges it itself."]
     MCHK --> SS
-    MORE -->|"No — all stories done "| ALL_DONE
+    MORE -->|"No — all stories are done"| ALL_DONE
 
     %% ═══════════════════════════════════════════════════
-    %% POST-DEVELOPMENT: EPIC CLOSE + RELEASE
+    %% Verification Engineer PARALLEL TRACK — starts as soon as stories exist,
+    %% does NOT wait for dev. Not an Implementation stage.
     %% ═══════════════════════════════════════════════════
 
+    STOP -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>The Verification Engineer types /ve-implement &lt;story&gt;</b> on the Epic branch.<br/>The framework cuts a branch <b>ve/&lt;story-TICKET-ID&gt;-&lt;story-title&gt;</b> from the latest Epic branch.<br/>Without reading application source code, it reads the story's acceptance criteria<br/>(tracker item, requirements, and design) and writes manual test steps into<br/>spec/test-plans/&lt;story&gt;/ — integration, e2e, API, contract, security, and performance —<br/>with every acceptance criterion covered. A test-plan summary is produced."]
+    veBT --> VE_APPROVAL{"The User reviews the manual test plans.<br/>The framework continues only after the User confirms<br/>that the planned tests provide sufficient coverage."}
+    VE_APPROVAL -->|"Changes requested"| veBT
+    VE_APPROVAL -->|"Approved"| VE_PR["<b>The framework raises the test-plan pull request</b><br/>into the Epic branch, labeled 'ai-generated' and with the AIRE version label,<br/>and logs it in runtime-artifacts/audit.md."]
+    VE_PR -.-> SYNC
 
-    %% ═══════════════════════════════════════════════════
-    %% ve PARALLEL TRACK — starts as soon as stories exist,
-    %% does NOT wait for dev. Not a Implementation stage.
-    %% ═══════════════════════════════════════════════════
+    ALL_DONE["All stories are completed<br/>and all story PRs are merged into the Epic branch (human decision)."]
 
-    STOP -.->|"ve works in PARALLEL —<br/> never waits for dev code"| veBT["<b>ve types /ve-implement &lt;story-TICKET-ID&gt;</b> on the epic branch<br/>A branch <b>ve/&lt;story-TICKET-ID&gt;-&lt;story-title&gt;</b> is cut<br/>from the LATEST epic branch —  Run Test section of implementation phase per story <br/>Reads the story's ACCEPTANCE CRITERIA<br/>(tracker item + requirements + design)<br/><b>never reads application source code</b><br/>Writes MANUAL test steps →<br/>spec/test-plans/&lt;story-TICKET-ID&gt;-title/<br/>integration · e2e · api ·<br/>contract · security · performance<br/><i>Every AC covered, then committed and a PR raised<br/>to the epic branch; logged in runtime-artifacts/audit.md.<br/>Conflicts are avoided by .gitattributes (append merge)</i>"]
-    veBT -.->|"repeat per story"| veBT
-    veBT -.-> SYNC
+    ALL_DONE --> SYNC["<b>The Verification Engineer runs /ve-list-work</b> on the Epic branch.<br/>The framework pulls the latest Epic branch and lists every story whose PR has merged<br/>but is still In Development. The Verification Engineer executes the manual test steps<br/>generated by /ve-implement, then runs /ve-list-work again and takes one decision per story:<br/><b>&lt;story&gt; approve</b> or <b>&lt;story&gt; reject</b> (for example, PROJ-102 approve, PROJ-103 reject).<br/><br/><b>Approve</b> → a 'Verification Engineer approved the story' comment, the ve-approved label,<br/>and a move to Ready for Testing.<br/><b>Reject</b> → a 'Verification Engineer rejected the story' comment, the ve-rejected label,<br/>and the story deliberately stays In Development (the defect is logged with /raise-defect).<br/><br/>Both outcomes are logged in runtime-artifacts/audit.md. When every story in the Epic<br/>is approved, the framework offers to move the Parent Epic to Ready for Testing."]
 
-    ALL_DONE["All stories completed <br/>+ all story PRs merged into epic branch (human decision)"]
+    SYNC --> EPIC_PR["<b>The User runs pr-generator</b> on the Epic branch,<br/>once the Epic branch holds all the merged stories,<br/>to raise or update the Epic pull request into the base branch."]
+    EPIC_PR --> GH_EPIC_FINAL[("GitHub: the Epic PR targets the base branch<br/>and includes all story code.")]
 
-    ALL_DONE --> SYNC["<b>/ve-list-work</b><br/>run MANUALLY by ve on the EPIC BRANCH and ve chooses option A<br/><br/>1. Pulls the latest epic branch<br/>2. Lists every story whose PR has MERGED,<br/>&nbsp;&nbsp;&nbsp;which is still In Development<br/>3. ve tests them by executing the manual test steps generated by /ve-implement skill<br/>&nbsp;&nbsp;&nbsp;(can be run in a separate terminal)<br/>The ve runs /ve-list-work again and chooses option B and takes one decision per story:<br/>&nbsp;&nbsp;&nbsp;<b>&lt;story&gt; approve</b> &nbsp;or&nbsp; <b>&lt;story&gt; reject</b><br/>&nbsp;&nbsp;&nbsp;e.g. Proj-102 approve, PROJ-103 reject<br/><br/><b>APPROVE</b> → tracker comment 've approved the story'<br/>+ <b>ve-approved</b> label + Transition to → <b>Ready for Testing</b><br/>(Story Tracker)<br/><b>REJECT</b> → tracker comment 've rejected the story'<br/>+ <b>ve-rejected</b> label<b> + Ticket stays In Development</b><br/>(ve manually log the defect with /raise-defect)<br/><br/>Both outcomes logged in runtime-artifacts/audit.md<i> Run it per story as soon as THAT story's PR merges —<br/></i><br/> When ALL stories are approved in an Epic → it offers to transition<br/><b>Parent Epic → Ready for Testing</b>"]
+    EPIC_PR --> ARCHIVE["<b>archive-epic runs (automatic)</b><br/>The framework archives spec/, reports/, and runtime-artifacts/ into<br/>aire-archives/epics/&lt;EPIC-ID&gt;-name/ (no reverse-engineering delta, no stitch),<br/>then commits and pushes on the Epic branch of the open Epic PR."]
 
-    SYNC --> EPIC_PR["<b>Manually run pr-generator</b> (on epic branch)<br/>when Epic branch is up-to-date with all stories<br/>Raise/update EPIC PR → BASE BRANCH"]
-    EPIC_PR --> GH_EPIC_FINAL[("GitHub:<br/>Epic PR → base branch<br/>(all story code included)")]
+    ARCHIVE --> MERGE_EPIC["<b>The User merges the Epic PR</b> into the base branch.<br/>This is a human decision."]
 
-    EPIC_PR --> ARCHIVE["<b>automatic archive-epic</b><br/>1. Archive spec/ + reports/ + runtime-artifacts/ →<br/>   aire-archives/epics/EPIC-ID-name/<br/>   (no RE delta, no stitch)<br/>2. Commit + push on epic branch<br/>   (resides the open Epic PR)"]
-
-    ARCHIVE --> MERGE_EPIC["<b>User merges Epic PR</b><br/>into BASE BRANCH<br/>(human decision)"]
-
-    MERGE_EPIC --> DONE(["<b>RELEASE COMPLETE</b><br/>Next cycle pulls fresh current-system truth<br/>from Atlas via the Helix MCP"])
+    MERGE_EPIC --> DONE(["<b>RELEASE COMPLETE</b><br/>The next cycle pulls fresh current-system truth<br/>from Atlas through the Helix MCP."])
 
     %% ═══════════════════════════════════════════════════
     %% STYLING
@@ -491,15 +463,17 @@ flowchart TD
     %% Ideation (lavender)
     style IDEA fill:#EDE7F6,stroke:#5E35B1,stroke-width:2px
     style INTAKE fill:#D1C4E9,stroke:#5E35B1,stroke-width:2px
-    style JIRA_EPIC fill:#D1C4E9,stroke:#5E35B1
     style REFINE fill:#D1C4E9,stroke:#5E35B1,stroke-width:2px
     style JIRA_EPIC_FINAL fill:#B39DDB,stroke:#5E35B1,stroke-width:2px
 
-    %% Atlas via Helix MCP (amber — external system, tracker-agnostic)
-    style ATLAS fill:#FFCC80,stroke:#E65100,stroke-width:2px
+    style ATLAS_CUR fill:#FFCC80,stroke:#E65100,stroke-width:2px
 
     %% Reverse Engineering Root (amber/orange — independent)
     style RRE fill:#FFCC80,stroke:#E65100,stroke-width:2px
+
+    %% Context questions (blue)
+    style CTX fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+    style CREF fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
 
     %% Trigger
     style TRIGGER fill:#CE93D8,stroke:#6A1B9A,stroke-width:3px
@@ -511,8 +485,6 @@ flowchart TD
     style RA_GEN fill:#BBDEFB,stroke:#1565C0
     style RA_FOLLOW fill:#BBDEFB,stroke:#1565C0
     style RA_COMMIT fill:#90CAF9,stroke:#1565C0,stroke-width:2px
-    style TEAM fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
-    style MODE fill:#BBDEFB,stroke:#1565C0
     style US_GEN fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
     style PUSH_JIRA fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
     style DG fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
@@ -522,9 +494,7 @@ flowchart TD
     style GATE1 fill:#FFF9C4,stroke:#F57F17,stroke-width:3px
     style RA_GATE fill:#FFF9C4,stroke:#F57F17
     style RA_APPROVE fill:#FFF9C4,stroke:#F57F17
-    style DG_GATE fill:#FFF9C4,stroke:#F57F17
-    style WP_GATE fill:#FFF9C4,stroke:#F57F17
-    style PLAN_GATE fill:#FFF9C4,stroke:#F57F17
+    style VE_APPROVAL fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
 
     %% Implementation design (purple)
     style IMPLEMENTATION fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px
@@ -537,24 +507,30 @@ flowchart TD
     style STOP fill:#FFCDD2,stroke:#C62828,stroke-width:3px
 
     %% dev-implement (green)
-    style SS fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
+    style SS fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
     style BLOCK fill:#FFCDD2,stroke:#C62828
     style INDEV fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
     style SBR fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
     style PLAN fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
     style GEN fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
     style BASE fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
-    HALTN(["<b> RETRY LIMIT REACHED — RUN HALTS</b><br/>3 of 3 attempts spent on a self-healing loop.<br/>No commit · no push · no PR · no tracker change.<br/>Retry-Limit Report → <i>&quot;3 retries ended.<br/>Please suggest next steps.&quot;</i>"])
 
     style COV fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
     style COVFIX fill:#FFE082,stroke:#FF6F00,stroke-width:3px
     style COVRUN fill:#FFF9C4,stroke:#F57F17
+    style BEHVFIX fill:#FFE082,stroke:#FF6F00
+    style APIFIX fill:#FFE082,stroke:#FF6F00
+    style ACRFIX fill:#FFE082,stroke:#FF6F00
+    style PREFIX fill:#FFE082,stroke:#FF6F00
     style BEHV fill:#C5E1A5,stroke:#33691E,stroke-width:3px
+    style API_TESTS fill:#C5E1A5,stroke:#33691E,stroke-width:2px
+    style STATIC fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
     style SPECB fill:#D1C4E9,stroke:#4527A0,stroke-width:3px
     style ARCHDOC fill:#B39DDB,stroke:#4527A0,stroke-width:3px
     style SMOKE fill:#FFAB91,stroke:#BF360C,stroke-width:3px
-    style HALTN fill:#EF9A9A,stroke:#B71C1C,stroke-width:3px
     style REG fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
+    style SCORECARD fill:#D8ECEA,stroke:#356C68,stroke-width:2px
+    style CI_EVAL fill:#D8ECEA,stroke:#356C68,stroke-width:2px
 
     %% Code Review (light blue)
     style ACR fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
@@ -562,8 +538,6 @@ flowchart TD
     style PR_REV fill:#B3E5FC,stroke:#0277BD
 
     %% Decision gates in dev-implement
-    style DOABLE fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
-    style SBG fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
     style RDG fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
     style REM_DECIDE fill:#FFF9C4,stroke:#F57F17
 
@@ -587,10 +561,11 @@ flowchart TD
     style GH_EPIC_FINAL fill:#FFF9C4,stroke:#F57F17
     style JIRA_STORIES fill:#FFF9C4,stroke:#F57F17
 
-    %% More decision
+    %% More decision + Verification Engineer track
     style MORE fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
     style MCHK fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
     style veBT fill:#B2DFDB,stroke:#00695C,stroke-width:2px
+    style VE_PR fill:#B2DFDB,stroke:#00695C,stroke-width:2px
 ```
 
 
@@ -605,107 +580,106 @@ flowchart TD
     %% PHASE 0: DEFECT EXISTS IN THE CONFIGURED TRACKER
     %% ═══════════════════════════════════════════════════
 
-    TRIGGER(["User enters:<br/><b>ticket-implement &lt;TICKET-ID&gt;</b><br/>Router asks: what is this ticket about?<br/>→ <b>User selects option A) Bug fix</b><br/>runs this flow as-is"])
+    TRIGGER(["The User types <b>ticket-implement &lt;TICKET-ID&gt;</b>.<br/>The router asks what the ticket is about,<br/>the User selects <b>A) Bug fix</b>,<br/>and this flow runs."])
 
     %% ═══════════════════════════════════════════════════
     %% PLANNING (TRIMMED)
     %% ═══════════════════════════════════════════════════
 
-    TRIGGER --> TICKET["<b>Ticket Capture</b><br/>• Ensure spec/context-project/ + spec/context-project/new-references/<br/>• Fetch ticket → bug-brief.md<br/>"]
-    TICKET --> CTX{"<b>Context Project artifacts?</b><br/>'Are there any context-project artifacts<br/>I should use for this task?'<br/>A) Yes — paste exact path<br/>B) No — continue<br/>(asked ONCE, recorded as ## Context Project in runtime-artifacts/aire-state.md)"}
+    TRIGGER --> TICKET["<b>Ticket capture</b><br/>The framework fetches the ticket into <b>bug-brief.md</b><br/>and prepares the context-project folders."]
+    TICKET --> CTX{"<b>Are there any context-project documents to use?</b><br/>The framework asks the User once and records the answer.<br/>A) Yes — the User pastes the path.  B) No — continue."}
     CTX -->|"A) Yes"| CREF
     CTX -->|"B) No"| CREF
-    CREF{"<b>Context References?</b><br/>'Do you have any reference materials<br/>for this work? (wireframes, specs, etc.)'<br/>A) Yes — paste path(s)<br/>B) No — continue"}
+    CREF{"<b>Are there any reference materials for this work?</b><br/>(wireframes, specs, and the like)<br/>A) Yes — the User pastes the path(s).  B) No — continue."}
     CREF -->|"A) Yes"| BRANCH
     CREF -->|"B) No"| BRANCH
-    BRANCH["<b>Create BUG Branch</b><br/>bug/PROJ-123-ticket-title<br/>cut from BASE branch<br/>"]
+    BRANCH["<b>The framework creates the bug branch</b><br/>named <b>bug/PROJ-123-ticket-title</b>, cut from the base branch."]
 
-    BRANCH --> RE_CHECK{"RE artifacts<br/>exist?"}
-    RE_CHECK -->|"No"| RE["<b>AUtomatic Reverse Engineering</b><br/>"]
+    ATLAS_RE[("Atlas — current-system truth<br/>(via the Helix MCP, when configured)")]
+    BRANCH --> RE_CHECK{"Do the reverse-engineering<br/>artifacts already exist?"}
+    RE_CHECK -->|"No"| RE["<b>Reverse Engineering</b> (automatic)<br/>The framework generates the current-system artifacts."]
+    ATLAS_RE -->|"pulled in as current-system truth"| RE
     RE_CHECK -->|"Yes — reuse"| RA
     RE --> RA
 
-    RA["<b>Requirements Analysis</b><br/>bug-brief.md is primary input<br/>"]
-    RA --> RA_GATE{"User approves<br/>requirements<br/><i>(stage approval)</i>"}
-    RA_GATE -->|"Changes"| RA
-    RA_GATE -->|"Approved "| IMPACT
+    RA["<b>Requirements Analysis</b><br/>The framework reads <b>bug-brief.md</b> as the primary input."]
+    RA --> RA_GATE{"The User reviews and approves<br/>the requirements."}
+    RA_GATE -->|"Changes requested"| RA
+    RA_GATE -->|"Approved"| IMPACT
 
     %% ═══════════════════════════════════════════════════
     %% IMPACT ANALYSIS + AI-ORIGIN DETECTION (NEW)
     %% ═══════════════════════════════════════════════════
 
-    IMPACT["<b>Impact Analysis</b><br/>• Find affected files + root cause<br/>with file:line evidence<br/>→ impact-analysis.md<br/>(drives the fix plan)"]
-    IMPACT --> ORIGIN["<b>Line-Level AI-Origin Detection</b><br/><i>Defect Provenance Analyst Agent</i><br/>• Traces defective lines via git blame<br/>• Maps introducing commit to its PR<br/>• Flags as AI-generated if:<br/>&nbsp;&nbsp;- PR carries <b>'ai-generated'</b> label (pr-generator applies it to every PR it raises)<br/>&nbsp;&nbsp;- Commit contains a <b>Co-Authored-By: Claude<br/>&nbsp;&nbsp;- Commit carries an <b>AIRE-Version</b>(stamped on every framework story commit)<br/>• Also links the story/stories that caused the issue to the bug ticket in the configured tracker "]
-    ORIGIN --> ORIGIN_Q{"Any defective line<br/>AI-generated?"}
-    ORIGIN_Q -->|"Yes — confirm-first"| LABEL["Add label <b>ai-generated-defect</b><br/>to the Bug tracker item <br/>+ evidence logged in runtime-artifacts/audit.md"]
-    ORIGIN_Q -->|"No / undetermined<br/>(no label — log only)"| STORY1
+    IMPACT["<b>Impact Analysis</b><br/>The framework finds the affected files and the root cause<br/>with file-and-line evidence, which drives the fix plan."]
+    IMPACT --> ORIGIN["<b>AI-origin detection</b><br/>The framework traces the defective lines back to the commit and pull request<br/>that introduced them, and flags the defect as AI-generated when that PR or commit<br/>carries the framework's markers. It also links the story that caused the issue<br/>to the bug ticket."]
+    ORIGIN --> ORIGIN_Q{"Was any defective line<br/>AI-generated?"}
+    ORIGIN_Q -->|"Yes — confirm first"| LABEL["The framework adds the <b>ai-generated-defect</b> label<br/>to the bug ticket, with the evidence logged."]
+    ORIGIN_Q -->|"No / undetermined — log only"| STORY1
     LABEL --> STORY1
 
-    STORY1["<b>Single Story</b><br/>local mapping from the ticket itself<br/>"]
-    STORY1 --> WP["<b>Workflow Planning</b><br/>EXECUTE/SKIP per design stage"]
-    WP --> DESIGN["Conditional design stages<br/>(Functional / NFR Req / NFR Design / Infra)<br/>"]
+    STORY1["<b>Single Story</b><br/>The framework maps the ticket to one story locally."]
+    STORY1 --> WP["<b>Workflow Planning</b><br/>The framework decides which design stages this fix needs<br/>and which can be skipped."]
+    WP --> DESIGN["<b>Conditional design stages</b><br/>Functional, NFR, and infrastructure design —<br/>only the ones this fix needs."]
 
-    DESIGN --> BOOTSTRAP["<b> STOP CHECKPOINT — Step 8.5</b> (automatic, no gate)<br/>1. Write/reuse spec/plans/architecture.md + behavior.feature<br/>2. Derive architecture-rubric.json + security-rubric.json<br/>3. Generate .github/workflows/agentic-eval-pipeline.yml<br/>&nbsp;&nbsp;&nbsp;(CI setup gate: present verbatim, HALT proceed/skip)<br/>4. Commit + push all of the above on the bug branch<br/>5.  Pre-handoff SMOKE TEST (zero-diff scratch PR)<br/><i>Every artifact create-if-missing, reused AS-IS if present</i>"]
-    BOOTSTRAP --> STOP["<b>Step 9 — ve Handoff BREAK</b><br/>1. Analysis + design + STOP CHECKPOINT artifacts<br/>&nbsp;&nbsp;&nbsp;already <b>committed and PUSHED</b> on <b>bug/PROJ-123-…</b><br/>&nbsp;&nbsp;&nbsp;(automatic — no [BUG] PR yet)<br/>2. <b> ve can now pull bug/PROJ-123-… and type /ve-implement PROJ-123</b><br/>&nbsp;&nbsp;&nbsp;<i>starts NOW, in parallel with the Developer</i><br/>3. <b> DEV: Continue to bug fix implementation? (yes / no)</b><br/><i>flow control, deliberately unnumbered — the LAST question<br/>of the entire bug cycle; bug-fix-implement has no gates</i>"]
+    DESIGN --> BOOTSTRAP["<b>Architecture, rubrics, and CI pipeline</b><br/>The framework writes or reuses the architecture and behavior specs,<br/>derives the evaluation rubrics that score the delivered code,<br/>and generates the automated evaluation pipeline —<br/>presenting the CI setup instructions and waiting for <b>proceed</b> or <b>skip</b>.<br/>It commits and pushes all of this on the bug branch, then runs a<br/>pre-handoff smoke test to confirm the CI environment is viable."]
+    BOOTSTRAP --> STOP["<b>Development handoff</b><br/>The analysis and design artifacts are committed and pushed<br/>on the bug branch (no [BUG] PR yet).<br/>The Verification Engineer can now pull the bug branch and type<br/><b>/ve-implement PROJ-123</b>, working in parallel with the Developer.<br/>The framework then asks the Developer: <b>Continue to the fix? (yes / no)</b>"]
 
     %% ═══════════════════════════════════════════════════
     %% BUG-FIX-IMPLEMENT — Code Fix on the Same Branch
     %% ═══════════════════════════════════════════════════
 
-    STOP -->|"<b>no</b> — halt,<br/>state saved: resume with<br/>ticket-implement &lt;TICKET-ID&gt;"| HALT(["Paused after analysis<br/>(ve work continues regardless)"])
+    STOP -->|"<b>no</b> — state is saved;<br/>resume later with ticket-implement &lt;TICKET-ID&gt;"| HALT(["Paused after analysis.<br/>The Verification Engineer's work continues regardless."])
 
-    STOP -->|"<b>yes</b> — same session,<br/>no second keyword"| INDEV
+    STOP -->|"<b>yes</b> — same session"| INDEV
 
-    INDEV["<b>Ticket → In Development</b><br/>(automatic) + The ticket is assigned to the user automatically.<br/>Works ON the bug branch<br/>"]
+    INDEV["<b>The ticket moves to In Development</b> (automatic)<br/>and is assigned to the User. Work happens on the bug branch."]
 
-    INDEV --> BASELINE["<b>BASELINE Regression Run</b><br/>Run ENTIRE repo test suite BEFORE any change<br/>Record pre-existing failures<br/>→ bug-PROJ-123-summary.md"]
+    INDEV --> BASELINE["<b>Baseline capture</b> (before any change)<br/>The framework runs the entire repository test suite<br/>and records the pre-existing failures, so only new problems<br/>introduced by this fix will count for self-repair."]
 
-    BASELINE --> PLAN["<b>Bug Fix Plan</b>"]
-    PLAN --> PLAN_GATE["<b>Fix plan announced — NO GATE</b><br/>executed immediately"]
-    PLAN_GATE --> SPECB_BUG["<b> Behaviour Spec — Step 4.5</b> (MANDATORY, before any code)<br/>spec/behavior/bug-PROJ-123.feature<br/><i>The ONLY spec file this work unit gets.<br/>Written BEFORE the fix — it is the contract.</i>"]
-    SPECB_BUG --> FIX["<b>Generate the Fix</b><br/>+ Add unit tests to validate fix<br/>+ Ensure ≥ 90% coverage on modified code by these unit tests"]
+    BASELINE --> PLAN["<b>Bug Fix Plan</b><br/>The framework lays out how it will fix the defect."]
+    PLAN --> SPECB_BUG["<b>Behavior specification</b> (before any code)<br/>spec/behavior/bug-PROJ-123.feature<br/><i>Written BEFORE the fix — it is the contract.</i>"]
+    SPECB_BUG --> FIX["<b>The framework generates the fix</b><br/>with unit tests that validate it, and changed code must have<br/>at least 90% coverage. If this check fails, the framework<br/>self-heals and reruns, up to 3 times."]
 
-    FIX --> APIGATE{"<b>API & Contract Testing Gate — Step 6.5</b><br/>MANDATORY WHEN the fix touches an API endpoint<br/>(N/A otherwise, plan-derived, never asked)<br/>every applicable checklist item passes"}
-    APIGATE -->|"fails — fix<br/>(max 3 attempts, SH-LOOP-2)"| APIGATE
-    APIGATE -->|"3 attempts spent"| HALTN
-    APIGATE -->|"pass / N/A"| REGRESSION["<br/>Re-run ENTIRE suite, compare new tests vs existing baseline<br/> NEW failures block — fix them<br/>Pre-existing failures: listed, not blocking<br/>Full output logged"]
+    FIX --> APIGATE{"<b>API and contract tests</b> (when the fix touches an API endpoint)<br/>Changed interfaces must return correct results and status codes,<br/>enforce access, reject invalid requests,<br/>and preserve the agreed response structure."}
+    APIGATE -->|"a check fails"| APIFIX["The framework self-heals<br/>and reruns, up to 3 times."]
+    APIFIX --> APIGATE
+    APIGATE -->|"pass / not applicable"| REGRESSION["<b>Full regression vs the baseline</b><br/>The framework re-runs the entire suite and compares it with the baseline.<br/>New failures are self-healed; pre-existing failures are listed, not blocking."]
 
-    REGRESSION --> STATICGATE{"<b>Static Eval Gate D1–D7 — Step 7.5</b><br/>diff vs the Step 3 baseline<br/>only NEW findings on changed files count"}
-    STATICGATE -->|"NEW findings — fix<br/>(max 3 attempts, SH-LOOP-4)"| STATICGATE
-    STATICGATE -->|"3 attempts spent"| HALTN
-    STATICGATE -->|"clean"| ACR["<b>AUTO Code Review</b> + <b>BLOCKING</b> J1/J2 judge gates<br/>bug-PROJ-123-code-review-vX.md<br/>(J1 = N/A is normal — most design stages skipped)"]
-    ACR --> RDG{"<b>Verdict routing — AUTOMATIC</b><br/>clean, or findings?"}
-    RDG -->|"Findings — no question asked"| REM["<b>AUTO-Remediate Loop</b><br/>fix → test → green<br/>(full suite re-run if code touched)<br/>every 🔴/🟠 in scope, nothing deferred"]
-    REM --> REM_DECIDE{"Re-review<br/>AUTOMATICALLY"}
-    REM_DECIDE -->|"loop until verdict is clean<br/>(max 3 rounds)"| ACR
-    REM_DECIDE -->|"3 rounds spent, or stall<br/>(no change + identical findings)"| HALTN
-    RDG -->|"Clean — proceed automatically"| MANIFEST
+    REGRESSION --> STATICGATE{"<b>Static quality evaluation (D1–D7)</b><br/>The framework checks the changed files against the baseline;<br/>only new findings count."}
+    STATICGATE -->|"new findings"| STATICFIX["The framework self-heals<br/>and reruns, up to 3 times."]
+    STATICFIX --> STATICGATE
+    STATICGATE -->|"clean"| ACR["<b>Automated code review</b> with the two blocking judge gates<br/>that score the code against the architecture and security rubrics.<br/>A versioned report is written."]
+    ACR --> RDG{"<b>Verdict routing — automatic</b><br/>Is the review clean, or are there findings?"}
+    RDG -->|"Findings — no question is asked"| REM["<b>Automatic remediation loop</b><br/>The framework fixes every in-scope critical and high finding,<br/>re-runs the tests, and re-runs the full regression."]
+    REM --> REM_DECIDE{"The framework re-reviews<br/>automatically."}
+    REM_DECIDE -->|"loop until the verdict is clean, up to 3 rounds"| ACR
+    RDG -->|"Clean — the framework proceeds automatically"| MANIFEST
 
-    MANIFEST["<b> Manifest Reconciliation — Step 8.5</b><br/>Write tests/.evals/ci-manifest.d/bug-PROJ-123.json<br/>from what Steps 6/6.5/7.5 actually established/proved<br/>Re-validate the pipeline before committing"]
-    MANIFEST --> COMMIT["<b>Commit on bug branch</b><br/>with AIRE-Version trailer<br/>+ the Step 8.5 manifest fragment<br/>"]
-    COMMIT --> PREFLIGHT{"<b>CI PREFLIGHT GATE — Step 9 Item 1.5</b><br/>Clean-room run of CI's OWN entrypoints<br/>against the COMMITTED fix<br/>— zero missing tools, zero undeclared deps,<br/>zero Manifest defects, no N/A on a touched root"}
-    PREFLIGHT -->|"Fail — fix the DECLARATION<br/>(never the gate)<br/>(max 3 attempts)"| PREFLIGHT
-    PREFLIGHT -->|"3 attempts spent"| HALTN
-    PREFLIGHT -->|"Clean"| BUG_PR["<b> Automatic pr-generator</b><br/>[BUG] PR → BASE branch<br/>'ai-generated' + 'aire-v[N]' label"]
-    BUG_PR --> GH_BUG[("GitHub:<br/>[BUG] PR → base branch")]
+    MANIFEST["<b>The framework commits the fix on the bug branch</b><br/>and prepares everything the CI pipeline needs to run the same checks."]
+    MANIFEST --> COMMIT["<b>Commit on the bug branch</b>"]
+    COMMIT --> PREFLIGHT{"<b>CI preflight gate</b><br/>The framework runs CI's own checks in a clean room against<br/>the committed fix — zero missing tools, zero undeclared dependencies."}
+    PREFLIGHT -->|"Fail"| PREFIX["The framework fixes the declaration<br/>(never the gate) and self-heals, up to 3 times."]
+    PREFIX --> PREFLIGHT
+    PREFLIGHT -->|"Clean"| BUG_PR["<b>Automatic pr-generator</b><br/>[BUG] pull request → base branch,<br/>labeled 'ai-generated' and with the AIRE version label."]
+    BUG_PR --> CIATT{"<b>Continuous integration evaluation</b><br/>The same checks run again on the pull request in a clean environment.<br/>A CI-configuration mismatch is reconciled; a real code failure<br/>is left to CI self-repair."}
+    CIATT -.-> GH_BUG[("GitHub:<br/>[BUG] PR → base branch")]
+    CIATT -->|"CI-configuration mismatch"| MANIFEST
+    CIATT -->|"Clean match, or a code failure left to self-repair"| STAYS["<b>The ticket stays In Development</b>"]
 
-    BUG_PR --> CIATT{"<b>CI Attestation Gate — Step 10.5</b><br/>watch the PR's own CI run to conclusion,<br/>cross-check its gates block vs local results<br/><i>scope: CI CONFIG only — a Code-class failure<br/>(real finding/failing test) is left to CI self-repair,<br/>never fixed here, never charged to this gate</i>"}
-    CIATT -->|"Manifest/provisioning mismatch<br/>(gate absent/N/A/errored in CI)"| MANIFEST
-    CIATT -->|"Clean match, or Code-class<br/>(recorded, left to self-repair)"| STAYS["<b>Ticket STAYS In Development</b><br/>"]
+    STAYS --> PR_REV["<b>Automatic PR review</b><br/>The framework posts its review on the pull request."]
 
-    STAYS --> PR_REV["<b>AUTO pr-review</b><br/>"]
+    STOP -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>The Verification Engineer types /ve-implement PROJ-123</b> on the bug branch.<br/>The framework cuts a branch <b>ve/PROJ-123-&lt;ticket-title&gt;</b> from the latest bug branch.<br/>Without reading application source code, it reads the ticket's acceptance criteria<br/>(tracker item, requirements, and design) and writes manual test steps into<br/>spec/test-plans/PROJ-123/ — integration, e2e, API, contract, security, and performance —<br/>with every acceptance criterion covered. It then commits and raises a pull request<br/>back to the bug branch."]
+    veBT -.->|"Verification Engineer test-plan PR merges<br/>into the bug branch"| veLAND
 
-    STOP -.->|"ve works in PARALLEL —<br/>triggered by the Mandatory Stop above"| veBT["<b>ve types /ve-implement PROJ-123</b> on the bug branch<br/>A branch <b>ve/PROJ-123-&lt;ticket-title&gt;</b> is cut<br/>from the LATEST <b>bug/PROJ-123-…</b> branch —  Run Test section of implementation phase for this story<br/>Reads the ticket's ACCEPTANCE CRITERIA<br/>(tracker item + requirements + design artifacts)<br/><b>never reads application source code</b><br/><i>Runs the moment the design stages finish<br/></i><br/>Writes MANUAL test steps →<br/>spec/test-plans/PROJ-123-title/<br/>integration · e2e · api ·<br/>contract · security · performance<br/><i>Every AC covered, then committed and a PR raised<br/>back to the <b>bug/PROJ-123-…</b> branch, so it resides the<br/>[BUG] PR into base; logged in runtime-artifacts/audit.md.<br/>Conflicts are avoided by .gitattributes (append merge)</i>"]
-    veBT -.->|"ve test-plan PR merges<br/>into the bug branch"| veLAND
-
-    PR_REV --> veLAND["<b>Wait until all ve work via /ve-implement has landed on the bug branch.</b>"]
+    PR_REV --> veLAND["<b>Wait until all Verification Engineer work<br/>via /ve-implement has landed on the bug branch.</b>"]
     veLAND --> SYNC
-    SYNC --> ARCHIVE["<b>MANUAL archive-epic (bug mode)</b><br/><i>User manually types <b>/archive-epic</b><br/>1. Archive spec/ + reports/ + runtime-artifacts/ →<br/><b>aire-archives/bugs/PROJ-123-slug/</b><br/>(no RE delta, no stitch)<br/>2. Commit + push on bug branch<br/>(archive resides the open [BUG] PR)<br/>MUST run BEFORE the [BUG] PR merges"]
+    SYNC --> ARCHIVE["<b>The User runs /archive-epic</b> (bug cycle)<br/>The framework archives spec/, reports/, and runtime-artifacts/ into<br/>aire-archives/bugs/PROJ-123-slug/, then commits and pushes on the bug branch.<br/>This runs before the [BUG] PR merges."]
 
-    ARCHIVE --> MERGE["<b>User merges [BUG] PR</b><br/>into BASE branch (manual)"]
+    ARCHIVE --> MERGE["<b>The User merges the [BUG] PR</b> into the base branch."]
     MERGE --> DONE
-    SYNC["<b>/ve-list-work</b><br/>run MANUALLY by ve <b>on the BUG BRANCH</b><br/><i>Runs BEFORE archive-epic and while the [BUG] PR is still OPEN,<br/>so the ve sign-off + any test-plan edits are captured in the archive</i><br/><br/>1. Pulls the latest <b>bug branch</b><br/>2. Confirms the fix commits + the ve test-plan are on it<br/><br/>3. ve tests it by executing the manual test steps generated by /ve-implement<br/>&nbsp;&nbsp;&nbsp;(can be run in a separate terminal)<br/>The ve runs /ve-list-work and chooses option B and takes one decision for the ticket:<br/>&nbsp;&nbsp;&nbsp;<b>&lt;Tracker ID&gt; approve</b> &nbsp;or&nbsp; <b>&lt;Tracker ID&gt; reject</b><br/><br/><b>APPROVE</b> → tracker comment 've approved the story'<br/>+ <b>ve-approved</b> label + Ticket → <b>Ready for Testing</b><br/>(Story Tracker)<br/><b>REJECT</b> → tracker comment 've rejected the story'<br/>+ <b>ve-rejected</b> label + <b> Ticket stays In Development</b><br/>(ve manually log the defect with /raise-defect)<br/><br/>Both outcomes logged in runtime-artifacts/audit.md<br/>"]
-    DONE(["<b>BUG FIX COMPLETE</b><br/>Next cycle pulls fresh current-system truth<br/>from Atlas via the Helix MCP"])
+    SYNC["<b>The Verification Engineer runs /ve-list-work</b> on the bug branch,<br/>while the [BUG] PR is still open. The framework pulls the latest bug branch<br/>and confirms the fix commits and the test plans are on it.<br/>The Verification Engineer executes the manual test steps and then takes one decision:<br/><b>&lt;Tracker ID&gt; approve</b> or <b>&lt;Tracker ID&gt; reject</b>.<br/><br/><b>Approve</b> → a 'Verification Engineer approved the story' comment, the ve-approved label,<br/>and a move to Ready for Testing.<br/><b>Reject</b> → a 'Verification Engineer rejected the story' comment, the ve-rejected label,<br/>and the ticket stays In Development (the defect is logged with /raise-defect)."]
+    DONE(["<b>BUG FIX COMPLETE</b><br/>The next cycle pulls fresh current-system truth<br/>from Atlas through the Helix MCP."])
 
     %% ═══════════════════════════════════════════════════
     %% STYLING
@@ -733,16 +707,19 @@ flowchart TD
 
     %% Gates (amber)
     style RE_CHECK fill:#FFF9C4,stroke:#F57F17
+    style ATLAS_RE fill:#FFCC80,stroke:#E65100,stroke-width:2px
+    style STATICFIX fill:#FFE082,stroke:#FF6F00
+    style APIFIX fill:#FFE082,stroke:#FF6F00
+    style PREFIX fill:#FFE082,stroke:#FF6F00
     style RA_GATE fill:#FFF9C4,stroke:#F57F17
     style ORIGIN_Q fill:#FFF9C4,stroke:#F57F17
-    style PLAN_GATE fill:#FFF9C4,stroke:#F57F17,stroke-width:3px
     style RDG fill:#FFF9C4,stroke:#F57F17,stroke-width:3px
     style REM_DECIDE fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
 
     %% STOP CHECKPOINT bootstrap (purple)
     style BOOTSTRAP fill:#B39DDB,stroke:#4527A0,stroke-width:3px
 
-    %% Analysis→ve-handoff BREAK, then the yes/no into the fix (red = break)
+    %% Analysis→Verification Engineer-handoff BREAK, then the yes/no into the fix (red = break)
     style STOP fill:#FFCDD2,stroke:#C62828,stroke-width:3px
     style HALT fill:#FFE0B2,stroke:#E65100,stroke-width:2px
 
@@ -760,8 +737,6 @@ flowchart TD
     style CIATT fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
 
     %% Review (light blue)
-    HALTN(["<b> RETRY LIMIT REACHED — RUN HALTS</b><br/>3 of 3 attempts spent on a self-healing loop.<br/>No commit · no push · no PR · no tracker change.<br/>Retry-Limit Report → <i>&quot;3 retries ended.<br/>Please suggest next steps.&quot;</i>"])
-    style HALTN fill:#EF9A9A,stroke:#B71C1C,stroke-width:3px
     style ACR fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
     style REM fill:#B3E5FC,stroke:#0277BD
     style PR_REV fill:#B3E5FC,stroke:#0277BD
@@ -788,79 +763,79 @@ flowchart TD
     %% ============================================
     %% PHASE A — ANALYSIS (trimmed Planning)
     %% ============================================
-    TRIGGER(["User enters:<br/><b>ticket-implement PROJ-456</b><br/>Router asks: what is this ticket about?<br/>→ User selects option <b> B) Enhancement</b><br/>runs this flow as-is"])
+    TRIGGER(["The User types <b>ticket-implement PROJ-456</b>.<br/>The router asks what the ticket is about,<br/>the User selects <b>B) Enhancement</b>,<br/>and this flow runs."])
 
-    TRIGGER --> TICKET["<b>Ticket Capture</b><br/>Story<br/>• Ensure spec/context-project/ + spec/context-project/new-references/<br/>• Fetch ticket → enhancement-brief.md"]
-    TICKET --> CTX{"<b>Context Project artifacts?</b><br/>'Are there any context-project artifacts<br/>I should use for this task?'<br/>A) Yes — paste exact path<br/>B) No — continue<br/>(asked ONCE, recorded as ## Context Project in runtime-artifacts/aire-state.md)"}
+    TRIGGER --> TICKET["<b>Ticket capture</b><br/>The framework fetches the ticket into <b>enhancement-brief.md</b><br/>and prepares the context-project folders."]
+    TICKET --> CTX{"<b>Are there any context-project documents to use?</b><br/>The framework asks the User once and records the answer.<br/>A) Yes — the User pastes the path.  B) No — continue."}
     CTX -->|"A) Yes"| CREF
     CTX -->|"B) No"| CREF
-    CREF{"<b>Context References?</b><br/>'Do you have any reference materials<br/>for this work? (wireframes, specs, etc.)'<br/>A) Yes — paste path(s)<br/>B) No — continue"}
+    CREF{"<b>Are there any reference materials for this work?</b><br/>(wireframes, specs, and the like)<br/>A) Yes — the User pastes the path(s).  B) No — continue."}
     CREF -->|"A) Yes"| BRANCH
     CREF -->|"B) No"| BRANCH
-    BRANCH["<b>Create ENHANCEMENT Branch FIRST</b><br/>enhancement/PROJ-456-ticket-title<br/>cut from BASE branch<br/>(before requirements)"]
-    BRANCH --> RE["<b>Reverse Engineering</b><br/>(reuse artifacts if found, else run automatically)"]
-    RE --> RA["<b>Requirements Analysis</b><br/>enhancement-brief.md is primary input<br/>"]
-    RA --> IMPACT["<b>Impact Analysis</b><br/>Affected files<br/>with file:line evidence<br/>"]
-    IMPACT --> STORY["<b>Single Story 1.1</b><br/>from the ticket<br/>(local mapping)"]
-    STORY --> PLANNING["<b>Workflow Planning</b>"]
-    PLANNING --> DESIGN["<b>Conditional Design Stages</b><br/>of Implementation Stage"]
-    DESIGN --> BOOTSTRAP["<b> STOP CHECKPOINT — Step 8.5</b> (automatic, no gate)<br/>1. Write/reuse spec/plans/architecture.md + behavior.feature<br/>2. Derive architecture-rubric.json + security-rubric.json<br/>3. Generate .github/workflows/agentic-eval-pipeline.yml<br/>&nbsp;&nbsp;&nbsp;(CI setup gate: present verbatim, HALT proceed/skip)<br/>4. Commit + push all of the above on the enhancement branch<br/>5.  Pre-handoff SMOKE TEST (zero-diff scratch PR)<br/><i>Every artifact create-if-missing, reused AS-IS if present</i>"]
-    BOOTSTRAP --> GATE{"<b>Implementation Checkpoint </b><br/>1. Analysis + design + STOP CHECKPOINT artifacts<br/>already <b>committed and PUSHED</b><br/>on <b>enhancement/PROJ-456-…</b> (automatic — no [ENH] PR yet)<br/><i>this is what unblocks ve</i><br/>2. <b> ve can now pull enhancement/PROJ-456-… and type /ve-implement PROJ-456</b><br/><i>starts NOW, in parallel with the Developer</i><br/>3. <b>DEV: Ready to implement? (yes / no — same flow,<br/>no second keyword)</b><br/><i>flow control, deliberately unnumbered — the LAST question<br/>of the entire enhancement cycle</i>"}
+    BRANCH["<b>The framework creates the enhancement branch first</b><br/>named <b>enhancement/PROJ-456-ticket-title</b>, cut from the base branch<br/>(before requirements)."]
+    ATLAS_RE[("Atlas — current-system truth<br/>(via the Helix MCP, when configured)")]
+    BRANCH --> RE["<b>Reverse Engineering</b><br/>The framework reuses the artifacts if found, otherwise runs it automatically."]
+    ATLAS_RE -->|"pulled in as current-system truth"| RE
+    RE --> RA["<b>Requirements Analysis</b><br/>The framework reads <b>enhancement-brief.md</b> as the primary input."]
+    RA --> IMPACT["<b>Impact Analysis</b><br/>The framework finds the affected files<br/>with file-and-line evidence."]
+    IMPACT --> STORY["<b>Single Story</b><br/>The framework maps the ticket to one story locally."]
+    STORY --> PLANNING["<b>Workflow Planning</b><br/>The framework decides which design stages this change needs."]
+    PLANNING --> DESIGN["<b>Conditional design stages</b><br/>Functional, NFR, and infrastructure design —<br/>only the ones this change needs."]
+    DESIGN --> BOOTSTRAP["<b>Architecture, rubrics, and CI pipeline</b><br/>The framework writes or reuses the architecture and behavior specs,<br/>derives the evaluation rubrics that score the delivered code,<br/>and generates the automated evaluation pipeline —<br/>presenting the CI setup instructions and waiting for <b>proceed</b> or <b>skip</b>.<br/>It commits and pushes all of this on the enhancement branch, then runs a<br/>pre-handoff smoke test to confirm the CI environment is viable."]
+    BOOTSTRAP --> GATE{"<b>Development handoff</b><br/>The analysis and design artifacts are committed and pushed<br/>on the enhancement branch (no [ENH] PR yet).<br/>The Verification Engineer can now pull the enhancement branch and type<br/><b>/ve-implement PROJ-456</b>, working in parallel with the Developer.<br/>The framework then asks the Developer: <b>Ready to implement? (yes / no)</b>"}
 
-    GATE -->|"If Dev chooses no: state saved<br/>(ve work continues regardless)"| HALT(["Resume later by typing:<br/><b>ticket-implement PROJ-456</b><br/>(router resumes this flow<br/>from the saved stage)"])
+    GATE -->|"<b>no</b> — state is saved;<br/>the Verification Engineer's work continues regardless"| HALT(["Resume later by typing <b>ticket-implement PROJ-456</b>.<br/>The router resumes this flow from the saved stage."])
 
     %% ============================================
     %% PHASE B — IMPLEMENTATION (same flow, after yes)
     %% ============================================
     GATE -->|"<b>yes</b>"| INDEV
 
-    INDEV["<b>Ticket → In Development</b><br/>(automatic) with assignee (automatic)<br/>+ aire-v[N] label on the Enhancement tracker item (JIRA/ADO/GITHUB; LOCAL updates local tracker only)<br/>Works ON the enhancement branch"]
-    INDEV --> BASELINE["<b>BASELINE Regression Run</b><br/>Run ENTIRE repo test suite BEFORE any change<br/>Record pre-existing failures<br/>→ enhancement-PROJ-456-summary.md"]
-    BASELINE --> PLAN["<b>Implementation Plan</b>"]
-    PLAN --> PLAN_GATE["<b>Implementation plan announced — NO GATE</b><br/>executed immediately"]
-    PLAN_GATE --> SPECB_ENH["<b> Behaviour Spec — Step 11.5</b> (MANDATORY, before any code)<br/>spec/behavior/enhancement-PROJ-456.feature<br/><i>The ONLY spec file this work unit gets.<br/>Written BEFORE the code — it is the contract.</i>"]
-    SPECB_ENH --> CODE["<b>Implement the enhancement with unit tests achieving >=90% coverage</b><br/>(Step 13 Unit Test + Coverage Gate)"]
-    CODE --> BEHVGATE{"<b>Behavioural Test Gate — Step 13.2</b><br/>Gherkin, three tiers (B1/B2/B3)<br/>All pass · every @AC tag executed"}
-    BEHVGATE -->|"a scenario fails — fix the CODE<br/>(max 3 attempts)"| BEHVGATE
-    BEHVGATE -->|"3 attempts spent"| HALTN
-    BEHVGATE -->|"all green"| APIGATE{"<b>API & Contract Testing Gate — Step 13.5</b><br/>MANDATORY WHEN the change touches an API endpoint<br/>(N/A otherwise, plan-derived, never asked)"}
-    APIGATE -->|"fails — fix<br/>(max 3 attempts)"| APIGATE
-    APIGATE -->|"3 attempts spent"| HALTN
-    APIGATE -->|"pass / N/A"| REGRESSION["<br/>Re-run ENTIRE suite, compare new tests vs existing baseline<br/> NEW failures block — fix them<br/>Pre-existing failures: listed, not blocking<br/>Full output logged<br/>(Step 14 FULL Regression Gate)"]
-    REGRESSION --> STATICGATE{"<b>Static Eval Gate D1–D7 — Step 14.5</b><br/>diff vs the Step 10 baseline<br/>only NEW findings on changed files count"}
-    STATICGATE -->|"NEW findings — fix<br/>(max 3 attempts)"| STATICGATE
-    STATICGATE -->|"3 attempts spent"| HALTN
-    STATICGATE -->|"clean"| ACR["<b>AUTO Code Review</b> + <b>BLOCKING</b> J1/J2 judge gates<br/>enhancement-PROJ-456-code-review-vX.md"]
-    ACR --> DECIDE{"<b>Verdict routing — AUTOMATIC</b><br/>clean, or findings?"}
-    DECIDE -->|"Findings — no question asked"| REM["<b>AUTO-Remediate</b><br/>fix → test → green<br/>every 🔴/🟠 in scope, nothing deferred"]
-    REM --> REM_DECIDE{"Re-review<br/>AUTOMATICALLY"}
-    REM_DECIDE -->|"loop until verdict is clean<br/>(max 3 rounds)"| ACR
-    REM_DECIDE -->|"3 rounds spent, or stall<br/>(no change + identical findings)"| HALTN
-    DECIDE -->|"Clean — proceed automatically"| MANIFEST
+    INDEV["<b>The ticket moves to In Development</b> (automatic)<br/>and is assigned to the User, with the AIRE version label added on the<br/>tracker item (Local updates only the local tracker).<br/>Work happens on the enhancement branch."]
+    INDEV --> BASELINE["<b>Baseline capture</b> (before any change)<br/>The framework runs the entire repository test suite<br/>and records the pre-existing failures, so only new problems<br/>introduced by this change will count for self-repair."]
+    BASELINE --> PLAN["<b>Implementation Plan</b><br/>The framework lays out how it will build the enhancement."]
+    PLAN --> SPECB_ENH["<b>Behavior specification</b> (before any code)<br/>spec/behavior/enhancement-PROJ-456.feature<br/><i>Written BEFORE the code — it is the contract.</i>"]
+    SPECB_ENH --> CODE["<b>The framework implements the enhancement</b><br/>with unit tests, and changed code must have at least 90% coverage.<br/>If this check fails, the framework self-heals and reruns, up to 3 times."]
+    CODE --> BEHVGATE{"<b>Behavioral tests (Gherkin)</b><br/>Every scenario must pass and every @AC tag must execute."}
+    BEHVGATE -->|"a scenario fails"| BEHVFIX["The framework self-heals<br/>and reruns, up to 3 times."]
+    BEHVFIX --> BEHVGATE
+    BEHVGATE -->|"all green"| APIGATE{"<b>API and contract tests</b> (when the change touches an API endpoint)<br/>Changed interfaces must return correct results and status codes,<br/>enforce access, reject invalid requests,<br/>and preserve the agreed response structure."}
+    APIGATE -->|"a check fails"| APIFIX["The framework self-heals<br/>and reruns, up to 3 times."]
+    APIFIX --> APIGATE
+    APIGATE -->|"pass / not applicable"| REGRESSION["<b>Full regression vs the baseline</b><br/>The framework re-runs the entire suite and compares it with the baseline.<br/>New failures are self-healed; pre-existing failures are listed, not blocking."]
+    REGRESSION --> STATICGATE{"<b>Static quality evaluation (D1–D7)</b><br/>The framework checks the changed files against the baseline;<br/>only new findings count."}
+    STATICGATE -->|"new findings"| STATICFIX["The framework self-heals<br/>and reruns, up to 3 times."]
+    STATICFIX --> STATICGATE
+    STATICGATE -->|"clean"| ACR["<b>Automated code review</b> with the two blocking judge gates<br/>that score the code against the architecture and security rubrics.<br/>A versioned report is written."]
+    ACR --> DECIDE{"<b>Verdict routing — automatic</b><br/>Is the review clean, or are there findings?"}
+    DECIDE -->|"Findings — no question is asked"| REM["<b>Automatic remediation loop</b><br/>The framework fixes every in-scope critical and high finding,<br/>re-runs the tests, and re-runs the full regression."]
+    REM --> REM_DECIDE{"The framework re-reviews<br/>automatically."}
+    REM_DECIDE -->|"loop until the verdict is clean, up to 3 rounds"| ACR
+    DECIDE -->|"Clean — the framework proceeds automatically"| MANIFEST
 
-    MANIFEST["<b> Manifest Reconciliation — Step 15.5</b><br/>Write tests/.evals/ci-manifest.d/enhancement-PROJ-456.json<br/>from what Steps 13/13.5/14.5 actually established/proved<br/>Re-validate the pipeline before committing"]
-    MANIFEST --> COMMIT["<b>Commit on enhancement branch</b><br/>with AIRE-Version trailer + the Step 15.5 manifest fragment<br/><i>(no Build &amp; Test here — that is ve's<br/>parallel /ve-implement track, not a dev step)</i>"]
-    COMMIT --> PREFLIGHT{"<b>CI PREFLIGHT GATE — Step 16 Item 1.5</b><br/>Clean-room run of CI's OWN entrypoints<br/>against the COMMITTED change<br/>— zero missing tools, zero undeclared deps,<br/>zero Manifest defects, no N/A on a touched root"}
-    PREFLIGHT -->|"Fail — fix the DECLARATION<br/>(never the gate)<br/>(max 3 attempts)"| PREFLIGHT
-    PREFLIGHT -->|"3 attempts spent"| HALTN
-    PREFLIGHT -->|"Clean"| ENH_PR["<b>Automatic pr-generator</b><br/>[ENH] PR → BASE branch<br/> with 'ai-generated' + aire-v[N] labels"]
-    ENH_PR --> GH_ENH[("GitHub:<br/>[ENH] PR → base branch")]
-    ENH_PR --> CIATT{"<b>CI Attestation Gate — Step 17.5</b><br/>watch the PR's own CI run to conclusion,<br/>cross-check its gates block vs local results<br/><i>scope: CI CONFIG only — a Code-class failure<br/>(real finding/failing test) is left to CI self-repair,<br/>never fixed here, never charged to this gate</i>"}
-    CIATT -->|"Manifest/provisioning mismatch<br/>(gate absent/N/A/errored in CI)"| MANIFEST
-    CIATT -->|"Clean match, or Code-class<br/>(recorded, left to self-repair)"| STAYS["<b>Ticket STAYS In Development</b>"]
-    STAYS --> PR_REV["<b>AUTO pr-review</b><br/>comment-only review"]
+    MANIFEST["<b>The framework commits the change on the enhancement branch</b><br/>and prepares everything the CI pipeline needs to run the same checks."]
+    MANIFEST --> COMMIT["<b>Commit on the enhancement branch</b>"]
+    COMMIT --> PREFLIGHT{"<b>CI preflight gate</b><br/>The framework runs CI's own checks in a clean room against<br/>the committed change — zero missing tools, zero undeclared dependencies."}
+    PREFLIGHT -->|"Fail"| PREFIX["The framework fixes the declaration<br/>(never the gate) and self-heals, up to 3 times."]
+    PREFIX --> PREFLIGHT
+    PREFLIGHT -->|"Clean"| ENH_PR["<b>Automatic pr-generator</b><br/>[ENH] pull request → base branch,<br/>labeled 'ai-generated' and with the AIRE version label."]
+    ENH_PR --> CIATT{"<b>Continuous integration evaluation</b><br/>The same checks run again on the pull request in a clean environment.<br/>A CI-configuration mismatch is reconciled; a real code failure<br/>is left to CI self-repair."}
+    CIATT -.-> GH_ENH[("GitHub:<br/>[ENH] PR → base branch")]
+    CIATT -->|"CI-configuration mismatch"| MANIFEST
+    CIATT -->|"Clean match, or a code failure left to self-repair"| STAYS["<b>The ticket stays In Development</b>"]
+    STAYS --> PR_REV["<b>Automatic PR review</b><br/>The framework posts its review on the pull request."]
 
-    GATE -.->|"ve works in PARALLEL —<br/>triggered by the Mandatory Stop above"| veBT["<b>ve types /ve-implement PROJ-456</b> on the enhancement branch<br/>A branch <b>ve/PROJ-456-&lt;ticket-title&gt;</b> is cut<br/>from the LATEST <b>enhancement/PROJ-456-…</b> branch —  Run Test section of implementation phase for this story<br/>Reads the ticket's ACCEPTANCE CRITERIA<br/>(tracker item + requirements + design artifacts)<br/><b>never reads application source code</b><br/><i>Runs the moment the design stages finish<br/></i><br/>Writes MANUAL test steps →<br/>spec/test-plans/PROJ-456-title/<br/>integration · e2e · api ·<br/>contract · security · performance<br/><i>Every AC covered, then committed and a PR raised<br/>back to the <b>enhancement/PROJ-456-…</b> branch, so it resides the<br/>[ENH] PR into base; logged in runtime-artifacts/audit.md.<br/>Conflicts are avoided by .gitattributes (append merge)</i>"]
-    veBT -.->|"ve test-plan PR merges<br/>into the enhancement branch"| veLAND
+    GATE -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>The Verification Engineer types /ve-implement PROJ-456</b> on the enhancement branch.<br/>The framework cuts a branch <b>ve/PROJ-456-&lt;ticket-title&gt;</b> from the latest enhancement branch.<br/>Without reading application source code, it reads the ticket's acceptance criteria<br/>(tracker item, requirements, and design) and writes manual test steps into<br/>spec/test-plans/PROJ-456/ — integration, e2e, API, contract, security, and performance —<br/>with every acceptance criterion covered. It then commits and raises a pull request<br/>back to the enhancement branch."]
+    veBT -.->|"Verification Engineer test-plan PR merges<br/>into the enhancement branch"| veLAND
 
-    PR_REV --> veLAND["<b>Wait until all ve work via /ve-implement has landed on the enhancement branch</b>"]
+    PR_REV --> veLAND["<b>Wait until all Verification Engineer work<br/>via /ve-implement has landed on the enhancement branch.</b>"]
     veLAND --> SYNC
-    SYNC --> ARCHIVE["<b>MANUAL archive-epic (enhancement cycle)</b><br/><i>User manually types <b>/archive-epic</b></i><br/>1. Archive spec/ + reports/ + runtime-artifacts/ →<br/><b>aire-archives/enhancements/PROJ-456-slug/</b><br/>(no RE delta, no stitch)<br/>2. Commit + push on enhancement branch<br/>(archive resides in the open [ENH] PR)<br/>MUST run BEFORE the [ENH] PR merges"]
+    SYNC --> ARCHIVE["<b>The User runs /archive-epic</b> (enhancement cycle)<br/>The framework archives spec/, reports/, and runtime-artifacts/ into<br/>aire-archives/enhancements/PROJ-456-slug/, then commits and pushes on the enhancement branch.<br/>This runs before the [ENH] PR merges."]
 
-    ARCHIVE --> MERGE["<b>User manually merges [ENH] PR</b><br/>into BASE branch"]
+    ARCHIVE --> MERGE["<b>The User merges the [ENH] PR</b> into the base branch."]
     MERGE --> DONE
-    SYNC["<b>/ve-list-work</b><br/>run MANUALLY by ve <b>on the ENHANCEMENT BRANCH</b><br/><i>Runs BEFORE archive-epic and while the [ENH] PR is still OPEN,<br/>so the ve sign-off + any test-plan edits are captured in the archive</i><br/><br/>1. Pulls the latest <b>enhancement branch</b><br/>2. Confirms the enhancement commits + the ve test-plans are on the enhancement branch<br/>3. ve tests it by executing the manual test steps generated by the /ve-implement <br/>&nbsp;&nbsp;&nbsp;(can be run in a separate terminal)<br/>The ve runs /ve-list-work and chooses option B and takes one decision for the ticket:<br/>&nbsp;&nbsp;&nbsp;<b>&lt;Tracker ID&gt; approve</b> &nbsp;or&nbsp; <b>&lt;Tracker ID&gt; reject</b><br/><br/><b>APPROVE</b> → tracker comment 've approved the story'<br/>+ <b>ve-approved</b> label + Ticket → <b>Ready for Testing</b><br/>(Story Tracker)<br/><b>REJECT</b> → tracker comment 've rejected the story'<br/>+ <b>ve-rejected</b> label + Ticket <b>stays In Development</b><br/>(ve manually log the defect with /raise-defect)<br/><br/>Both outcomes logged in runtime-artifacts/audit.md<br/>"]
-    DONE(["<b>ENHANCEMENT COMPLETE</b><br/>Next cycle pulls fresh current-system truth<br/>from Atlas via the Helix MCP"])
+    SYNC["<b>The Verification Engineer runs /ve-list-work</b> on the enhancement branch,<br/>while the [ENH] PR is still open. The framework pulls the latest enhancement branch<br/>and confirms the change commits and the test plans are on it.<br/>The Verification Engineer executes the manual test steps and then takes one decision:<br/><b>&lt;Tracker ID&gt; approve</b> or <b>&lt;Tracker ID&gt; reject</b>.<br/><br/><b>Approve</b> → a 'Verification Engineer approved the story' comment, the ve-approved label,<br/>and a move to Ready for Testing.<br/><b>Reject</b> → a 'Verification Engineer rejected the story' comment, the ve-rejected label,<br/>and the ticket stays In Development (the defect is logged with /raise-defect)."]
+    DONE(["<b>ENHANCEMENT COMPLETE</b><br/>The next cycle pulls fresh current-system truth<br/>from Atlas through the Helix MCP."])
 
     %% Phase A (blue)
     style TRIGGER fill:#E1F5FE,stroke:#0277BD,stroke-width:2px
@@ -882,18 +857,20 @@ flowchart TD
     style INDEV fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
     style BASELINE fill:#C8E6C9,stroke:#2E7D32
     style PLAN fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style PLAN_GATE fill:#FFF59D,stroke:#F57F17,stroke-width:3px
     style SPECB_ENH fill:#D1C4E9,stroke:#4527A0,stroke-width:3px
     style CODE fill:#C8E6C9,stroke:#2E7D32
     style BEHVGATE fill:#C5E1A5,stroke:#33691E,stroke-width:3px
     style APIGATE fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
     style STATICGATE fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+    style STATICFIX fill:#FFE082,stroke:#FF6F00
+    style APIFIX fill:#FFE082,stroke:#FF6F00
+    style BEHVFIX fill:#FFE082,stroke:#FF6F00
+    style PREFIX fill:#FFE082,stroke:#FF6F00
+    style ATLAS_RE fill:#FFCC80,stroke:#E65100,stroke-width:2px
     style MANIFEST fill:#FFCC80,stroke:#E65100,stroke-width:2px
     style PREFLIGHT fill:#FFF9C4,stroke:#F57F17,stroke-width:3px
     style CIATT fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
     style REGRESSION fill:#C8E6C9,stroke:#2E7D32
-    HALTN(["<b> RETRY LIMIT REACHED — RUN HALTS</b><br/>3 of 3 attempts spent on a self-healing loop.<br/>No commit · no push · no PR · no tracker change.<br/>Retry-Limit Report → <i>&quot;3 retries ended.<br/>Please suggest next steps.&quot;</i>"])
-    style HALTN fill:#EF9A9A,stroke:#B71C1C,stroke-width:3px
     style ACR fill:#C8E6C9,stroke:#2E7D32
     style DECIDE fill:#FFF59D,stroke:#F57F17,stroke-width:3px
     style REM_DECIDE fill:#FFF59D,stroke:#F57F17,stroke-width:2px
@@ -930,7 +907,7 @@ flowchart TD
 
         FETCH --> ASK{"<b>What is this ticket about?</b><br/>exactly TWO options, inline:<br/>A) Bug fix<br/>B) Enhancement<br/>(recommendation shown — user decides)"}
 
-        ASK -->|"A"| BUG["<b>Run the existing BUG workflow</b><br/>workflows/bug-fix.md<br/>(breaks once for the ve handoff, then<br/>continues into bug-fix-implement on 'yes')<br/>— followed exactly, see Section 3"]
+        ASK -->|"A"| BUG["<b>Run the existing BUG workflow</b><br/>workflows/bug-fix.md<br/>(breaks once for the Verification Engineer handoff, then<br/>continues into bug-fix-implement on 'yes')<br/>— followed exactly, see Section 3"]
         ASK -->|"B"| ENH["<b>Run the existing ENHANCEMENT workflow</b><br/>workflows/enhancement-implement.md<br/>— followed exactly, see Section 4"]
     end
 
@@ -963,21 +940,21 @@ flowchart TD
     style RESUMEFLOW fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px
 ```
 
-# 6. ve Bug Lifecycle — From the ve Raising the Bug to Ready for Testing
+# 6. Verification Engineer Bug Lifecycle — From the Verification Engineer Raising the Bug to Ready for Testing
 
 ```mermaid
 flowchart TD
     %% ═══════════════════════════════════════════════════
-    %% PHASE 0: ve FINDS AND RAISES THE BUG
+    %% PHASE 0: Verification Engineer FINDS AND RAISES THE BUG
     %% ═══════════════════════════════════════════════════
 
-    FOUND([" ve finds a bug<br/>during testing"])
+    FOUND([" Verification Engineer finds a bug<br/>during testing"])
 
-    FOUND --> RD["<b>ve manually invoke raise-defect</b> skill<br/>Collect 5 fields:<br/>Title, Description,<br/>Severity (Low/Med/High/Critical),<br/>Environment Found, Discovery Activity<br/>"]
+    FOUND --> RD["<b>Verification Engineer manually invoke raise-defect</b> skill<br/>Collect 5 fields:<br/>Title, Description,<br/>Severity (Low/Med/High/Critical),<br/>Environment Found, Discovery Activity<br/>"]
 
     RD --> RD_DRAFT["<b>Draft the ticket</b><br/>issueType Bug • labels/tags:<br/>bug, defect, ai-generated, aire, aire-v[N]<br/>"]
 
-    RD_DRAFT --> RD_GATE{"ve approves<br/>the drafted ticket?<br/>(confirm-first)"}
+    RD_DRAFT --> RD_GATE{"Verification Engineer approves<br/>the drafted ticket?<br/>(confirm-first)"}
     RD_GATE -->|"Edits needed"| RD
     RD_GATE -->|"Approved "| RD_CREATE["<b>tracker-dispatch createBug</b> (JIRA/ADO/GITHUB/LOCAL)<br/>Log in runtime-artifacts/audit.md with the tracker item link/ID"]
 
@@ -994,28 +971,28 @@ flowchart TD
     BREAKPT --> BUGFLOW["<b>bug-fix-implement — the fix</b> (Section 3)<br/>ticket → In Development →<br/>baseline regression → fix plan (announced) → fix +<br/>unit tests ≥90% → full regression →<br/>auto code review, findings auto-remediated<br/>and re-reviewed until clean → commit →<br/>[BUG] PR → base + auto pr-review<br/>"]
 
     %% ═══════════════════════════════════════════════════
-    %% PARALLEL ve TRACK — /ve-implement, from the BREAK
+    %% PARALLEL Verification Engineer TRACK — /ve-implement, from the BREAK
     %% ═══════════════════════════════════════════════════
 
-    BREAKPT -.->|"ve IN PARALLEL from the Mandatory stop—<br/>"| veIMPL["<b>ve types /ve-implement PROJ-123</b><br/>on the pulled <b>bug/PROJ-123-…</b> branch<br/>Cuts <b>ve/PROJ-123-&lt;title&gt;</b> from it<br/>Reads the ACCEPTANCE CRITERIA only<br/>(tracker item + requirements + design)<br/><b>never application source code</b><br/>Writes MANUAL test steps →<br/>spec/test-plans/PROJ-123-&lt;title&gt;/<br/>PR back into bug/PROJ-123-… (ai-generated + aire-v[N])<br/><i>resides the [BUG] PR into base</i>"]
+    BREAKPT -.->|"Verification Engineer IN PARALLEL from the Mandatory stop—<br/>"| veIMPL["<b>Verification Engineer types /ve-implement PROJ-123</b><br/>on the pulled <b>bug/PROJ-123-…</b> branch<br/>Cuts <b>ve/PROJ-123-&lt;title&gt;</b> from it<br/>Reads the ACCEPTANCE CRITERIA only<br/>(tracker item + requirements + design)<br/><b>never application source code</b><br/>Writes MANUAL test steps →<br/>spec/test-plans/PROJ-123-&lt;title&gt;/<br/>PR back into bug/PROJ-123-… (ai-generated + aire-v[N])<br/><i>resides the [BUG] PR into base</i>"]
 
     BUGFLOW --> STAYS["<b>Ticket STAYS  In Development</b><br/>after the [BUG] PR is raised<br/><i>The [BUG] PR stays OPEN through everything below</i>"]
 
-    veIMPL -.->|"ve's own test-plan PR merges<br/>into bug/PROJ-123-…"| veMERGED
+    veIMPL -.->|"Verification Engineer's own test-plan PR merges<br/>into bug/PROJ-123-…"| veMERGED
 
-    STAYS --> veMERGED["<b>ve test-plan PR MERGED into bug/PROJ-123-… branch</b>"]
+    STAYS --> veMERGED["<b>Verification Engineer test-plan PR MERGED into bug/PROJ-123-… branch</b>"]
 
     %% ═══════════════════════════════════════════════════
-    %% PHASE 2: ve SIGN-OFF — ve-list-work, ON THE BUG BRANCH, BEFORE the merge
+    %% PHASE 2: Verification Engineer SIGN-OFF — ve-list-work, ON THE BUG BRANCH, BEFORE the merge
     %% ═══════════════════════════════════════════════════
 
-    veMERGED --> QTB["<b>ve runs /ve-list-work</b> on the <b>bug/PROJ-123-… branch</b><br/>· the [BUG] PR is still OPEN <br/><i><b>Option A</b> → list the ticket with its live tracker status (LOCAL: local Story Tracker status)</i><br/><b>Option C</b> → amend a test plan (commit + push to the bug branch manually)<br/><b>Option B</b> → tests the work by executing the manual test steps generated by /ve-implement, then answers ONE<br/><b>&lt;Tracker ID&gt; approve</b> or <b>&lt;Tracker ID&gt; reject</b>"]
+    veMERGED --> QTB["<b>Verification Engineer runs /ve-list-work</b> on the <b>bug/PROJ-123-… branch</b><br/>· the [BUG] PR is still OPEN <br/><i><b>Option A</b> → list the ticket with its live tracker status (LOCAL: local Story Tracker status)</i><br/><b>Option C</b> → amend a test plan (commit + push to the bug branch manually)<br/><b>Option B</b> → tests the work by executing the manual test steps generated by /ve-implement, then answers ONE<br/><b>&lt;Tracker ID&gt; approve</b> or <b>&lt;Tracker ID&gt; reject</b>"]
 
-    QTB --> QTB_GATE{"ve decision<br/>(confirm-first)"}
-    QTB_GATE -->|"APPROVE"| APPROVED["tracker comment 've approved the story' + <b>ve-approved</b> label<br/>Ticket → <b>Ready for Testing</b><br/>Story Tracker synced<br/>+ logged in runtime-artifacts/audit.md"]
-    QTB_GATE -->|"REJECT"| REJECTED["tracker comment 've rejected the story' + <b>ve-rejected</b> label<br/>Ticket <b>stays In Development</b><br/>+ logged in runtime-artifacts/audit.md"]
+    QTB --> QTB_GATE{"Verification Engineer decision<br/>(confirm-first)"}
+    QTB_GATE -->|"APPROVE"| APPROVED["tracker comment 'Verification Engineer approved the story' + <b>ve-approved</b> label<br/>Ticket → <b>Ready for Testing</b><br/>Story Tracker synced<br/>+ logged in runtime-artifacts/audit.md"]
+    QTB_GATE -->|"REJECT"| REJECTED["tracker comment 'Verification Engineer rejected the story' + <b>ve-rejected</b> label<br/>Ticket <b>stays In Development</b><br/>+ logged in runtime-artifacts/audit.md"]
 
-    REJECTED --> LOGDEFECT["<b>ve manually invokes /raise-defect skill</b><br/>to log the finding as a tracked defect in the configured tracker"]
+    REJECTED --> LOGDEFECT["<b>Verification Engineer manually invokes /raise-defect skill</b><br/>to log the finding as a tracked defect in the configured tracker"]
     LOGDEFECT -->|"the NEW defect starts its own cycle"| DEV_TRIGGER
 
     %% ═══════════════════════════════════════════════════
@@ -1027,13 +1004,13 @@ flowchart TD
 
     ARCHIVE --> MERGE["<b>[BUG] PR merges into BASE branch</b><br/>(human decision)"]
 
-    MERGE --> DONE(["<b>ve BUG LIFECYCLE COMPLETE</b><br/>Next cycle pulls fresh current-system truth<br/>from Atlas via the Helix MCP"])
+    MERGE --> DONE(["<b>Verification Engineer BUG LIFECYCLE COMPLETE</b><br/>Next cycle pulls fresh current-system truth<br/>from Atlas via the Helix MCP"])
 
     %% ═══════════════════════════════════════════════════
     %% STYLING
     %% ═══════════════════════════════════════════════════
 
-    %% ve raise-defect (lavender)
+    %% Verification Engineer raise-defect (lavender)
     style FOUND fill:#EDE7F6,stroke:#5E35B1,stroke-width:2px
     style RD fill:#D1C4E9,stroke:#5E35B1,stroke-width:2px
     style RD_DRAFT fill:#D1C4E9,stroke:#5E35B1
@@ -1042,7 +1019,7 @@ flowchart TD
     %% Trigger
     style DEV_TRIGGER fill:#CE93D8,stroke:#6A1B9A,stroke-width:3px
 
-    %% Dev bug-fix flow (green) + the break (red) + the parallel ve track (teal)
+    %% Dev bug-fix flow (green) + the break (red) + the parallel Verification Engineer track (teal)
     style BREAKPT fill:#FFCDD2,stroke:#C62828,stroke-width:3px
     style BUGFLOW fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
     style veIMPL fill:#B2DFDB,stroke:#00695C,stroke-width:2px
@@ -1052,7 +1029,7 @@ flowchart TD
     style MERGE fill:#FFE0B2,stroke:#E65100,stroke-width:2px
     style ARCHIVE fill:#FFE0B2,stroke:#E65100,stroke-width:2px
 
-    %% ve sign-off (teal)
+    %% Verification Engineer sign-off (teal)
     style veMERGED fill:#B2DFDB,stroke:#00695C,stroke-width:2px
     style QTB fill:#B2DFDB,stroke:#00695C,stroke-width:2px
     style APPROVED fill:#B2DFDB,stroke:#00695C,stroke-width:2px
@@ -1073,19 +1050,19 @@ flowchart TD
 ```
 
 
-# 7. ve Toolkit — Which Skill to Use When
+# 7. Verification Engineer Toolkit — Which Skill to Use When
 
-> The reference for which skill the ve uses, when to use it, and what it changes. The same skills serve all three cycle types: epic, bug, and enhancement.
+> The reference for which skill the Verification Engineer uses, when to use it, and what it changes. The same skills serve all three cycle types: epic, bug, and enhancement.
 
-## How the ve track fits the workflow
+## How the Verification Engineer track fits the workflow
 
-Test Plan belongs to the ve and runs as a parallel track alongside development, beginning as soon as the design stages from implementation phase finish.
+Test Plan belongs to the Verification Engineer and runs as a parallel track alongside development, beginning as soon as the design stages from implementation phase finish.
 
-Every flow supports this by pausing at design completion and pushing the requirements and design artifacts to the integration branch first. The epic flow does so at its mandatory stop, on the epic branch; the bug and enhancement flows do so at their mandatory stop, on the bug or enhancement branch, before the developer is asked whether to continue into implementation. The ve's first move is therefore always the same, and is independent of the developer's answer: pull the integration branch, then run `/ve-implement &lt;TICKET-ID&gt;`.
+Every flow supports this by pausing at design completion and pushing the requirements and design artifacts to the integration branch first. The epic flow does so at its mandatory stop, on the epic branch; the bug and enhancement flows do so at their mandatory stop, on the bug or enhancement branch, before the developer is asked whether to continue into implementation. The Verification Engineer's first move is therefore always the same, and is independent of the developer's answer: pull the integration branch, then run `/ve-implement &lt;TICKET-ID&gt;`.
 
-The ve owns the promotion to Ready for Testing, through `ve-list-work`. 
+The Verification Engineer owns the promotion to Ready for Testing, through `ve-list-work`. 
 
-## Where the ve works
+## Where the Verification Engineer works
 
 | Cycle type | Integration branch | Where the development pull requests merge |
 |------------|--------------------|-------------------------------------------|
@@ -1103,9 +1080,9 @@ Each skill resolves the correct branch from the project state file and announces
 
 **How to use it.** Get on the integration branch and take the latest (`git fetch origin`, `git checkout <integration-branch>`, `git pull --ff-only`), then type `/ve-implement PROJ-102`. A story number such as `/ve-implement 1.2` also works on an epic cycle; with no argument the skill asks which story you mean.
 
-**What it does.** Cuts an `ve/<Story-TICKET-ID>-<title>` branch from the integration branch. Reads the story's acceptance criteria from the configured tracker, together with the requirements and the implementation design artifacts, and never application source code. Decides which test plans apply — integration, end-to-end, API, contract, security, performance, and accessibility — and writes them as numbered manual test steps into `spec/test-plans/<Story-TICKET-ID>-<title>/`, with every case traced to an acceptance criterion and every criterion covered. It confirms the applicable plans before writing, asks the ve to approve the finished plans, and asks permission before pushing.
+**What it does.** Cuts an `ve/<Story-TICKET-ID>-<title>` branch from the integration branch. Reads the story's acceptance criteria from the configured tracker, together with the requirements and the implementation design artifacts, and never application source code. Decides which test plans apply — integration, end-to-end, API, contract, security, performance, and accessibility — and writes them as numbered manual test steps into `spec/test-plans/<Story-TICKET-ID>-<title>/`, with every case traced to an acceptance criterion and every criterion covered. It confirms the applicable plans before writing, asks the Verification Engineer to approve the finished plans, and asks permission before pushing.
 
-**What it produces.** A pull request titled `[TEST][<Story-TICKET-ID>] Test Plan — <story title>`, raised from the `ve/…` branch back into the integration branch and labelled `ai-generated` and `aire-v[N]`. On bug and enhancement cycles the test documentation therefore travels into the base branch on the same `[BUG]` or `[ENH]` pull request as the code. Parallel ve runs never conflict, because `.gitattributes` merges these files by appending.
+**What it produces.** A pull request titled `[TEST][<Story-TICKET-ID>] Test Plan — <story title>`, raised from the `ve/…` branch back into the integration branch and labelled `ai-generated` and `aire-v[N]`. On bug and enhancement cycles the test documentation therefore travels into the base branch on the same `[BUG]` or `[ENH]` pull request as the code. Parallel Verification Engineer runs never conflict, because `.gitattributes` merges these files by appending.
 
 
 ### `/ve-list-work` — execute the steps and sign the work off
@@ -1117,7 +1094,7 @@ Each skill resolves the correct branch from the project state file and announces
 | Local action | What it does | What it writes |
 |--------------|--------------|----------------|
 | **A) List** | Lists the items whose development pull request has merged and which are still In Development, with status read live from the configured tracker rather than trusted from the local state file (LOCAL: read from the local Story Tracker). A status check only. | Nothing |
-| **B) Approve or reject** | The sign-off decision, taken after the ve has built the system locally from the integration branch and executed the manual test steps. One prompt, one decision per story, in the form `1.1 approve, PROJ-103 reject`. **Approve** adds a tracker comment `ve approved the story`, applies the `ve-approved` label, and transitions the item to Ready for Testing in both the Story Tracker and the configured tracker, verified afterwards. **Reject** adds the comment `ve rejected the story`, applies the `ve-rejected` label, and deliberately leaves the item In Development for the developer. On an epic cycle, once every story is approved the skill offers, with confirmation, to move the parent epic to Ready for Testing. | The Story Tracker, the configured tracker, and `runtime-artifacts/audit.md` |
+| **B) Approve or reject** | The sign-off decision, taken after the Verification Engineer has built the system locally from the integration branch and executed the manual test steps. One prompt, one decision per story, in the form `1.1 approve, PROJ-103 reject`. **Approve** adds a tracker comment `Verification Engineer approved the story`, applies the `ve-approved` label, and transitions the item to Ready for Testing in both the Story Tracker and the configured tracker, verified afterwards. **Reject** adds the comment `Verification Engineer rejected the story`, applies the `ve-rejected` label, and deliberately leaves the item In Development for the developer. On an epic cycle, once every story is approved the skill offers, with confirmation, to move the parent epic to Ready for Testing. | The Story Tracker, the configured tracker, and `runtime-artifacts/audit.md` |
 | **C) Request changes to a test plan** | Adds or adjusts a manual test case in a plan that `/ve-implement` generated, traced to an acceptance criterion, without touching code, branches, or status. The edit is left in the working tree — commit and push it manually. | The Manual test-plan files only |
 
 ### `/playwright-implement &lt;TICKET-ID&gt;` — turn the approved manual UI steps into automation
@@ -1140,7 +1117,7 @@ Once every check passes, it orchestrates Playwright's **own** official Planner, 
 
 ### `/raise-defect` — log a finding as a tracked bug in the configured tracker
 
-Used the moment testing finds a bug. It collects five fixed fields — Title, Description, Severity, Environment Found, and Discovery Activity — then, after the ve approves the drafted ticket, creates a Bug in the configured tracker (JIRA/ADO/GITHUB/LOCAL) labelled `bug`, `defect`, `ai-generated`, `aire` and `aire-v[N]`. The developer picks that ticket up through `ticket-implement` (Sections 3), which starts the cycle again.
+Used the moment testing finds a bug. It collects five fixed fields — Title, Description, Severity, Environment Found, and Discovery Activity — then, after the Verification Engineer approves the drafted ticket, creates a Bug in the configured tracker (JIRA/ADO/GITHUB/LOCAL) labelled `bug`, `defect`, `ai-generated`, `aire` and `aire-v[N]`. The developer picks that ticket up through `ticket-implement` (Sections 3), which starts the cycle again.
 
 ## Order of work for one story
 
@@ -1210,168 +1187,7 @@ flowchart TD
 ```
 
 
-# 9. Approval Model — only GATE 1 remains; GATE 2 and GATE 3 have been removed
-
-> **GATE 1 is MANDATORY and blocking: the generated story set requires explicit human approval
-> before it is pushed to the configured tracker** (CLAUDE.md User Stories Part 2/GATE 1). **GATE 2 and
-> GATE 3 have been removed** — every implementation workflow (`dev-implement`, `bug-fix-implement`,
-> `enhancement-implement`) plans, codes, reviews itself, **fixes its own review findings**, and raises
-> its PR without asking. What remains besides GATE 1 are **stage approvals in Planning** (reverse
-> engineering, requirements, application design, and each system-level design stage), two
-> **flow-control questions**, and the **machine checkpoints** that stop a run for a factual reason.
-
-## What still asks the user
-
-| # | Prompt | Where | Kind |
-|---|--------|-------|------|
-| 1 | Clarifying-question files (`[Answer]:` tags) | Requirements Analysis, story planning, each design stage | Input, not approval |
-| 2 | Context-project opt-in | Workspace Detection / `ticket-implement` | Input, asked once |
-| 2b | Context-references opt-in | Workspace Detection / `ticket-implement` | Input, asked once |
-| 3 | Stage approvals — RE, `requirements.md`, application design, each design stage | Planning + Implementation design | Approval |
-| 3.5 | **GATE 1 — Story Set Approval (MANDATORY)**: "Request Changes" or "Approve & Continue" | User Stories, after Part 2 Generation, before Part 3 Push | **Blocking approval** |
-| 4 | "Which tracker story?" | `dev-implement` Story Selection | Input |
-| 5 | "Continue to the fix / Ready to implement now? (yes/no)" | `bug-fix` Step 9 / `enhancement-implement` Implementation Checkpoint | Flow control (unnumbered) |
-| 6 | ve's own prompts | `/ve-implement`, `ve-list-work`, `/raise-defect` | ve track |
-
-## What stops a run WITHOUT asking (machine checkpoints, not approvals)
-
-- **Doability Gate** — a prerequisite story's PR is not merged → the run STOPS and names it.
-- **Story Branch dependency-merge check** — same condition at branch-cut time.
-- **CI Preflight Gate (SH-LOOP-9)** — after the commit, before the push: a clean-room run of CI's own entrypoints against the committed diff must show zero missing tools, zero undeclared dependencies, zero Manifest defects — never the ambient dev environment's shortcuts.
-- **Unit Test & Coverage gate (≥90%)**, **baseline/full regression diff** — the framework fixes and iterates on its own; it never hands a failure back.
-- **Requirements coverage checks** — silent, blocking, self-fixed.
-
-## 9.1 Epic flow — fully automatic from the story set onward
-
-```mermaid
-flowchart TD
-    subgraph PLANNING["PLANNING — the last approvals live here"]
-        REQ["<b>Requirements Analysis</b><br/>questions → requirements.md"]
-        REQ --> REQ_A{"Stage approval:<br/>approve requirements.md"}
-        REQ_A -->|"Changes"| REQ
-        REQ_A -->|"Approved"| US["<b>User Stories</b><br/>team_size FIXED = 2 (never asked)<br/>all-at-once generation (never asked)<br/>coverage check passes"]
-        US --> GATE1{"<b>GATE 1 — Story Set Approval</b><br/><i>MANDATORY, blocking</i><br/>Request Changes / Approve & Continue"}
-        GATE1 -->|"Request Changes"| US
-        GATE1 -->|"Approved"| US_AUTO["Push to the configured tracker,<br/>linked to the Parent Epic"]
-        US_AUTO --> DG["Dependency Graph — announced, no gate"]
-        DG --> WP["Workflow Planning — announced, no gate"]
-        WP --> DES["System-level design stages<br/><i>(each keeps its own stage approval)</i>"]
-    end
-
-    DES --> HANDOFF["STOP — Development Handoff<br/>design artifacts committed + PUSHED on the epic branch<br/>DEV types <b>dev-implement</b> · ve types <b>/ve-implement</b>"]
-
-    subgraph IMPLEMENTATION["IMPLEMENTATION — dev-implement (per story): ONE input, zero approvals"]
-        PICK["<b>Which tracker story?</b><br/><i>the only thing this run asks</i>"]
-        PICK --> MACHINE["Doability Gate → story branch<br/>→ BASELINE regression<br/><i>(machine checks — stop the run, never ask, never merge;<br/>merging a prerequisite PR is always the user's own action)</i>"]
-        MACHINE --> PLAN["<b>Plan announced</b> — no approval<br/>(former GATE 2 removed)"]
-        PLAN --> GEN["<b>GENERATE code</b><br/>+ unit tests to ≥90% coverage<br/>→ FULL regression vs baseline<br/>(NEW failures fixed in the same run)"]
-        GEN --> ACR["<b>AUTO Code Review</b>"]
-        ACR --> V{"Verdict<br/><i>routes automatically —<br/>no question (former GATE 3 removed)</i>"}
-        V -->|"Findings 🔴/🟠"| REM["<b>AUTO-Remediate</b><br/>all findings in scope, nothing deferred<br/>fix → unit test → regression"]
-        REM --> ACR
-        V -->|"Clean"| SHIP["Commit → CI Preflight Gate (SH-LOOP-9,<br/>clean-room CI entrypoints, max 3 attempts)<br/>→ push → PR via pr-generator<br/>([STORY] → epic branch) → AUTO pr-review<br/>→ Section F handoff"]
-        REM -.->|"stall guard: no code change +<br/>identical findings → PR anyway,<br/>findings reported loudly"| SHIP
-    end
-
-    HANDOFF -->|"user types <b>dev-implement</b>"| PICK
-
-    style REQ fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
-    style US fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
-    style US_AUTO fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style DG fill:#C8E6C9,stroke:#2E7D32
-    style WP fill:#C8E6C9,stroke:#2E7D32
-    style DES fill:#E1BEE7,stroke:#6A1B9A,stroke-width:2px
-    style HANDOFF fill:#FFCDD2,stroke:#C62828,stroke-width:2px
-    style PICK fill:#FFF9C4,stroke:#F57F17,stroke-width:3px
-    style MACHINE fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
-    style PLAN fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style GEN fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
-    style ACR fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
-    style REM fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
-    style SHIP fill:#B2EBF2,stroke:#00695C,stroke-width:2px
-    style V fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style REQ_A fill:#FFF9C4,stroke:#F57F17,stroke-width:3px
-    style GATE1 fill:#FFF9C4,stroke:#F57F17,stroke-width:3px
-```
-
-## 9.2 Bug flow — one yes/no, then fully automatic
-
-```mermaid
-flowchart TD
-    subgraph BUG_INC["PLANNING — bug-fix (stage approvals only)"]
-        BREQ["<b>Requirements → Impact Analysis<br/>→ ONE story → Workflow Planning</b><br/>Requirements and the story take STAGE approvals;<br/>impact analysis and planning are announced"]
-        BREQ --> BAUTO{"Design stages done → <b>Mandatory stop:</b><br/>docs committed + PUSHED on the bug branch,<br/>ve told to run <b>/ve-implement</b>, then<br/><b>Continue to bug fix implementation? (yes / no)</b><br/><i>flow control — the LAST question of the cycle</i>"}
-    end
-
-    subgraph BUG_IMPL["IMPLEMENTATION — bug-fix-implement (ONE branch, ZERO approvals)"]
-        BBASE["<b>BASELINE regression</b><br/>full repo suite, before any change"]
-        BBASE --> BPLAN["<b>Fix plan announced</b> — no approval<br/>(former GATE 2 removed)"]
-        BPLAN --> BGEN["<b>GENERATE the fix</b><br/>+ unit test reproducing the defect<br/>+ coverage ≥90% → FULL regression vs baseline"]
-        BGEN --> BACR["<b>AUTO Code Review</b>"]
-        BACR --> BV{"Verdict<br/><i>routes automatically —<br/>no question (former GATE 3 removed)</i>"}
-        BV -->|"Findings 🔴/🟠"| BREM["<b>AUTO-Remediate</b><br/>fix → test → green<br/>+ full suite re-run vs baseline"]
-        BREM --> BACR
-        BV -->|"Clean"| BSHIP["Commit → CI Preflight Gate (SH-LOOP-9,<br/>clean-room CI entrypoints, max 3 attempts)<br/>→ push → <b>[BUG]</b> PR → BASE branch<br/>via pr-generator → AUTO pr-review"]
-        BREM -.->|"stall guard → PR anyway,<br/>findings reported loudly"| BSHIP
-    end
-
-    BAUTO -->|"yes — same session"| BBASE
-    BAUTO -->|"no — halt, state saved"| BHALT["STOP<br/>resume with ticket-implement"]
-    BSHIP --> BPOST["ticket stays 🔵 In Development<br/>→ ve sign-off on the bug branch<br/>→ <b>MANUAL archive-epic</b> before the PR merges"]
-
-    style BREQ fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
-    style BAUTO fill:#FFF9C4,stroke:#F57F17,stroke-width:3px
-    style BHALT fill:#FFCDD2,stroke:#C62828,stroke-width:2px
-    style BBASE fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
-    style BPLAN fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style BGEN fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
-    style BACR fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
-    style BREM fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
-    style BV fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style BSHIP fill:#B2EBF2,stroke:#00695C,stroke-width:2px
-    style BPOST fill:#FFCC80,stroke:#E65100,stroke-width:2px
-```
-
-## 9.3 Enhancement flow — one yes/no, then fully automatic
-
-```mermaid
-flowchart TD
-    subgraph ENH_A["PHASE A — Analysis (stage approvals only)"]
-        EREQ["<b>Requirements → Impact Analysis<br/>→ ONE story → Workflow Planning<br/>→ design stages</b><br/>Requirements, the story and each design stage<br/>take STAGE approvals"]
-        EREQ --> EIG{"<b>Implementation Checkpoint</b><br/>docs committed + PUSHED on the enhancement branch,<br/>ve told to run <b>/ve-implement</b>,<br/>then: Ready to implement now? (yes / no)<br/><i>flow control — the LAST question of the cycle</i>"}
-        EIG -->|"no — halt, state saved"| EHALT["STOP<br/>re-invoke to resume here"]
-    end
-
-    subgraph ENH_B["PHASE B — Implementation (ONE branch, ZERO approvals)"]
-        EBASE["<b>BASELINE regression</b><br/>full repo suite, before any change"]
-        EBASE --> EPLAN["<b>Implementation plan announced</b> — no approval<br/>(former GATE 2 removed)"]
-        EPLAN --> EGEN["<b>GENERATE code</b><br/>+ unit tests to ≥90% coverage<br/>→ FULL regression vs baseline"]
-        EGEN --> EACR["<b>AUTO Code Review</b>"]
-        EACR --> EV{"Verdict<br/><i>routes automatically —<br/>no question (former GATE 3 removed)</i>"}
-        EV -->|"Findings 🔴/🟠"| EREM["<b>AUTO-Remediate</b><br/>fix → test → green<br/>+ full suite re-run vs baseline"]
-        EREM --> EACR
-        EV -->|"Clean"| ESHIP["Commit → CI Preflight Gate (SH-LOOP-9,<br/>clean-room CI entrypoints, max 3 attempts)<br/>→ push → <b>[ENH]</b> PR → BASE branch<br/>via pr-generator → AUTO pr-review"]
-        EREM -.->|"stall guard → PR anyway,<br/>findings reported loudly"| ESHIP
-    end
-
-    EIG -->|"yes — continue in the SAME flow"| EBASE
-    ESHIP --> EPOST["ticket stays 🔵 In Development<br/>→ ve sign-off on the enhancement branch<br/>→ <b>MANUAL archive-epic</b> before the PR merges"]
-
-    style EREQ fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
-    style EIG fill:#FFF9C4,stroke:#F57F17,stroke-width:3px
-    style EHALT fill:#FFCDD2,stroke:#C62828,stroke-width:2px
-    style EBASE fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
-    style EPLAN fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style EGEN fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
-    style EACR fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
-    style EREM fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
-    style EV fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style ESHIP fill:#B2EBF2,stroke:#00695C,stroke-width:2px
-    style EPOST fill:#FFCC80,stroke:#E65100,stroke-width:2px
-```
-
-
-# 10. Distribution & Governance
+# 9. Distribution & Governance
 
 ```mermaid
 %%{init: {"flowchart": {"wrappingWidth": 1000}} }%%
@@ -1423,7 +1239,7 @@ flowchart TD
 ```
 
 
-# 11. AI Defect Ratio Detection — Line-Level Provenance Flow
+# 10. AI Defect Ratio Detection — Line-Level Provenance Flow
 
 > **What it is**: When a bug is worked through the Bug flow (Section 3), the framework determines whether the code that CAUSED the defect was AI-generated — and, on positive evidence, labels the tracker ticket `ai-generated-defect`. The tracing is done by the **Defect Provenance Analyst** agent (`agents/defect-provenance-analyst.md`).
 >
@@ -1475,7 +1291,7 @@ flowchart TD
     %% AFTER THE FLOW — RE-CHECK DURING bug-fix-implement
     %% ═══════════════════════════════════════════════════
 
-    CONT --> BFI(["ve Handoff Break, then on 'yes'<br/>the flow continues into<br/><b>bug-fix-implement</b>"])
+    CONT --> BFI(["Verification Engineer Handoff Break, then on 'yes'<br/>the flow continues into<br/><b>bug-fix-implement</b>"])
 
     BFI --> NEWF{"Does the fix plan touch<br/>files that were NOT in<br/>the Impact Analysis?"}
     NEWF -->|"Yes"| RERUN["<b>Re-check (same procedure)</b><br/>Add the new files to impact-analysis.md and run the<br/><b>Defect Provenance Analyst</b> again — ONLY on the<br/>newly implicated lines (Stages 2–6).<br/>If one is AI-generated and the ticket is not yet<br/>labeled, the label is offered then (confirm-first)"]
@@ -1516,7 +1332,7 @@ flowchart TD
 ```
 
 
-# 12. How Code Gets Evaluated — End to End
+# 11. How Code Gets Evaluated — End to End
 
 ---
 
