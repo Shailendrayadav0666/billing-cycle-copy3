@@ -1,3 +1,5 @@
 MIGRATION-PLAN-v1.0.md
 tests/.evals/_run/
 .scannerwork/
+node_modules/
+coverage/
