@@ -457,3 +457,17 @@
 **Context**: dev-implement.md Section D Step 8. Proceeding to watch the next CI run triggered by e56043b.
 
 ---
+
+## Section D.8 (continued) — CI Attestation Gate: PR #2's Fourth Run — Behaviour Gate Confirmed Green, J1 Transient Judge Hiccup
+**Timestamp**: 2026-09-15T07:41:20Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: n/a
+**SH-LOOP**: SH-LOOP-9 (CI Attestation) triage, continued
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Run 4 (34941720444, on e56043b): confirms the Containerfile fix — 'Stage 2: behaviour (Gherkin, Podman)' now shows a genuine step-level success (not the continue-on-error-masked false success seen on Run 3), and the failed-gates artifact no longer lists 'behavior' at all. Only 'judge' remained, specifically `J1_architecture = ERROR ('judge could not score architecture')` while `J2_security` on the SAME run scored normally (>= 0.85, full criteria breakdown). self-repair (job 2, ~14 min) investigated and reached the same conclusion I had: `architecture-score.json` contained only `{\"status\":\"ERROR\",\"reason\":\"judge returned unparseable output after one retry\"}` — an invocation/parsing failure inside run-evals.sh's own judge call, not a scoring result; the src/**+tests/** diff being judged is IDENTICAL to the one this same J1 rubric already scored 1.00 on during this story's own Code Review (logged above); and J2, run moments later against the same diff via the same mechanism, succeeded cleanly — all pointing at a one-off LLM output-formatting hiccup on the J1 call specifically, not a real architectural regression. self-repair correctly declined to fabricate a fix (it also confirmed it has no CLAUDE_CODE_OAUTH_TOKEN/ANTHROPIC_API_KEY in its own environment to re-invoke the judge itself even if it wanted to) and made no commit — the second time in this cycle self-repair has correctly recognized an issue outside its Code-class remit (Manifest/pipeline last time, judge-invocation transient this time) and left it alone rather than guessing. Recorded here for completeness per the same discipline applied throughout this gate: no code change is warranted, so none was made; the next CI run (triggered by this very audit-trail commit, since nothing in src/**/tests/** needs to change) is expected to re-score J1 successfully against the same, already-proven-clean diff."
+**Verification**: "N/A — no fix applied, none warranted. The Behaviour Gate fix (e56043b) is now CI-confirmed: 'behavior' no longer appears in failed-gates.txt as of this run."
+**Context**: dev-implement.md Section D Step 8. Proceeding to push this entry (retriggering CI) and watch for J1 to clear on re-score.
+
+---
