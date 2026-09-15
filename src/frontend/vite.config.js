@@ -48,9 +48,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      reportsDirectory: fileURLToPath(
-        new URL('../../reports/unit-test-evidence/story-1.1/frontend-coverage', import.meta.url)
-      ),
+      // 🔴 Must land at <this root>/coverage/lcov.info — tests/.evals/config.json's ci.roots[] for
+      // src/frontend declares coverageReportPath "coverage/lcov.info" (relative to this root), and
+      // the static eval gate (run-static-evals.sh coverage_delta) reads the report from exactly that
+      // path. A story-specific evidence-dir path here is invisible to that gate and to any other
+      // story reusing this same config.
+      reportsDirectory: 'coverage',
       include: ['src/pages/Billing.jsx'],
     },
   },

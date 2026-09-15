@@ -310,7 +310,25 @@ delta_diff() { # gate_id  "cmd producing 'rule\tfile\tmessage' lines"  [root]  [
   #    committed baseline and skip the whole checkout dance in that case; only recompute via checkout
   #    when no baseline is committed yet (the pre-story epic-level smoke test, which has no story
   #    branch to have captured one — ci-pipeline-generation.md Section 4.0.6).
-  if [ ! -f "$base" ]; then
+  # 🔴 THE ON-DISK CHECK ALONE IS NOT ENOUGH. The CI workflow's own "Purge inherited evidence" step
+  #    (common/ci-pipeline-generation.md Section 4.0e) deletes reports/eval-evidence/${EVAL_KEY}
+  #    — INCLUDING this committed baseline file — before Stage 1 ever runs, on every single CI run.
+  #    So `[ ! -f "$base" ]` is true in CI even when git has tracked a real, committed baseline at
+  #    ORIG_REF, and the "trust it, skip the dance" branch above could never fire there — the exact
+  #    FATAL abort this comment describes was reproduced, deterministically, in CI (Section 8's own
+  #    "could not return to <head> after checking out the base ref: untracked working tree files
+  #    would be overwritten" on this story's D1_lint/src_backend baseline). Restore the git-tracked
+  #    blob directly when it exists at ORIG_REF — no checkout needed at all — before ever falling
+  #    back to the checkout dance.
+  if [ ! -f "$base" ] && git cat-file -e "${ORIG_REF}:${base}" 2>/dev/null; then
+    mkdir -p "${STATIC_DIR}/baseline"
+    git show "${ORIG_REF}:${base}" > "$base" 2>/dev/null || : > "$base"
+    if git cat-file -e "${ORIG_REF}:${base}.err" 2>/dev/null; then
+      git show "${ORIG_REF}:${base}.err" > "${base}.err" 2>/dev/null || : > "${base}.err"
+    else
+      : > "${base}.err"
+    fi
+  elif [ ! -f "$base" ]; then
     before_stash="$(git stash list | wc -l | tr -d ' ')"
     git stash push -q --include-untracked 2>/dev/null || true
     after_stash="$(git stash list | wc -l | tr -d ' ')"
@@ -433,6 +451,69 @@ delta_diff() { # gate_id  "cmd producing 'rule\tfile\tmessage' lines"  [root]  [
 #    changed file matching no report's sourcePaths is skipped (not every changed file is coverable —
 #    e.g. docs, config). `ci.coverageReportPath`/`ci.coverageFormat` (single pair, scored against the
 #    whole `ci.sourcePaths`) still works unmodified when `coverageReports` is absent — back-compat. ──
+#
+# 🔴 "not every changed file is coverable — e.g. docs, config" (above) was only half-implemented: the
+#    sourcePaths-prefix skip covers a file OUTSIDE a report's tree, but sourcePaths is a directory
+#    prefix, not a glob — a non-code file living INSIDE a coverable directory (requirements-dev.txt
+#    next to main.py; App.css next to Billing.jsx) still matched a report and was then required to
+#    appear in it, which a coverage tool can never do for a file it never instruments. That is not a
+#    real gap (Section 5.0 still applies to actual source) — it is asking a report for something
+#    structurally outside what it measures. _coverable_ext_cache builds the set of extensions the
+#    report ACTUALLY contains (derived from the report itself, never a hardcoded per-language list, to
+#    stay stack-agnostic per this script's own convention); a changed file whose extension never
+#    appears anywhere in the report is skipped the same way an out-of-tree file already is. A file
+#    whose extension DOES appear elsewhere in the report (a genuinely new, untested .py/.jsx file) is
+#    untouched by this and still fails exactly as before — this narrows the false positive, not the
+#    real check.
+_coverable_ext_cache() { # real_rp  rfmt  -> prints the path to a newline-list-of-extensions cache file
+  local real_rp="$1" rfmt="$2" run_dir="${RUN_DIR:-tests/.evals/_run}"
+  mkdir -p "$run_dir"
+  local cache="${run_dir}/covext-$(printf '%s' "${real_rp}" | tr -c 'A-Za-z0-9' '_').txt"
+  if [ ! -f "$cache" ]; then
+    case "$rfmt" in
+      cobertura|jacoco)
+        REPORT_PATH="$real_rp" python3 - > "$cache" 2>/dev/null <<'PYEOF' || : > "$cache"
+import os, xml.etree.ElementTree as ET
+tree = ET.parse(os.environ["REPORT_PATH"]); root = tree.getroot()
+exts = set()
+for el, attr in ((c, 'filename') for c in root.iter('class')):
+    fn = el.get(attr)
+    if fn and '.' in fn.rsplit('/', 1)[-1]:
+        exts.add(fn.rsplit('.', 1)[-1].lower())
+for sf in root.iter('sourcefile'):
+    fn = sf.get('name')
+    if fn and '.' in fn.rsplit('/', 1)[-1]:
+        exts.add(fn.rsplit('.', 1)[-1].lower())
+for e in sorted(exts):
+    print(e)
+PYEOF
+        ;;
+      lcov)
+        awk '
+          /^SF:/ {
+            f = substr($0, 4); gsub(/\\/, "/", f)
+            n = split(f, a, "/"); b = a[n]
+            if (index(b, ".") > 0) { split(b, c, "."); print tolower(c[length(c)]) }
+          }
+        ' "$real_rp" 2>/dev/null | sort -u > "$cache"
+        ;;
+      gocover)
+        awk '
+          NR > 1 {
+            split($1, a, ":"); f = a[1]
+            n = split(f, b, "/"); c = b[n]
+            if (index(c, ".") > 0) { split(c, d, "."); print tolower(d[length(d)]) }
+          }
+        ' "$real_rp" 2>/dev/null | sort -u > "$cache"
+        ;;
+      *)
+        : > "$cache"
+        ;;
+    esac
+  fi
+  printf '%s' "$cache"
+}
+
 coverage_delta() {
   local min changed hit=0 found=0 f had_error=0 unmatched_files=""
   min=$(jq -r '.thresholds.unitTestCoverageMin // 90' "$CONFIG")
@@ -505,6 +586,19 @@ coverage_delta() {
       fail "unitCoverage: coverage report not found at ${real_rp} (root='${rroot}', reportPath='${rp}') — needed for changed file ${f}"
       had_error=1
       continue
+    fi
+
+    # 🔴 Skip a changed file whose extension never appears ANYWHERE in this report — a coverage tool
+    #    cannot instrument what it structurally never tracks (a requirements.txt next to main.py, a
+    #    .css next to a .jsx). See _coverable_ext_cache above. An empty cache (report lists nothing at
+    #    all) never triggers this skip — stays on the strict path below, same as before.
+    local f_base="${f##*/}" f_ext=""
+    case "$f_base" in *.*) f_ext="$(printf '%s' "${f_base##*.}" | tr 'A-Z' 'a-z')" ;; esac
+    if [ -n "$f_ext" ]; then
+      local covext_cache; covext_cache="$(_coverable_ext_cache "$real_rp" "$rfmt")"
+      if [ -s "$covext_cache" ] && ! grep -qxF "$f_ext" "$covext_cache"; then
+        continue   # extension never instrumented by this report — docs/config, not a real coverage gap
+      fi
     fi
 
     case "$rfmt" in

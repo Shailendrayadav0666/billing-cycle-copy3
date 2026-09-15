@@ -151,6 +151,36 @@ describe('AC-13/14/20/21/22: confirm upgrade — success', () => {
   })
 })
 
+describe('usage cards render real data', () => {
+  it('renders every usage icon variant and the included-usage rows', async () => {
+    const populatedBilling = {
+      ...standardBilling,
+      usages: [
+        { id: 'chat-credits', help: 'Chat credits help', label: 'Chat credits', used: 100, total: 10000 },
+        { id: 'chatbots', help: 'Chatbots help', label: 'Chatbots', used: 2, total: 10 },
+        { id: 'documents-pages', help: 'Docs help', label: 'Document pages', used: 50, total: 5000 },
+      ],
+      included_usage: {
+        title: 'Your included usage',
+        help: '',
+        items: [{ id: 'seats', label: 'Seats', used_percent: 40, resets_in: '12 days' }],
+      },
+    }
+    mockFetchSequence([{ status: 200, body: populatedBilling }])
+    render(<Billing />)
+
+    await waitFor(() => expect(screen.getByText('Chat credits')).toBeInTheDocument())
+    expect(screen.getByText('Chatbots')).toBeInTheDocument()
+    expect(screen.getByText('Document pages')).toBeInTheDocument()
+    expect(screen.getByText('100 of 10000')).toBeInTheDocument()
+
+    expect(screen.getByText('Your included usage')).toBeInTheDocument()
+    expect(screen.getByText('Seats')).toBeInTheDocument()
+    expect(screen.getByText('40% used')).toBeInTheDocument()
+    expect(screen.getByText('Resets in 12 days')).toBeInTheDocument()
+  })
+})
+
 describe('AC-13/18/23/24/25: confirm upgrade — decline', () => {
   it('keeps the modal open and shows the inline decline error', async () => {
     mockFetchSequence([
