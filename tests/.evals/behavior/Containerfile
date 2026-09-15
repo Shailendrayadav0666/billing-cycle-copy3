@@ -26,7 +26,24 @@ RUN pip install --no-cache-dir -r /tmp/requirements-backend.txt \
 # common/behavior-spec.md Section 4.2 ("never reach into internals"). Playwright + a real
 # Chromium is installed here, once, in the image, rather than skipping containerisation
 # (forbidden by Section 5.1 while Podman is available).
-RUN playwright install --with-deps chromium
+# 🔴 `playwright install --with-deps chromium` FAILS THE BUILD on this base image: `--with-deps`
+#    only has a package list for Ubuntu, and on a Debian base (python:3.13-slim IS Debian, not
+#    Ubuntu) it falls back to the Ubuntu 20.04 list verbatim — which names `ttf-ubuntu-font-family`
+#    and `ttf-unifont`, neither of which exists under those names on Debian, so apt-get aborts the
+#    whole install and the image never builds (observed in CI: "E: Package 'ttf-unifont' has no
+#    installation candidate", "Error: building at STEP ... exit status 1"). Fixed by installing the
+#    browser binary alone (no OS-package auto-detection) plus the actual shared-library dependency
+#    set headless Chromium needs, using their real Debian package names — the same list used by
+#    most Debian-based Chromium/Puppeteer/Playwright container setups. Font packages are omitted
+#    deliberately: they affect glyph rendering fidelity in screenshots, not page load, navigation,
+#    or element interaction, which is all these BDD scenarios exercise.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
+       libxkbcommon0 libxcomposite1 libxdamage1 libxext6 libxfixes3 \
+       libxrandr2 libgbm1 libasound2 libpango-1.0-0 libcairo2 \
+    && rm -rf /var/lib/apt/lists/* \
+    && playwright install chromium
 # >>> STACK-RESOLVED BEHAVIOUR DEPS END <<<
 
 # run.sh is bind-mounted with the repo at runtime; nothing to COPY.
