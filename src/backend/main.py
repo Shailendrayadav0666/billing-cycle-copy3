@@ -1,11 +1,12 @@
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import Any
+
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from pathlib import Path
-from datetime import datetime, timedelta, timezone
-from typing import Any
 
 app = FastAPI(title="Billing & Tasks POC")
 
@@ -154,7 +155,7 @@ def compute_prorated_charge(renew_at: str) -> tuple[int, float]:
     # undercount days_remaining by one for any time after midnight. .date() strips both sides
     # to whole calendar days, matching the epic's worked example (15 days remaining -> $10.00)
     # regardless of what time the request happens to arrive.
-    days_remaining = max(1, (renew_at_date.date() - datetime.today().date()).days)
+    days_remaining = max(1, (renew_at_date.date() - datetime.now(timezone.utc).date()).days)
     daily_delta = (PLANS["Premium"]["price"] - PLANS["Standard"]["price"]) / DAYS_IN_CYCLE
     prorated_charge = round(daily_delta * days_remaining, 2)
     return days_remaining, prorated_charge
