@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from pathlib import Path
 from datetime import datetime, timedelta
+from typing import TypedDict, cast
 
 app = FastAPI(title="Billing & Tasks POC")
 
@@ -112,7 +113,14 @@ class UpgradeRequest(BaseModel):
 # annual billing is explicitly out of scope (REQ-NF-06).
 CYCLE_LENGTH_DAYS = 30
 
-PLAN_CATALOG = {
+
+class PlanInfo(TypedDict):
+    price: float
+    price_label: str
+    limits: dict[str, int]
+
+
+PLAN_CATALOG: dict[str, PlanInfo] = {
     "Standard": {
         "price": 20.0,
         "price_label": "$20/month",
@@ -251,7 +259,11 @@ def upgrade_plan(payload: UpgradeRequest, dry_run: bool = False):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
     email = payload.email
-    current_plan = billing_data[email]["plan_name"]
+    # billing_data is a pre-existing, untyped global data store (out of scope for this story to
+    # retype per ARCH-08); cast() asserts the known field types at the point this new code reads
+    # them, without touching that pre-existing declaration or suppressing any check.
+    current_plan = cast(str, billing_data[email]["plan_name"])
+    renew_at = cast(str, billing_data[email]["renew_at"])
 
     # Idempotency guard: an already-Premium account can never be upgraded again, whether previewing
     # or applying. No plan/balance mutation occurs on this path.
@@ -261,8 +273,8 @@ def upgrade_plan(payload: UpgradeRequest, dry_run: bool = False):
             detail="Account is already on the Premium plan",
         )
 
-    charge = _prorated_charge(current_plan, "Premium", billing_data[email]["renew_at"])
-    days_remaining = _days_remaining(billing_data[email]["renew_at"])
+    charge = _prorated_charge(current_plan, "Premium", renew_at)
+    days_remaining = _days_remaining(renew_at)
 
     if dry_run:
         # Preview only -- never mutates plan or balance state (ARCH-03).
@@ -280,7 +292,8 @@ def upgrade_plan(payload: UpgradeRequest, dry_run: bool = False):
     users[email]["price"] = premium["price_label"]
     billing_data[email]["plan_name"] = "Premium"
     billing_data[email]["price"] = premium["price_label"]
-    for usage in billing_data[email]["usages"]:
+    usages = cast(list, billing_data[email]["usages"])
+    for usage in usages:
         new_total = premium["limits"].get(usage["id"])
         if new_total is not None:
             usage["total"] = new_total

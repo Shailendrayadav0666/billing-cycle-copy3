@@ -1,6 +1,10 @@
 # Minimal ruff config — recommended default rule set, bootstrapped per
 # aire-workflow/common/eval-framework.md Section 2.3 (D1 lint, this repo had no ruff config).
-line-length = 100
+# line-length=120 (not the more common 100/88): the existing pre-existing endpoints (not touched
+# by this story - ARCH-08) already have lines up to 118 chars; 100 would force editing those
+# handler bodies purely for line-wrapping, which ARCH-08 reserves for shared data-store access
+# only. Chosen at bootstrap time, before this config is an established project norm.
+line-length = 120
 
 [lint]
 select = ["E", "F", "W"]
