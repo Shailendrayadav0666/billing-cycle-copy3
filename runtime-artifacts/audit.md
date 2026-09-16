@@ -283,3 +283,30 @@ Committing the full artifact set next, then presenting the mandatory, verbatim S
 **Context**: IMPLEMENTATION PHASE — STOP CHECKPOINT — SonarQube Setup Gate (Section 4.1.3 'proceed')
 
 ---
+
+## STOP CHECKPOINT — Placement Gate Refinements
+**Timestamp**: 2026-09-16T11:21:35Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: (none — automatic step)
+**AI Response**: "Re-read common/ci-pipeline-generation.md Section 4.0.7 more closely and found two compliance gaps in my own generation: (1) the Test Placement Verification step was placed BEFORE Stage 1 static evals, but Section 4.0.7 Step 5 requires it AFTER the D1-D7 steps; (2) check-test-placement.sh's JSON output didn't match the documented schema (files_scanned/violations[]/verdict) or the unit-test-vs-api-test classification. Fixed both, re-verified V35 (still fails on a deliberately misplaced fixture), re-ran validate-pipeline.sh (still 36/39, same 3 documented false positives, V27 still confirms structural fidelity). Committed (e9b4a1f) and pushed. sonar-project.properties also picked up the user's own sonar.organization=shailendrayadav0666 edit from the setup gate — committed as-is."
+**Context**: IMPLEMENTATION PHASE — STOP CHECKPOINT Step 1.6 (self-correction)
+
+---
+
+## STOP CHECKPOINT — Epic-Level Pre-Handoff Smoke Test (Section 4.0.6) — Started
+**Timestamp**: 2026-09-16T11:21:35Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: (none — automatic step)
+**AI Response**: "Precondition met: SonarQube setup gate answered 'proceed' (recorded above). gh CLI installed and authenticated (Shailendrayadav0666). Launched tests/.evals/scripts/smoke-test-epic.sh epic/EPIC-LOCAL-1-self-serve-premium-upgrade EPIC-LOCAL-1 in the background (real, live action: cuts a zero-diff scratch branch ci/epic-smoke-EPIC-LOCAL-1, opens a draft PR into the epic branch, watches the real GitHub Actions run, merges on green or leaves the draft open on exhaustion — sanctioned as automatic by CLAUDE.md/Section 4.0.6, the user's 'using aire' invocation already authorizes it). Will report the outcome when it completes."
+**Context**: IMPLEMENTATION PHASE — STOP CHECKPOINT Step 4 (Section 4.0.6 smoke test, started)
+
+---
+
+## STOP CHECKPOINT — Epic-Level Pre-Handoff Smoke Test — PASSED
+**Timestamp**: 2026-09-16T11:22:52Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: (none — automatic step)
+**AI Response**: "smoke-test-epic.sh cut ci/epic-smoke-EPIC-LOCAL-1 from the epic branch, opened draft PR #3 (https://github.com/Shailendrayadav0666/billing-cycle-copy3/pull/3), watched run 34591439109 — PASSED on the FIRST attempt (no self-repair needed, self-repair job recorded 0s / skipped). Per-check breakdown (observed, not asserted): trigger coverage PASS, workflow acceptance PASS, checkout PASS, credential resolution PASS, gating mechanics PASS. Per-gate: D3_sast PASS (real semgrep run), D7_secrets PASS (real gitleaks run), D1/D2/D4/D5/D6 N/A (earned — zero-diff PR, diff-scoped; D2 also correctly N/A for src/frontend — plain JSX, no type checker for this stack), unitCoverage PASS (vacuously — no changed files). Verified independently via `gh run view 34591439109`: verify-and-evaluate job succeeded in 2m0s; one annotation noted the SonarQube scan step (continue-on-error, did not fail the job) and a GitHub deprecation notice about the pinned sonarqube-scan-action@v4 version (informational, template's own pin, not something this generation changed). PR auto-merged into the epic branch (merge commit 24e8554) and the scratch branch deleted, both confirmed via `git fetch` + `git log`. This proves the environment is viable to build on — it does NOT prove delta-scoped gate accuracy, behaviour tiers, or J1/J2 judge scoring on a real diff; Story 1.1's PR is what exercises those for the first time."
+**Context**: IMPLEMENTATION PHASE — STOP CHECKPOINT Step 4 (Section 4.0.6 smoke test — PASSED)
+
+---
