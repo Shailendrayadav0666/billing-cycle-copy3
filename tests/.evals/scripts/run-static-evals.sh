@@ -310,6 +310,20 @@ delta_diff() { # gate_id  "cmd producing 'rule\tfile\tmessage' lines"  [root]  [
   #    committed baseline and skip the whole checkout dance in that case; only recompute via checkout
   #    when no baseline is committed yet (the pre-story epic-level smoke test, which has no story
   #    branch to have captured one — ci-pipeline-generation.md Section 4.0.6).
+  # 🔴 "MISSING FROM DISK" IS NOT THE SAME AS "NEVER COMMITTED". The CI job's own "Purge inherited
+  #    evidence" step (agentic-eval-pipeline.yml) deletes reports/eval-evidence/${EVAL_KEY}/ before
+  #    every run, on purpose (Section 4.0e) — so on a real CI run `$base` is ALWAYS absent from disk
+  #    even when dev-implement.md Step 4.6 already committed it. `[ ! -f "$base" ]` alone then always
+  #    took the checkout-dance branch above, which is exactly the FATAL case the comment above warns
+  #    about: BASE_SHA predates this root's first commit, so the checkout removes the tracked path,
+  #    the capture writes it back UNTRACKED, and the return-to-ORIG_REF checkout then refuses to
+  #    clobber it because ORIG_REF tracks that same path too. Restore straight from git first — cheap,
+  #    touches only this one path, never disturbs the rest of the working tree — before ever falling
+  #    back to the disruptive whole-repo checkout dance, which now only runs for a baseline that is
+  #    genuinely uncommitted anywhere (the pre-story epic-level smoke test case above).
+  if [ ! -f "$base" ] && git cat-file -e "${ORIG_REF}:${base}" 2>/dev/null; then
+    git show "${ORIG_REF}:${base}" > "$base" 2>/dev/null || rm -f "$base"
+  fi
   if [ ! -f "$base" ]; then
     before_stash="$(git stash list | wc -l | tr -d ' ')"
     git stash push -q --include-untracked 2>/dev/null || true

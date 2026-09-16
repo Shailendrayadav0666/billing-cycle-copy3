@@ -2,3 +2,14 @@ MIGRATION-PLAN-v1.0.md
 
 # AIRE — CI-local scratch state, never committed (common/ci-pipeline-generation.md Section 4.0e)
 tests/.evals/_run/
+
+# Python / pytest / coverage build artifacts — never committed
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Node
+node_modules/

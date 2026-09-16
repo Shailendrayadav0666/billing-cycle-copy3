@@ -66,7 +66,7 @@
 
 | Story | Title | Requires | Tracker ID | Status | PR | Merged | Start | End | Recorded |
 |-------|-------|----------|------------|--------|-----|--------|-------|-----|----------|
-| 1.1 | Prorated Upgrade Endpoint | none | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-16 10:51 |
+| 1.1 | Prorated Upgrade Endpoint | none | LOCAL | 🔵 In Development | — | — | 2026-09-16 | | 2026-09-16 11:27 |
 | 1.2 | Upgrade to Premium UI Flow | 1.1 | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-16 10:51 |
 
 ## User Stories

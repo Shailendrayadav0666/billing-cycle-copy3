@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from pathlib import Path
 from datetime import datetime, timedelta
+from typing import TypedDict, cast
 
 app = FastAPI(title="Billing & Tasks POC")
 
@@ -101,6 +102,52 @@ class TokenRequest(BaseModel):
 class TaskCreateRequest(BaseModel):
     email: str
     title: str
+
+
+class UpgradeRequest(BaseModel):
+    email: str
+
+
+# Single source of truth for plan pricing/limits. CYCLE_LENGTH_DAYS is the ONLY place the 30-day
+# cycle length appears in the proration path (ARCH-06) -- this cycle supports monthly billing only,
+# annual billing is explicitly out of scope (REQ-NF-06).
+CYCLE_LENGTH_DAYS = 30
+
+
+class PlanInfo(TypedDict):
+    price: float
+    price_label: str
+    limits: dict[str, int]
+
+
+PLAN_CATALOG: dict[str, PlanInfo] = {
+    "Standard": {
+        "price": 20.0,
+        "price_label": "$20/month",
+        "limits": {"chat-credits": 2000, "chatbots": 3, "documents-pages": 1000},
+    },
+    "Premium": {
+        "price": 40.0,
+        "price_label": "$40/month",
+        "limits": {"chat-credits": 5000, "chatbots": 10, "documents-pages": 5000},
+    },
+}
+
+
+def _days_remaining(renew_at: str) -> int:
+    """Whole days remaining until renew_at, clamped to [0, CYCLE_LENGTH_DAYS]. Compared as
+    dates (not datetimes) so the result does not depend on the current time of day."""
+    renew_date = datetime.strptime(renew_at, "%b %d, %Y").date()
+    days = (renew_date - datetime.today().date()).days
+    return max(0, min(CYCLE_LENGTH_DAYS, days))
+
+
+def _prorated_charge(current_plan: str, target_plan: str, renew_at: str) -> float:
+    """Prorated charge for upgrading from current_plan to target_plan, based on days
+    remaining until renew_at in the current CYCLE_LENGTH_DAYS-day cycle."""
+    days_remaining = _days_remaining(renew_at)
+    price_delta = PLAN_CATALOG[target_plan]["price"] - PLAN_CATALOG[current_plan]["price"]
+    return round(price_delta * days_remaining / CYCLE_LENGTH_DAYS, 2)
 
 
 @app.post("/api/auth/login")
@@ -204,6 +251,58 @@ def add_task(payload: TaskCreateRequest):
     new_task = {"id": new_id, "title": payload.title, "status": "pending", "due": "Today"}
     user_tasks.append(new_task)
     return new_task
+
+
+@app.post("/api/billing/upgrade")
+def upgrade_plan(payload: UpgradeRequest, dry_run: bool = False):
+    if payload.email not in users:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+
+    email = payload.email
+    # billing_data is a pre-existing, untyped global data store (out of scope for this story to
+    # retype per ARCH-08); cast() asserts the known field types at the point this new code reads
+    # them, without touching that pre-existing declaration or suppressing any check.
+    current_plan = cast(str, billing_data[email]["plan_name"])
+    renew_at = cast(str, billing_data[email]["renew_at"])
+
+    # Idempotency guard: an already-Premium account can never be upgraded again, whether previewing
+    # or applying. No plan/balance mutation occurs on this path.
+    if current_plan == "Premium":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Account is already on the Premium plan",
+        )
+
+    charge = _prorated_charge(current_plan, "Premium", renew_at)
+    days_remaining = _days_remaining(renew_at)
+
+    if dry_run:
+        # Preview only -- never mutates plan or balance state (ARCH-03).
+        return {
+            "prorated_charge": charge,
+            "current_plan": current_plan,
+            "new_plan": "Premium",
+            "days_remaining": days_remaining,
+        }
+
+    # Apply the upgrade: plan tier and its usage limits change; the on-demand balance is
+    # deliberately left untouched (ARCH-04, REQ-F-06).
+    premium = PLAN_CATALOG["Premium"]
+    users[email]["plan"] = "Premium"
+    users[email]["price"] = premium["price_label"]
+    billing_data[email]["plan_name"] = "Premium"
+    billing_data[email]["price"] = premium["price_label"]
+    usages = cast(list, billing_data[email]["usages"])
+    for usage in usages:
+        new_total = premium["limits"].get(usage["id"])
+        if new_total is not None:
+            usage["total"] = new_total
+
+    return {
+        "applied_charge": charge,
+        "plan": "Premium",
+        "billing": billing_data[email],
+    }
 
 
 # Serve the built frontend if it exists (production build)

@@ -55,7 +55,9 @@ is_test_like() {
 # api-test detection: a test-like file whose content imports/uses a real-endpoint test client.
 is_api_test() {
   [ -f "$1" ] || return 1
-  grep -qE 'supertest|httpx|TestClient|RestAssured|MockMvc' "$1" 2>/dev/null
+  # Match actual code usage (imports / constructor calls), never prose mentions in a comment or
+  # docstring — a file that SAYS "no TestClient" in its own docstring is not an api-test.
+  grep -qE 'require\(.?supertest|from .*supertest|import .*supertest|supertest\(|import httpx|from httpx|TestClient\s*\(|from fastapi\.testclient|from starlette\.testclient|RestAssured|MockMvc' "$1" 2>/dev/null
 }
 
 files_scanned=0

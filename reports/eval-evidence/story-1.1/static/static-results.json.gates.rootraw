@@ -1,0 +1,10 @@
+D1_lint	src/backend	PASS	no new findings vs baseline
+D2_types	src/backend	PASS	no new findings vs baseline
+D4_deps	src/backend	PASS	no findings at base or head — QUALIFIED: the tool produced zero output at BOTH ends, so 'clean' and 'scanned nothing' are indistinguishable here. Confirm this gate's command actually covers root 'src/backend' sourcePaths (V9: prove it can fail).
+D5_licenses	src/backend	PASS	no findings at base or head — QUALIFIED: the tool produced zero output at BOTH ends, so 'clean' and 'scanned nothing' are indistinguishable here. Confirm this gate's command actually covers root 'src/backend' sourcePaths (V9: prove it can fail).
+D6_complexity	src/backend	PASS	no new findings vs baseline
+D1_lint	src/frontend	N/A	no changed files under root 'src/frontend' for this PR (diff-scoped)
+D2_types	src/frontend	N/A	plain JSX — no TypeScript/type checker configured for this stack (tests/.evals/config.json ci.roots[]._rootsComment)
+D4_deps	src/frontend	N/A	no changed files under root 'src/frontend' for this PR (diff-scoped)
+D5_licenses	src/frontend	N/A	no changed files under root 'src/frontend' for this PR (diff-scoped)
+D6_complexity	src/frontend	N/A	no changed files under root 'src/frontend' for this PR (diff-scoped)

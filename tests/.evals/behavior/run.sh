@@ -40,8 +40,27 @@ CROSS_STORY="spec/behavior.feature"
 run_features() { # $@ = feature files
   [ "$#" -gt 0 ] || { echo "run.sh: tier ${TIER} resolved zero feature files" >&2; return 2; }
   # >>> STACK-RESOLVED BEHAVIOUR RUNNER START <<<
-  echo "run.sh: no behaviour runner resolved for this stack — generation defect (ERROR, not a pass)" >&2
-  return 2
+  # Python / pytest-bdd (common/eval-framework.md Section 2.3's stack table). pytest-bdd's own
+  # scenarios() binds ONE feature file per test module (tests/behavior/test_<slug>.py), so this
+  # resolves each feature file argument to its corresponding module by naming convention
+  # (spec/behavior/story-1.1.feature -> tests/behavior/test_story_1_1.py) and runs pytest on the
+  # resolved set. A feature file with no corresponding module is a real ERROR (missing runner), not
+  # a silent skip.
+  local modules=()
+  local feature slug module
+  for feature in "$@"; do
+    slug="$(basename "$feature" .feature | tr '-.' '__')"
+    if [ "$feature" = "$CROSS_STORY" ]; then
+      slug="behavior"
+    fi
+    module="tests/behavior/test_${slug}.py"
+    if [ ! -f "$module" ]; then
+      echo "run.sh: no test module for feature '${feature}' (expected ${module}) — generation defect, not a skip" >&2
+      return 2
+    fi
+    modules+=("$module")
+  done
+  PYTHONPATH="src/backend:${PYTHONPATH:-}" python3 -m pytest "${modules[@]}" -v
   # >>> STACK-RESOLVED BEHAVIOUR RUNNER END <<<
 }
 

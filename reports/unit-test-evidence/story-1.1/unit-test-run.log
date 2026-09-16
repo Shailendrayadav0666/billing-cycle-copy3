@@ -1,0 +1,26 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\shailendra.yadav\Desktop\projects\helix-aire-v1-demo2\billing-cycle-copy3\src\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\shailendra.yadav\Desktop\projects\helix-aire-v1-demo2\billing-cycle-copy3
+plugins: anyio-4.15.1, bdd-8.1.0, cov-7.1.0
+collecting ... collected 8 items
+
+..\..\tests\unit\backend\test_billing_upgrade.py::TestProratedCharge::test_full_cycle_remaining_charges_full_price_delta PASSED [ 12%]
+..\..\tests\unit\backend\test_billing_upgrade.py::TestProratedCharge::test_mid_cycle_matches_epic_worked_example PASSED [ 25%]
+..\..\tests\unit\backend\test_billing_upgrade.py::TestProratedCharge::test_zero_days_remaining_charges_nothing PASSED [ 37%]
+..\..\tests\unit\backend\test_billing_upgrade.py::TestProratedCharge::test_negative_days_remaining_is_clamped_to_zero PASSED [ 50%]
+..\..\tests\unit\backend\test_billing_upgrade.py::TestProratedCharge::test_days_remaining_beyond_cycle_length_is_clamped PASSED [ 62%]
+..\..\tests\unit\backend\test_billing_upgrade.py::TestProratedCharge::test_single_cycle_length_constant_used_throughout PASSED [ 75%]
+..\..\tests\unit\backend\test_billing_upgrade.py::TestPlanCatalog::test_standard_and_premium_prices_match_epic PASSED [ 87%]
+..\..\tests\unit\backend\test_billing_upgrade.py::TestPlanCatalog::test_premium_limits_are_higher_than_standard PASSED [100%]
+
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.13.3-final-0 _______________
+
+Name      Stmts   Miss  Cover   Missing
+---------------------------------------
+main.py     106     49    54%   155-158, 163-220, 225-228, 233-235, 240-242, 247-253, 258-301
+---------------------------------------
+TOTAL       106     49    54%
+Coverage XML written to file ../../reports/unit-test-evidence/story-1.1/coverage-report.xml
+============================== 8 passed in 1.14s ==============================

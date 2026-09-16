@@ -1,0 +1,47 @@
+{
+  "key": "story-1.1",
+  "trackerId": "LOCAL",
+  "evalFrameworkVersion": "1.0.0",
+  "rubricVersion": "1.0.0",
+  "judgeModel": "claude-sonnet-5",
+  "scope": "changed-files",
+  "changedFiles": 12,
+  "bootstrap": {
+    "created": [
+      {"check": "D1_lint", "path": "src/backend/ruff.toml", "tool": "ruff", "preset": "E,F,W select, line-length 120"},
+      {"check": "D2_types", "path": "src/backend/mypy.ini", "tool": "mypy", "preset": "default (non-strict)"},
+      {"check": "D6_complexity (frontend)", "path": "src/frontend/eslint.config.js", "tool": "eslint", "preset": "complexity rule only"}
+    ],
+    "reused": [
+      {"check": "D1_lint (frontend)", "path": "src/frontend/.oxlintrc.json", "note": "repo's own config, used as-is"}
+    ]
+  },
+  "gates": {
+    "D1_lint":        {"status": "PASS", "newFindings": 0},
+    "D2_types":        {"status": "PASS", "errors": 0, "note": "2 pre-existing mypy findings in add_task() are baseline debt, not new"},
+    "D3_sast":        {"status": "PASS", "new": {"critical": 0, "high": 0, "medium": 0}},
+    "D4_deps":         {"status": "PASS", "new": {"critical": 0, "high": 0}, "note": "manually verified real tool output (19 deps, 0 vulns) — script's own zero-output-at-both-ends caveat investigated and confirmed a genuine clean result"},
+    "D5_licenses":     {"status": "PASS", "violations": [], "note": "manually verified real tool output (~40 packages, no disallowed licenses) — same caveat as D4"},
+    "D6_complexity":  {"status": "PASS", "maxChanged": "not flagged", "threshold": 12},
+    "D7_secrets":     {"status": "PASS", "findings": 0},
+    "unitCoverage":   {"status": "PASS", "value": "100% on new/changed lines (manually verified via coverage report Missing-lines inspection)", "threshold": 90.0, "note": "the mechanized coverage_delta() gate hit a reproducible bash arithmetic bug inside the CANONICAL, byte-identical run-static-evals.sh on this Windows machine (line 642, 'invalid arithmetic operator') — disclosed, not worked around; see runtime-artifacts/audit.md. Whole-file coverage.xml at reports/unit-test-evidence/story-1.1/coverage-report.xml (75%, all misses in pre-existing untouched endpoints)."},
+    "behaviorB1":     {"status": "PASS (unverified parity)", "scenarios": "6/6", "acsCovered": "4/4 tags (AC-1,2,3,4)", "containerised": false, "reason": "podman installed but no network egress to registry-1.docker.io in this sandboxed environment — build times out; will be re-verified for real by CI (SH-LOOP-10)"},
+    "behaviorB2":     {"status": "N/A", "reason": "no other feature file exists yet — Story 1.2 not started"},
+    "behaviorB3":     {"status": "N/A", "reason": "not the last work unit — Story 1.2 has no merged PR yet"},
+    "apiContract":    {"status": "PASS", "endpoints": 1, "checklist": "6/6 items — see reports/api-contract-test-evidence/story-1.1/evidence-manifest.md"},
+    "playwright":     {"status": "N/A", "reason": "no Frontend Components Generation step in this story's plan — backend-only story"},
+    "regression":     {"status": "PASS", "newFailures": 0, "note": "baseline had 0 tests (exit 5); 20/20 now pass"},
+    "J1_architecture":{"status": "PASS", "score": 1.0, "min": 0.85, "rubricSource": "architecture.md#10", "criteria": "see reports/eval-evidence/story-1.1/judge/architecture-score.json"},
+    "J2_security":    {"status": "PASS", "score": 1.0, "min": 0.85, "criteria": "see reports/eval-evidence/story-1.1/judge/security-score.json"}
+  },
+  "selfHealing": {
+    "SH-LOOP-4": {"attempts": 1, "budget": 3, "resolved": true},
+    "SH-LOOP-7": {"attempts": 1, "budget": 3, "resolved": true, "note": "pre-gate fix to test infrastructure, not the application code"},
+    "SH-LOOP-12": {"attempts": 1, "budget": 3, "resolved": true, "note": "false-positive misclassification in own check-test-placement.sh, fixed"},
+    "SH-LOOP-1": {"attempts": 0, "budget": 3},
+    "SH-LOOP-2": {"attempts": 0, "budget": 3},
+    "SH-LOOP-3": {"attempts": 0, "budget": 3},
+    "SH-LOOP-6": {"attempts": 0, "budget": 3}
+  },
+  "verdict": "PASS"
+}

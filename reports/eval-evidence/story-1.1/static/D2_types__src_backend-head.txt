@@ -1,0 +1,2 @@
+type-var	main.py	Value of type variable "SupportsRichComparisonT" of "max" cannot be "object"
+operator	main.py	Unsupported operand types for + ("object" and "int")
