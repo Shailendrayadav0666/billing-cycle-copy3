@@ -1,0 +1,16 @@
+{
+  "judgeModel": "claude-sonnet-5",
+  "rubricVersion": "1.0.0",
+  "rubricSource": "spec/plans/architecture.md#10-verifiable-constraints",
+  "score": 1.0,
+  "criteria": [
+    {"id": "ARCH-01", "weight": 0.20, "score": 1.0, "note": "current_plan == 'Premium' guard (main.py:270) raises 400 before any mutation statement; covered by test_already_premium_returns_400_with_error_envelope and TC-API-03"},
+    {"id": "ARCH-02", "weight": 0.20, "score": 1.0, "note": "payload.email is simultaneously the request identifier and the app's only identity signal (no separate authenticated-identity field exists anywhere in this app to diverge from it); no cross-user mutation is reachable from this endpoint's request shape"},
+    {"id": "ARCH-03", "weight": 0.15, "score": 1.0, "note": "dry_run branch (main.py:279-286) returns before any assignment statement runs"},
+    {"id": "ARCH-04", "weight": 0.10, "score": 1.0, "note": "apply branch (main.py:288-299) never references on_demand_usage"},
+    {"id": "ARCH-05", "weight": 0.10, "score": 1.0, "note": "no JWT/session/token library or new auth code added"},
+    {"id": "ARCH-06", "weight": 0.10, "score": 1.0, "note": "CYCLE_LENGTH_DAYS defined once (main.py:114), referenced (never re-inlined) in _days_remaining and _prorated_charge"},
+    {"id": "ARCH-07", "weight": 0.10, "score": 1.0, "note": "UpgradeRequest Pydantic model enforced by FastAPI before the handler body executes"},
+    {"id": "ARCH-08", "weight": 0.05, "score": 1.0, "note": "diff verified to leave login/register/me/billing/tasks/add_task handler bodies byte-unchanged; only new code + config files (ruff.toml, mypy.ini) added"}
+  ]
+}

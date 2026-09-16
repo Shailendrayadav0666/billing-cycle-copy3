@@ -1,0 +1,17 @@
+{
+  "judgeModel": "claude-sonnet-5",
+  "rubricVersion": "1.0.0",
+  "rubricSource": "tests/.evals/rubrics/security-rubric.json",
+  "score": 1.0,
+  "criteria": [
+    {"id": "SEC-01", "owasp": "A01:2025", "weight": 0.20, "score": 1.0, "note": "identifier used to mutate a plan is the same field as the caller's own identity in this app's model; no divergent target id is accepted"},
+    {"id": "SEC-02", "owasp": "A06:2025", "weight": 0.15, "score": 1.0, "note": "idempotency guard (main.py:270-274) runs BEFORE the dry_run branch, so dry_run=true against an already-Premium account also returns 400, not a false preview"},
+    {"id": "SEC-03", "owasp": "A07:2025", "weight": 0.15, "score": 1.0, "note": "no new authentication mechanism, bypass path, or debug flag introduced"},
+    {"id": "SEC-04", "owasp": "A09:2025", "weight": 0.10, "score": 1.0, "note": "diff adds zero logging statements"},
+    {"id": "SEC-05", "owasp": "A10:2025", "weight": 0.10, "score": 1.0, "note": "all error paths use FastAPI HTTPException with a generic detail message; no stack trace or internal path returned"},
+    {"id": "SEC-06", "owasp": "A02:2025", "weight": 0.10, "score": 1.0, "note": "no CORS/header/environment-mode configuration touched by this diff"},
+    {"id": "SEC-07", "owasp": "A03:2025", "weight": 0.10, "score": 1.0, "note": "no dependency added or changed by this story"},
+    {"id": "SEC-08", "owasp": "A04:2025", "weight": 0.10, "score": "N/A", "note": "this diff introduces no new secret/key generation or sensitive-value comparison; criterion cannot be exercised by this diff"}
+  ],
+  "renormalization": "SEC-08 excluded as N/A; remaining 7 criteria weights (0.90 total) renormalized to 1.0 — all scored 1.0, so final score is 1.0"
+}

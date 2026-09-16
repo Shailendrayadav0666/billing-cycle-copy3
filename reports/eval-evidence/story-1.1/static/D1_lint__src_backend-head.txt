@@ -1,7 +1,0 @@
-E501	C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\backend\\main.py	Line too long (101 > 100)
-E501	C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\backend\\main.py	Line too long (113 > 100)
-E501	C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\backend\\main.py	Line too long (102 > 100)
-E501	C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\backend\\main.py	Line too long (101 > 100)
-E501	C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\backend\\main.py	Line too long (101 > 100)
-E501	C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\backend\\main.py	Line too long (113 > 100)
-E501	C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\backend\\main.py	Line too long (118 > 100)
