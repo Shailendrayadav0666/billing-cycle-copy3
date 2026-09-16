@@ -1,0 +1,19 @@
+version: 1
+generated_at: 2026-09-16
+team_size: 2
+
+shared_files: []
+# Story 1.1 touches only src/backend/main.py; Story 1.2 touches only src/frontend/src/pages/Billing.jsx
+# and src/frontend/src/App.css. No file is touched by both stories.
+
+stories:
+  - id: "1.1"
+    title: Prorated Upgrade Endpoint
+    tracker_id: LOCAL
+    requires: []
+    enables: ["1.2"]
+  - id: "1.2"
+    title: Upgrade to Premium UI Flow
+    tracker_id: LOCAL
+    requires: ["1.1"]
+    enables: []

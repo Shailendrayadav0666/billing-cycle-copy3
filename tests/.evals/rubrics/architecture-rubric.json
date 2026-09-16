@@ -1,0 +1,63 @@
+{
+  "rubricName": "Architectural Alignment — Billing-Cycle",
+  "rubricVersion": "1.0.0",
+  "derivedFrom": ["spec/plans/architecture.md#10-verifiable-constraints"],
+  "evalCriteria": [
+    {
+      "id": "ARCH-01",
+      "metric": "Idempotent upgrade guard",
+      "weight": 0.20,
+      "prompt": "Any changed code path in the upgrade handler must check the caller's current plan before performing the plan-mutation write. Score 0 if a plan-mutation write is reachable without a preceding already-Premium check that returns 400.",
+      "source": "spec/plans/requirements.md REQ-F-05; spec/plans/stories.md Story 1.1 AC-3"
+    },
+    {
+      "id": "ARCH-02",
+      "metric": "Object-level authorization on the upgrade endpoint",
+      "weight": 0.20,
+      "prompt": "Score 0 if the changed endpoint code mutates a user's plan using an identifier read directly from the request body/params without cross-checking it against the caller's authenticated identity.",
+      "source": "spec/plans/requirements.md REQ-F-09, REQ-NF-04"
+    },
+    {
+      "id": "ARCH-03",
+      "metric": "Preview never mutates state",
+      "weight": 0.15,
+      "prompt": "Score 0 if any changed code path reachable when dry_run is true performs a state-mutating write (plan change, balance change).",
+      "source": "spec/plans/requirements.md REQ-F-02; spec/plans/stories.md Story 1.1 AC-1"
+    },
+    {
+      "id": "ARCH-04",
+      "metric": "On-demand balance untouched by upgrade",
+      "weight": 0.10,
+      "prompt": "Score 0 if the changed upgrade-apply code path writes to the balance field.",
+      "source": "spec/plans/requirements.md REQ-F-06"
+    },
+    {
+      "id": "ARCH-05",
+      "metric": "No new auth mechanism introduced",
+      "weight": 0.10,
+      "prompt": "Score 0 if the diff adds a new auth/token-verification mechanism (a JWT library call, a new session store, etc.) anywhere in the changed files.",
+      "source": "spec/plans/requirements.md (Q3 answer / REQ-NF-04 note); spec/plans/atlas-deep-dive.md Critical Finding #1"
+    },
+    {
+      "id": "ARCH-06",
+      "metric": "Single-cycle-length assumption stays isolated",
+      "weight": 0.10,
+      "prompt": "Score 0 if the numeric literal 30 (or an equivalent days-in-cycle magic number) appears more than once across the changed proration code.",
+      "source": "spec/plans/requirements.md REQ-NF-06"
+    },
+    {
+      "id": "ARCH-07",
+      "metric": "Input validation before mutation",
+      "weight": 0.10,
+      "prompt": "Score 0 if any field used in proration or plan-mutation logic is read from an untyped/raw dict rather than a validated Pydantic model field.",
+      "source": "spec/plans/requirements.md REQ-F-10"
+    },
+    {
+      "id": "ARCH-08",
+      "metric": "No regression to existing endpoints",
+      "weight": 0.05,
+      "prompt": "Score 0 if the diff modifies the body of any pre-existing route handler function for a reason other than a shared data-store definition all handlers already depend on.",
+      "source": "spec/plans/requirements.md REQ-NF-03"
+    }
+  ]
+}

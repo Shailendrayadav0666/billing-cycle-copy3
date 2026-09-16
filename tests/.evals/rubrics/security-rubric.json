@@ -1,0 +1,63 @@
+{
+  "rubricName": "Security — OWASP Top 10:2025 — Billing-Cycle",
+  "rubricVersion": "1.0.0",
+  "derivedFrom": ["OWASP Top 10:2025", "spec/plans/architecture.md"],
+  "evalCriteria": [
+    {
+      "id": "SEC-01", "owasp": "A01:2025",
+      "metric": "Broken access control",
+      "weight": 0.20,
+      "prompt": "Review the POST /api/billing/upgrade handler and any changed code that reads or mutates a user's plan/billing record. Score 0 if the changed code accesses or mutates a billing record using an identifier taken from the request without verifying it matches the authenticated caller's own identity. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/"
+    },
+    {
+      "id": "SEC-02", "owasp": "A06:2025",
+      "metric": "Insecure design",
+      "weight": 0.15,
+      "prompt": "Review the upgrade endpoint's idempotency and dry_run handling. Score 0 if a plausible request sequence (e.g. concurrent or repeated calls, or a dry_run=true call) can mutate plan or balance state outside the single intended apply path, or if the idempotency guard can be bypassed by a request variant not covered by the changed code. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A06_2025-Insecure_Design/"
+    },
+    {
+      "id": "SEC-03", "owasp": "A07:2025",
+      "metric": "Authentication failures",
+      "weight": 0.15,
+      "prompt": "Review how the new endpoint identifies the caller. Score 0 if the changed code introduces a NEW way to authenticate or impersonate a user (e.g. a new header, a bypass path, a debug flag) beyond reusing the existing mechanism as-is. Note: the existing email-as-token mechanism itself is pre-existing debt, out of scope for this diff — only score new weaknesses this diff introduces. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/"
+    },
+    {
+      "id": "SEC-04", "owasp": "A09:2025",
+      "metric": "Security logging and alerting failures",
+      "weight": 0.10,
+      "prompt": "Review any logging statements added or changed by this diff around the upgrade flow. Score 0 if the caller's auth token/email, or any other sensitive field, is written to a log statement in the changed code. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A09_2025-Security_Logging_and_Alerting_Failures/"
+    },
+    {
+      "id": "SEC-05", "owasp": "A10:2025",
+      "metric": "Mishandling of exceptional conditions",
+      "weight": 0.10,
+      "prompt": "Review error responses from the changed upgrade endpoint and its frontend error handling. Score 0 if any changed error path returns or displays a stack trace, internal path, or other internal implementation detail to the caller/user instead of a generic message. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/"
+    },
+    {
+      "id": "SEC-06", "owasp": "A02:2025",
+      "metric": "Security misconfiguration",
+      "weight": 0.10,
+      "prompt": "Review any changed CORS, header, or environment-mode configuration touched by this diff. Score 0 if the changed code widens the existing CORS policy or otherwise relaxes an existing security configuration to accommodate the new endpoint. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+    },
+    {
+      "id": "SEC-07", "owasp": "A03:2025",
+      "metric": "Software supply chain failures",
+      "weight": 0.10,
+      "prompt": "Review any dependency added or changed by this diff (package.json, requirements.txt). Score 0 if a new dependency is added without a pinned version, or is sourced from anywhere other than the official npm/PyPI registries. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A03_2025-Software_Supply_Chain_Failures/"
+    },
+    {
+      "id": "SEC-08", "owasp": "A04:2025",
+      "metric": "Cryptographic failures",
+      "weight": 0.10,
+      "prompt": "Review any changed code that generates, compares, or stores a security-sensitive value (token, charge amount used as a security check, etc.). Score 0 if the changed code introduces a new secret, key, or sensitive comparison using a non-constant-time or otherwise weak method, or hardcodes a new credential/key. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A04_2025-Cryptographic_Failures/"
+    }
+  ]
+}

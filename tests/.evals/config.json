@@ -1,0 +1,96 @@
+{
+  "evalFrameworkVersion": "1.0.0",
+  "scope": "changed-files",
+  "retryLimitForSelfRepair": 3,
+  "thresholds": {
+    "lintErrorsAllowedDelta": 0,
+    "typeErrorsAllowed": 0,
+    "semgrepFindingsAllowed": { "critical": 0, "high": 0, "medium": 5 },
+    "dependencyVulnerabilitiesAllowed": { "critical": 0, "high": 0 },
+    "disallowedLicenses": ["GPL-2.0", "GPL-3.0", "AGPL-3.0", "SSPL-1.0"],
+    "maxCyclomaticComplexity": 12,
+    "secretFindingsAllowed": 0,
+    "unitTestCoverageMin": 90.0,
+    "behaviorScenarioPassRateMin": 100.0,
+    "llmJudgeArchitectureScoreMin": 0.85,
+    "llmJudgeSecurityScoreMin": 0.85,
+    "securityVulnerabilitiesAllowed": 0
+  },
+  "behavior": {
+    "containerRuntime": "podman",
+    "image": "aire-behavior:local",
+    "containerfile": "tests/.evals/behavior/Containerfile",
+    "entrypoint": "tests/.evals/behavior/run.sh",
+    "_comment": "Same image + command locally and in CI. A missing runtime degrades to native execution, recorded, never blocking."
+  },
+  "sonarqube": {
+    "enabled": true,
+    "_comment": "Generated active per ci-pipeline-generation.md Section 4.1.1 (sonar-project.properties + the CI scan/quality-gate steps are written active, guarded by the runtime skip-if-no-sources check). Flips to false only if the user answers 'skip' at the Section 4.1.2 setup gate — see runtime-artifacts/audit.md."
+  },
+  "playwright": {
+    "enabled": false,
+    "startCommand": null,
+    "readinessUrl": null,
+    "testCommand": "npx playwright test tests/e2e/",
+    "_comment": "Set true, with startCommand/readinessUrl resolved and testCommand adjusted if needed, the first time a work unit's manifest fragment (implementation/code-generation.md Step 11d) runs the Playwright UI Automation Gate for real. Story 1.2 (Upgrade to Premium UI Flow) is expected to trigger this."
+  },
+  "judge": { "model": "claude-sonnet-5", "rubricVersion": "1.0.0" },
+  "ci": {
+    "baseBranch": "main",
+    "integrationBranchPrefixes": ["epic", "bug", "enh", "ci", "story", "ve"],
+    "manifestState": "resolved",
+    "roots": [
+      {
+        "root": "src/backend",
+        "stack": "python",
+        "runtimeVersion": "3.13",
+        "markerFile": "requirements.txt",
+        "installCommands": ["pip install -r requirements.txt", "pip install pytest pytest-cov"],
+        "buildCommand": null,
+        "coverageCommand": "pytest --cov=. --cov-report=xml",
+        "noTestsExitCode": 5,
+        "dependsOn": [],
+        "toolchainSetup": [],
+        "coverageReportPath": "coverage.xml",
+        "coverageFormat": "cobertura",
+        "sourcePaths": ["src/backend"],
+        "testPaths": ["tests/unit/backend"],
+        "tools": ["semgrep", "pip-audit", "gitleaks"],
+        "toolInstallCommands": {
+          "semgrep": "pip install \"semgrep==1.127.0\"",
+          "pip-audit": "pip install \"pip-audit==2.9.0\"",
+          "gitleaks": "gitleaks_version=8.21.2; curl -sSfL \"https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz\" | tar xz -C /usr/local/bin gitleaks"
+        }
+      },
+      {
+        "root": "src/frontend",
+        "stack": "node",
+        "runtimeVersion": "22.14.0",
+        "markerFile": "package.json",
+        "installCommands": ["npm ci"],
+        "buildCommand": "npm run build",
+        "coverageCommand": "npx vitest run --coverage",
+        "noTestsExitCode": 1,
+        "dependsOn": [],
+        "toolchainSetup": [],
+        "coverageReportPath": "coverage/lcov.info",
+        "coverageFormat": "lcov",
+        "sourcePaths": ["src/frontend/src"],
+        "testPaths": ["tests/unit/frontend"],
+        "tools": ["oxlint", "eslint", "semgrep", "license-checker", "gitleaks"],
+        "toolInstallCommands": {
+          "oxlint": "npm ci  # oxlint is already a pinned devDependency in src/frontend/package.json",
+          "eslint": "npm i -D eslint@9.19.0  # used only for the complexity rule (D6) — oxlint has no configurable complexity threshold",
+          "semgrep": "pip install \"semgrep==1.127.0\"",
+          "license-checker": "npm i -g license-checker@25.0.1",
+          "gitleaks": "gitleaks_version=8.21.2; curl -sSfL \"https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz\" | tar xz -C /usr/local/bin gitleaks"
+        }
+      }
+    ],
+    "gates": ["D1_lint", "D2_types", "D3_sast", "D4_deps", "D5_licenses", "D6_complexity", "D7_secrets",
+              "unitCoverage", "behaviorB1", "behaviorB2", "behaviorB3", "J1_architecture", "J2_security"],
+    "_gatesComment": "'playwright' is appended here at generation time only once playwright.enabled is true — never present for a project with no UI at all. This project HAS a UI (src/frontend), so it will be appended the first time Story 1.2 runs the Playwright UI Automation Gate.",
+    "_rootsComment": "D2_types is N/A for src/frontend — plain JSX, no tsconfig/tsc enforcement in this repo (only @types/react for editor support). D2 still applies to src/backend (mypy, added at bootstrap if not already present).",
+    "_comment": "CI SINGLE SOURCE OF TRUTH. The generated pipeline AND every local step read THIS block — neither one re-authors or independently re-derives any of these facts, root included."
+  }
+}

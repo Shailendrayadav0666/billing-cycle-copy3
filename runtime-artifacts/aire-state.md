@@ -62,6 +62,43 @@
 | Resiliency Baseline | No | Requirements Analysis |
 | Property-Based Testing | No | Requirements Analysis |
 
+## Story Tracker
+
+| Story | Title | Requires | Tracker ID | Status | PR | Merged | Start | End | Recorded |
+|-------|-------|----------|------------|--------|-----|--------|-------|-----|----------|
+| 1.1 | Prorated Upgrade Endpoint | none | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-16 10:51 |
+| 1.2 | Upgrade to Premium UI Flow | 1.1 | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-16 10:51 |
+
+## User Stories
+- **team_size**: 2 (fixed default, never asked)
+- **story_creation_mode**: all-at-once (fixed default, never asked)
+- **target_story_count**: 2 (recommended 2; user initially overrode to 1, then explicitly confirmed generating 1 first with the understanding Step 18.6 would immediately re-split it to 2 — see runtime-artifacts/audit.md)
+
+## Dependency Graph
+
+```mermaid
+graph TD
+    S11["1.1 Prorated Upgrade Endpoint"]
+    S12["1.2 Upgrade to Premium UI Flow"]
+    S11 --> S12
+```
+
+- **Total stories**: 2 | **Immediately startable (no prerequisites)**: 1 (Story 1.1)
+- **team_size**: 2 (target: >= 2 independent stories available at a time)
+- **Inferred edges**:
+  - 1.2 requires 1.1 — R2 Contract rule: Story 1.2's own tests call the real `POST /api/billing/upgrade` endpoint at runtime; no separate integration story exists to justify dropping the edge under R3.
+- **Shared files**: none — 1.1 touches only `src/backend/main.py`; 1.2 touches only `src/frontend/src/pages/Billing.jsx` and `src/frontend/src/App.css`. No merge-conflict risk between the two stories.
+- Only 1 of 2 stories is immediately startable given the genuine runtime dependency (R5 parallelism target not fully met, but R4 forbids adding narrative-only edges to force it) — once Story 1.1's PR merges into the epic branch, Story 1.2 becomes startable.
+
 ## Stage Progress
 - Workspace Detection: COMPLETE.
-- Requirements Analysis: IN PROGRESS — clarifying questions answered, extension opt-ins recorded, generating requirements.md.
+- Requirements Analysis: COMPLETE — requirements.md approved 2026-09-16T10:38:26Z, epic branch committed (9e77bd0) and pushed.
+- User Stories: COMPLETE — GATE 1 approved 2026-09-16T10:50:59Z, 2-story set final (1.1 Backend, 1.2 Frontend), Tracker=LOCAL (no push).
+- Dependency Graph: COMPLETE — 1.2 requires 1.1 (R2 contract rule).
+- Workflow Planning: COMPLETE — Application Design, Functional Design, NFR Requirements, NFR Design, Infrastructure Design all SKIP (rationale in spec/plans/executions.md). Code Generation EXECUTE (always). Proceeding to the mandatory STOP CHECKPOINT (architecture.md + rubrics + CI pipeline).
+- Application Design: SKIP.
+- Functional Design: SKIP.
+- NFR Requirements: SKIP.
+- NFR Design: SKIP.
+- Infrastructure Design: SKIP.
+- STOP CHECKPOINT: IN PROGRESS — spec/behavior.feature written, spec/plans/architecture.md v1.0.0 written, architecture-rubric.json + security-rubric.json derived, tests/.evals/config.json created. CI pipeline generation (Step 1.6) delegated to a background agent — awaiting completion before commit + Development Handoff.
