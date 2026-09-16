@@ -1,0 +1,7 @@
+D3_sast	PASS	no new findings above threshold
+D7_secrets	PASS	no new secrets
+D1_lint	N/A	[src/backend] no changed files under root 'src/backend' for this PR (diff-scoped); [src/frontend] no changed files under root 'src/frontend' for this PR (diff-scoped)
+D2_types	N/A	[src/backend] no changed files under root 'src/backend' for this PR (diff-scoped); [src/frontend] plain JSX — no TypeScript/type checker configured for this stack (tests/.evals/config.json ci.roots[]._rootsComment)
+D4_deps	N/A	[src/backend] no changed files under root 'src/backend' for this PR (diff-scoped); [src/frontend] no changed files under root 'src/frontend' for this PR (diff-scoped)
+D5_licenses	N/A	[src/backend] no changed files under root 'src/backend' for this PR (diff-scoped); [src/frontend] no changed files under root 'src/frontend' for this PR (diff-scoped)
+D6_complexity	N/A	[src/backend] no changed files under root 'src/backend' for this PR (diff-scoped); [src/frontend] no changed files under root 'src/frontend' for this PR (diff-scoped)

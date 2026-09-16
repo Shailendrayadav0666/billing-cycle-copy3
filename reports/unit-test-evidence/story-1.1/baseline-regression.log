@@ -1,0 +1,14 @@
+Baseline regression run — Story 1.1 — 2026-09-16T11:32:45Z
+Branch: story/1.1-prorated-upgrade-endpoint (cut from epic/EPIC-LOCAL-1-self-serve-premium-upgrade @ a85e224)
+
+Backend (src/backend, pytest):
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\shailendra.yadav\Desktop\projects\helix-aire-v1-demo2\billing-cycle-copy3\src\backend
+plugins: anyio-4.15.1, bdd-8.1.0, cov-7.1.0
+collected 0 items
+
+========================= no tests collected in 0.01s =========================
+pytest exit code: 5
+
+Frontend (src/frontend): no test runner configured yet in this repo (no vitest/jest in package.json).

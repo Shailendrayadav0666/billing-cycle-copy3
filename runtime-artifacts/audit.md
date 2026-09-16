@@ -319,3 +319,51 @@ Committing the full artifact set next, then presenting the mandatory, verbatim S
 **Context**: IMPLEMENTATION PHASE — STOP CHECKPOINT Step 5/6 (Development Handoff, HALT)
 
 ---
+
+## Code Generation — dev-implement Invoked
+**Timestamp**: 2026-09-16T11:25:55Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "dev-implement"
+**TRACKER ITEM**: "(none selected yet)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Loaded workflows/dev-implement.md, implementation/story-selection.md. ## Branching already recorded (epic/EPIC-LOCAL-1-self-serve-premium-upgrade from main). Displaying the mandatory sequential-development banner, then the Story Selection prompt (chat-style per story-selection.md Step 2 — not a lettered/file question)."
+**Context**: IMPLEMENTATION PHASE — dev-implement Step 1 (keyword behavior)
+
+---
+
+## Story Selection — Story 1.1
+**Timestamp**: 2026-09-16T11:27:02Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "dev-implement 1.1"
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Tracker Type=LOCAL — no external verification needed (Step 1). Resolved Story 1.1 'Prorated Upgrade Endpoint' directly from spec/plans/stories.md / Story Tracker (Step 3): 5 ACs, Covers REQ-F-02/03/05/06/07/09/10 + REQ-NF-02/04/05/06/07/08, Requires=none. No confirmation asked (picking IS the claim). Doability Gate (Step 4): Requires=none -> doable, skip to Step 5. Step 5: moved to In Development automatically -- LOCAL, no external tracker call. Epic transition: SKIPPED per story-selection.md Step 5 bullet 'skip silently if ... Type: LOCAL' (this is the first story to start, but LOCAL trackers have no epic-status field to transition). Step 6: Story Tracker updated -- Status=In Development, Start=2026-09-16, Recorded=2026-09-16 11:27."
+**Context**: IMPLEMENTATION PHASE — Story Selection Steps 1-6 (Story 1.1)
+
+---
+
+## Story Branch Checkpoint — Story 1.1
+**Timestamp**: 2026-09-16T11:27:38Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: (none — automatic step)
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Refreshed epic branch (git fetch + checkout + pull --ff-only — already up to date). Dependency-merge check: Story 1.1 Requires=none -> cut directly from the epic branch. Created story/1.1-prorated-upgrade-endpoint from epic/EPIC-LOCAL-1-self-serve-premium-upgrade. Verified active via git branch --show-current."
+**Context**: IMPLEMENTATION PHASE — dev-implement Step 1.5 (Story Branch checkpoint)
+
+---
+
+## Bootstrap + Baseline Capture — Story 1.1
+**Timestamp**: 2026-09-16T11:32:49Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: (none — automatic step)
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Tool bootstrap (Section 2.4.1, rung 1 'already present'): ruff 0.8.4/mypy 1.14.1/semgrep/pip-audit 2.9.0/pip-licenses 5.5.5/radon 6.0.1/gitleaks 8.21.2 already globally installed; oxlint/eslint/license-checker resolve via npx. Reused the project's EXISTING backend venv (src/backend/venv, Python 3.13.3 — already has pytest 9.1.1, pytest-cov, pytest-bdd, httpx, mypy 2.3.1, ruff 0.16.4, radon) per Section 2.3 'never create a second environment' — installed only pip-licenses into it (5.5.5) for accurate per-venv license reporting (eval tool, not added to requirements.txt). Config bootstrap (Section 2.3, configs missing -> create minimal, never strict/all): created src/backend/ruff.toml (line-length 100, E/F/W) and src/backend/mypy.ini (non-strict, python_version 3.13) — both absent before. .oxlintrc.json and src/frontend/eslint.config.js already existed/were created earlier. Ran PATH-prefixed with the venv's Scripts dir so its tool versions take precedence. Item 4.5 baseline regression: pytest --collect-only on src/backend -> 0 items collected, exit 5 (pytest's own no-tests exit code) — recorded explicitly in reports/unit-test-evidence/story-1.1/baseline-regression.log; frontend has no test runner configured yet, recorded explicitly, not fabricated. Item 4.6 baseline static eval: ran tests/.evals/scripts/run-static-evals.sh at BASE_SHA=a85e224 (the branch-cut commit, HEAD==BASE_SHA at this point) -> D3_sast PASS (real semgrep --baseline-commit run) and D7_secrets PASS (real gitleaks run) — these ARE genuine baselines since semgrep/gitleaks scan git history, not a file diff. D1/D2/D4/D5/D6 correctly reported N/A 'no changed files under root' (root_touched()==false with zero diff, by the script's own diff-scoped design) — this is NOT a baseline gap: eval-framework.md Section 2.2's delta_diff mechanism re-derives baseline vs head fresh from BASE_SHA on every invocation, so Step 6.6's later invocation (once real code exists) will capture and diff both sides for real, in one atomic call. Copied the D3/D7 raw output to reports/eval-evidence/story-1.1/static/baseline/ for the record."
+**Context**: IMPLEMENTATION PHASE — dev-implement Step 1.5 Items 4.5-4.6 (bootstrap + baseline)
+
+---
