@@ -1,0 +1,9 @@
+[
+  {
+    "root": "src/backend",
+    "confirmedBy": "story-1.1",
+    "note": "No new facts beyond tests/.evals/config.json's existing src/backend root entry (established at the STOP CHECKPOINT). This story's own run verified every declared fact for real: installCommands (existing venv reused), coverageCommand (pytest --cov=. --cov-report=xml, 20/20 tests), tools semgrep/pip-audit/pip-licenses/gitleaks all installed and invocable, markerFile requirements.txt present. Written per common/ci-pipeline-generation.md Section 4.0f as this work unit's own confirmation fragment — append-only, never edits config.json or another unit's fragment.",
+    "sourcePathsTouched": ["src/backend/main.py", "src/backend/ruff.toml", "src/backend/mypy.ini", "src/backend/pytest.ini"],
+    "testPathsTouched": ["tests/unit/backend/test_billing_upgrade.py", "tests/api/test_billing_upgrade_api.py", "tests/behavior/steps/billing_upgrade_steps.py", "tests/behavior/test_story_1_1.py"]
+  }
+]
