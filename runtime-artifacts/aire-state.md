@@ -101,7 +101,7 @@ graph TD
 - NFR Requirements: SKIP.
 - NFR Design: SKIP.
 - Infrastructure Design: SKIP.
-- STOP CHECKPOINT: IN PROGRESS — spec/behavior.feature, spec/plans/architecture.md v1.0.0, architecture-rubric.json + security-rubric.json, tests/.evals/config.json, and the full CI pipeline (.github/workflows/agentic-eval-pipeline.yml + tests/.evals/scripts/** + tests/.evals/behavior/** + sonar-project.properties) all written and committed (83a52a5) + pushed. validate-pipeline.sh: 36/39 pass (3 documented false positives against unmodified canonical template content — see runtime-artifacts/audit.md). SonarQube setup gate (Section 4.1.2): **proceed** (2026-09-16T11:18:59Z) — sonarqube.enabled stays true, active scan+quality-gate steps kept. Remaining before Development Handoff: the Section 4.0.6 epic-level smoke test.
+- STOP CHECKPOINT: COMPLETE. spec/behavior.feature, spec/plans/architecture.md v1.0.0, architecture-rubric.json + security-rubric.json, tests/.evals/config.json, and the full CI pipeline all written, validated (validate-pipeline.sh 36/39, 3 documented false positives), committed and pushed. SonarQube setup gate: proceed (2026-09-16T11:18:59Z). Epic-level smoke test (Section 4.0.6): PASSED on first attempt, no self-repair needed (PR #3, run 34591439109, merged as 24e8554). Local history merged with the smoke-test merge (deeb1e7) and pushed. Design complete — awaiting dev-implement.
 
 ## SonarQube Setup Gate
 - **Answer**: proceed
