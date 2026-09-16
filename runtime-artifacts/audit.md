@@ -367,3 +367,27 @@ Committing the full artifact set next, then presenting the mandatory, verbatim S
 **Context**: IMPLEMENTATION PHASE — dev-implement Step 1.5 Items 4.5-4.6 (bootstrap + baseline)
 
 ---
+
+## Code Generation Part 1 — Plan Finalized (auto-approved, no gate) (Story 1.1)
+**Timestamp**: 2026-09-16T11:34:47Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: (none — automatic step)
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Read existing src/backend/main.py in full: single-file FastAPI app, email-as-identity pattern (no bearer token — every endpoint takes email directly, checks users dict membership), in-memory users/billing_data/tasks_data. No ## Design References registered (Context Project declined) -> 'none covers this component' per Step 1.5. Wrote spec/spec-generation/story-1.1-code-generation.md: 8 steps (business logic, API layer, unit tests, API+contract gate, placement, regression, static eval, test-plans/playwright-N/A). Stated explicit design decisions the Epic left unspecified: PLAN_CATALOG Premium limits (5000 chat-credits/10 chatbots/5000 doc-pages @ $40/mo -- generous-tier assumption, documented not hidden) and CYCLE_LENGTH_DAYS=30 as the single named constant (ARCH-06). REQ/AC trace self-check: all 13 Covers REQ-IDs + all 5 ACs trace to >=1 step -- PASS. Wrote spec/behavior/story-1.1.feature: 6 scenarios (@AC-1..@AC-4), covering preview, apply, idempotency guard, unauthenticated, validation error, balance-untouched. No approval gate -- announcing and proceeding directly to Part 2 Generation."
+**Context**: IMPLEMENTATION PHASE — Code Generation Part 1 (Steps 1-6, Story 1.1)
+
+---
+
+## Code Generation Part 2 — Implementation + Unit + API Tests (Story 1.1)
+**Timestamp**: 2026-09-16T11:38:39Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: (none — automatic step)
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Implemented Step 1 (PLAN_CATALOG, CYCLE_LENGTH_DAYS, _days_remaining, _prorated_charge) and Step 2 (UpgradeRequest model + POST /api/billing/upgrade) in src/backend/main.py. Created src/backend/pytest.ini (testpaths -> repo-root tests/unit/backend + tests/api; pythonpath=. so `import main` resolves) since pytest run from root='src/backend' cwd needs explicit discovery config to find tests/ at the repo root. Wrote tests/unit/backend/test_billing_upgrade.py (8 pure-function tests, no HTTP client) and tests/api/test_billing_upgrade_api.py (12 tests via FastAPI TestClient/httpx, covering all 6 API & Contract checklist items: functional preview+apply, response codes, auth 401 [403/role-tier N/A -- app has no role tiers], error envelope on 400 idempotency, request validation 422, response contract). REAL BUG CAUGHT BY THE UNIT TESTS: initial _prorated_charge implementation compared datetime.today() (with time-of-day) against a date-only renew_at, producing a systematic off-by-~1-day error (19.33 instead of 20.00 for a 30-day-remaining case) depending on time of day the code ran. Fixed by comparing .date() to .date() in a new _days_remaining() helper, reused by both _prorated_charge and the endpoint (removing a duplicated inline calc). All 20 tests pass: `pytest -v --cov=. --cov-report=xml` from src/backend, 20 passed. Whole-file coverage 73% -- but the 'Missing' line ranges (147-245) are entirely the 6 PRE-EXISTING untested endpoints (baseline debt); manually verified my new code (lines 106-142, 249-293ish) is NOT in the missing ranges. Committed the implementation + tests so the diff-scoped gates (which read git diff against BASE_SHA, not the working tree) can see real changes."
+**Context**: IMPLEMENTATION PHASE — Code Generation Part 2 Steps 1-2 + Step 11a (Story 1.1)
+
+---
