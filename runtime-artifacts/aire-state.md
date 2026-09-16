@@ -101,4 +101,8 @@ graph TD
 - NFR Requirements: SKIP.
 - NFR Design: SKIP.
 - Infrastructure Design: SKIP.
-- STOP CHECKPOINT: IN PROGRESS — spec/behavior.feature written, spec/plans/architecture.md v1.0.0 written, architecture-rubric.json + security-rubric.json derived, tests/.evals/config.json created. CI pipeline generation (Step 1.6) delegated to a background agent — awaiting completion before commit + Development Handoff.
+- STOP CHECKPOINT: IN PROGRESS — spec/behavior.feature, spec/plans/architecture.md v1.0.0, architecture-rubric.json + security-rubric.json, tests/.evals/config.json, and the full CI pipeline (.github/workflows/agentic-eval-pipeline.yml + tests/.evals/scripts/** + tests/.evals/behavior/** + sonar-project.properties) all written and committed (83a52a5) + pushed. validate-pipeline.sh: 36/39 pass (3 documented false positives against unmodified canonical template content — see runtime-artifacts/audit.md). SonarQube setup gate (Section 4.1.2): **proceed** (2026-09-16T11:18:59Z) — sonarqube.enabled stays true, active scan+quality-gate steps kept. Remaining before Development Handoff: the Section 4.0.6 epic-level smoke test.
+
+## SonarQube Setup Gate
+- **Answer**: proceed
+- **Answered**: 2026-09-16T11:18:59Z

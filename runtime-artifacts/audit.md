@@ -256,3 +256,30 @@ Committing the full artifact set next, then presenting the mandatory, verbatim S
 **Context**: IMPLEMENTATION PHASE — STOP CHECKPOINT Step 1.6 (CI Pipeline Generation)
 
 ---
+
+## STOP CHECKPOINT — Committed and Pushed
+**Timestamp**: 2026-09-16T11:15:07Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: (none — automatic step)
+**AI Response**: "Committed 29 files (commit 83a52a5, 'ci(epic): STOP CHECKPOINT — architecture, rubrics, behaviour spec, CI pipeline') on epic/EPIC-LOCAL-1-self-serve-premium-upgrade and pushed to origin (9e77bd0..83a52a5). Before committing, corrected sonar-project.properties: found sonar.organization had been set to a guessed value ('shailendrayadav0666') and sonar.projectKey lowercased — neither done by me — reverted to the required YOUR_ORG_NAME placeholder (AIRE cannot know the real org key) and restored the GitHub-cased project key, per Section 4.1.1's explicit rule. Presenting the mandatory, verbatim Section 4.1.2 SonarQube setup gate next and halting for proceed/skip."
+**Context**: IMPLEMENTATION PHASE — STOP CHECKPOINT Step 1.6 (commit + push)
+
+---
+
+## STOP CHECKPOINT — SonarQube Setup Gate — Ambiguous Answer
+**Timestamp**: 2026-09-16T11:17:01Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "A"
+**AI Response**: "Per common/ci-pipeline-generation.md Section 4.1.3, the only valid answers to this gate are the literal words 'proceed' or 'skip' — anything else must be met by re-presenting the block once, unchanged, never paraphrased, never guessed at. 'A' does not literally answer proceed/skip (it may mean 'I choose Option A, SonarQube Cloud' as the setup path, but the gate still needs proceed/skip once — or before — the actual secrets are added). Re-presented the gate verbatim and asked for the literal word."
+**Context**: IMPLEMENTATION PHASE — STOP CHECKPOINT — SonarQube Setup Gate (re-presented, Section 4.1.3 'anything else' path)
+
+---
+
+## STOP CHECKPOINT — SonarQube Setup Gate — Answered
+**Timestamp**: 2026-09-16T11:18:59Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "proceed"
+**AI Response**: "Per Section 4.1.3: leaving the generated artifacts active (sonarqube.enabled=true, active scan+quality-gate steps in the workflow). Not attempting to verify CLAUDE_CODE_OAUTH_TOKEN/SONAR_TOKEN/SONAR_HOST_URL secret values — unreadable from here; the first real pipeline run is what proves them. sonar-project.properties now shows sonar.organization=shailendrayadav0666 (user's own edit, made between the gate being shown and this answer — left as-is). Confirmed user added the secrets and completed org setup, per their 'proceed' answer. Proceeding to the Section 4.0.6 epic-level pre-handoff smoke test — STOP CHECKPOINT Step 4."
+**Context**: IMPLEMENTATION PHASE — STOP CHECKPOINT — SonarQube Setup Gate (Section 4.1.3 'proceed')
+
+---

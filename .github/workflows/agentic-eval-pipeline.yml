@@ -144,22 +144,24 @@ jobs:
       # Runs FIRST, like a normal CI pipeline (fail fast on cheap static checks before paying for the
       # full test suite). Does NOT compute the coverage gate — the report it needs doesn't exist yet;
       # that's the separate "Coverage gate" step below, after "Stage 2: unit + coverage" produces it.
-      # 🔴 NOT part of the canonical agentic-eval-pipeline.yml.template — no check-test-placement
-      #    template exists under aire-workflow/templates/ci/ at generation time. Added here,
-      #    deterministically, per common/directory-structure.md's "missing -> create it" rule, to
-      #    satisfy common/ci-pipeline-generation.md Section 4.0.7 / V35. Enforces rules 4a/4b: unit
-      #    tests only under tests/unit/, API tests only under tests/api/, nothing test-like under src/.
-      - name: "Test placement verification"
-        id: placement
-        continue-on-error: true
-        run: bash tests/.evals/scripts/check-test-placement.sh "${{ steps.basesha.outputs.sha }}"
-
       - name: "Stage 1: static evals (delta-scoped)"
         id: static
         continue-on-error: true
         env:
           EVAL_KEY: "${{ steps.evalkey.outputs.key }}"
         run: bash tests/.evals/scripts/run-static-evals.sh "${{ steps.basesha.outputs.sha }}"
+
+      # 🔴 NOT part of the canonical agentic-eval-pipeline.yml.template — no check-test-placement
+      #    template exists under aire-workflow/templates/ci/ at generation time. Added here,
+      #    deterministically, per common/directory-structure.md's "missing -> create it" rule, to
+      #    satisfy common/ci-pipeline-generation.md Section 4.0.7 / V35 — wired "in Stage 1,
+      #    immediately after the D1-D7 steps and before Stage 2" per Section 4.0.7 Step 5. Enforces
+      #    rules 4a/4b: unit tests only under tests/unit/, API tests only under tests/api/, nothing
+      #    test-like under src/.
+      - name: "Test placement verification"
+        id: placement
+        continue-on-error: true
+        run: bash tests/.evals/scripts/check-test-placement.sh "${{ steps.basesha.outputs.sha }}"
 
       - name: "Stage 2: unit + coverage"
         id: unit
