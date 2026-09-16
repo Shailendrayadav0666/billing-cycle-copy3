@@ -9,6 +9,7 @@ The router NEVER duplicates, modifies, or shortcuts either target workflow. Afte
 
 May be invoked standalone in a fresh session. Resolve `aire-workflow/` and load:
 - `common/process-overview.md`, `common/session-continuity.md`, `common/question-format-guide.md`
+- **`common/ci-setup-detection.md`** — detect existing AIRE-Helix CI infrastructure (Step 1.5 below)
 
 Do NOT pre-load the bug or enhancement workflow files — load ONLY the one the user selects (saves context). Display the welcome message (`common/welcome-message.md`) once at start — the target workflow MUST NOT display it again.
 
@@ -26,6 +27,17 @@ If `runtime-artifacts/aire-state.md` exists, read it before anything else:
   - Follow `common/session-continuity.md` for resume mechanics in all cases.
 - If it records a DIFFERENT ticket/epic, ask the user which to keep — NEVER silently overwrite.
 - If no state exists, continue to Step 2.
+
+## Step 1.5 — CI Setup Detection (AUTOMATIC — runs once, recorded for downstream use)
+
+**Execute this BEFORE routing**, whether resuming or starting fresh:
+
+1. Load `common/ci-setup-detection.md` and execute the detection mechanism (check for the five mandatory CI artifacts).
+2. Record the result in `runtime-artifacts/aire-state.md` under `## CI Setup Status`, with the detected status (exists / missing), timestamp, and list of found/missing files.
+3. Log the detection in `runtime-artifacts/audit.md` with the complete result.
+4. **Do NOT announce or ask anything** — this is a silent, automatic check. The detection result is read and consumed by the downstream workflow (`bug-fix.md` / `enhancement-implement.md`) to decide whether to run full CI setup.
+
+On **resume**, if `## CI Setup Status` already exists in `aire-state.md`, skip this step and reuse the recorded status.
 
 ## Step 2 — Ticket Capture
 

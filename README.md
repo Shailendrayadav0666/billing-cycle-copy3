@@ -247,7 +247,23 @@ Verify: `podman info` should return without error.
 
 > If Podman is unavailable at eval time, the behavioural tests wont run.
 
-#### 7. Helix MCP connection (recommended)
+#### 7. Playwright and its official Test Agents 
+
+`dev-implement`, `bug-fix-implement` and `enhancement-implement` run the **Playwright UI Automation** automatically before the automated code review  for every story whose plan touches the UI. It does not write browser tests itself: it orchestrates **Playwright's own official Test Agents** (Planner, Generator, Healer), which are subagents backed by the `playwright-test` MCP server. They must exist in the repo before.
+
+🔴 **Run both commands from the true workspace root** — the same directory `spec/` lives in, **never** a monorepo subdirectory like `frontend/`. Claude Code only scans `.claude/agents/` and `.mcp.json` at the project root it was launched from.
+
+```bash
+# 1. Base Playwright + browser binaries (non-interactive)
+npm i -D @playwright/test && npx playwright install
+
+# 2. Playwright's own Planner / Generator / Healer subagents + the playwright-test MCP server
+npx playwright init-agents --loop=claude
+```
+
+> If this is missing when the gate runs, the framework installs it for you automatically (workflow mode treats a missing dependency as an **error to fix**, never a gap to skip) — and then **pauses the run and asks you to restart the session**, exactly as the standalone `/playwright-implement` does, because a newly registered MCP server only connects at session start. Nothing is lost: nothing is committed, pushed or transitioned, and on restart you re-invoke the same keyword with the same work unit and it resumes **at the Playwright gate**, skipping every gate already passed. **Installing it up front avoids that interruption entirely.** Projects with no UI at all never reach this gate.
+
+#### 8. Helix MCP connection (recommended)
 
 Connect the **Helix MCP** server to your Claude Code setup once per repository. AIRE detects it
 automatically the first time it's needed, and pulls existing-system truth — knowledge graph and
@@ -752,6 +768,13 @@ All of your generated documentation lives under `spec/test-plans/<STORY-ID>-<tit
 **A note on Option C.** Option C edits the test-plan files in your working tree. It does not commit, push, or open a pull request for you. Commit and push that change yourself so it reaches the branch;
 
 ### Step 3 — Automate the UI: `/playwright-implement`
+
+> **Note — this is the standalone, post-merge path.** For any story that touches the UI, this already
+> ran **automatically and pre-PR** inside `dev-implement` (or `bug-fix-implement` /
+> `enhancement-implement`), as their **Playwright UI Automation Gate** — generated, executed against a
+> locally started instance, and any failure fixed before the automated code review. Use the standalone
+> path below for a story that gate skipped (no UI at plan time, later found to need it), or to
+> re-automate after the fact. See Prerequisite 7 for the one-time install.
 
 Once a story's manual UI test steps exist and both of that story's PRs have landed, you can turn the
 UI-relevant cases into real, executable Playwright scripts — driven by Playwright's **own** official

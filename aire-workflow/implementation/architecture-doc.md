@@ -49,11 +49,17 @@ reason.
 > **Existing-system baseline**: Atlas via Helix MCP <estate id> | none (greenfield)
 
 ## 1. System Context
-<What the system does, who/what calls it, what it calls. One diagram + prose.>
+<What the system does, who/what calls it, what it calls. One C4 context diagram + prose.
+ 🔴 Brownfield: annotate every element as existing / new / modified.>
 
 ```mermaid
-flowchart LR
-  ...
+C4Context
+  title System Context — <system name>
+  Person(user, "User", "End user / actor")
+  System(system, "Our System", "What we are building")
+  System_Ext(ext1, "External API", "Third-party dependency")
+  Rel(user, system, "Uses")
+  Rel(system, ext1, "Calls")
 ```
 
 ## 2. Component Inventory
@@ -62,12 +68,44 @@ flowchart LR
 | BillingService | Plan changes and proration | existing (modified) | Atlas atlas-deep-dive.md |
 | ProrationEngine | Prorated amount calculation | new | functional-design/billing.md |
 
+<One component diagram. Group components by layer with subgraphs.
+ 🔴 Brownfield: label each node existing / new / modified, matching the Status column above.>
+
+```mermaid
+flowchart TB
+  subgraph Presentation
+    Web[Web App]
+    API[REST API]
+  end
+  subgraph Business
+    Service[Service Layer]
+  end
+  subgraph Data
+    Repo[Repository]
+    DB[(Database)]
+  end
+  Web --> API
+  API --> Service
+  Service --> Repo
+  Repo --> DB
+```
+
 ## 3. Layering and Boundaries
 <The layers, what may call what, and what is forbidden. State the rule, not the aspiration.>
 
 ## 4. Data Architecture
 <Stores, ownership per component, schemas/models introduced or changed, migration approach,
- transaction boundaries.>
+ transaction boundaries. Include one ER diagram of the entities this system owns or changes.
+ 🔴 Brownfield: annotate entities/fields new vs existing.>
+
+```mermaid
+erDiagram
+  ENTITY1 ||--o{ ENTITY2 : "relationship"
+  ENTITY1 {
+    uuid id PK
+    string name
+  }
+```
 
 ## 5. API and Integration Contracts
 <Every externally reachable contract this system exposes or consumes: protocol, shape,
@@ -95,6 +133,31 @@ flowchart LR
 ## 11. Explicitly Out of Scope
 <Architecture the system deliberately does NOT have, so nobody adds it speculatively.>
 ````
+
+---
+
+## 2.1 Diagrams — authored inline in architecture.md
+
+Every `architecture.md` carries its **Mermaid** diagrams **inline, in the sections above — there is no
+separate diagram file.** Use the scaffolds in Section 2 verbatim as the starting point and fill them
+from the design artifacts; never invent a diagram a design stage did not establish.
+
+**Diagram types and where each lives:**
+
+| # | Type | Mermaid dialect | Section | When |
+|---|---|---|---|---|
+| 1 | System Context | `C4Context` | Section 1 | ALWAYS |
+| 2 | Component Architecture | `flowchart TB` with layer `subgraph`s | Section 2 | ALWAYS |
+| 3 | Data Model | `erDiagram` | Section 4 | when the work introduces or changes any store/schema |
+| 4 | Key Flow(s) | `sequenceDiagram` | Section 5 or 6 | when a cross-component request path or integration needs to be made explicit |
+
+🔴 **Brownfield annotation rule** — on any brownfield/migration cycle, EVERY diagram must mark each
+element as **existing / new / modified** (e.g. `ModB[ModuleB — modified]`,
+`System_Ext(newExt, "New Integration", "added for <feature>")`), and the labels must agree with the
+Component Inventory `Status` column (Section 2) and the Delta table (Section 9). Greenfield diagrams
+carry no such annotation.
+
+🔴 Validate every diagram per `common/content-validation.md` (Mermaid syntax) BEFORE writing the file.
 
 ---
 
