@@ -10,3 +10,6 @@ __pycache__/
 .coverage
 coverage.xml
 htmlcov/
+
+# Node
+node_modules/
