@@ -536,3 +536,27 @@ Attempted the coverage_delta gate (Step 11a's mechanized coverage number): hit a
 **User Input**: Asked via AskUserQuestion whether PR #4's merge was intentional and how the stranded setuptools fix (680d360) should land. Answer selected: "Yes, I merged it — raise a small follow-up PR for the fix."
 **AI Response**: Story Tracker updated per dev-implement.md's explicit rule (Status is NEVER promoted by dev-implement, only by `ve-list-work` — only the factual `Merged`/`Recorded` columns are dev-implement's to record): Story 1.1 `Merged` set to `yes`, `Recorded` set to now, `Status` left unchanged at `🔵 In Development`. Proceeding to raise a small follow-up PR carrying the stranded `680d360` (setuptools-for-semgrep manifest fix) from a new branch cut off the current epic branch tip (`1d315d2`), targeting the epic branch, per the user's explicit direction.
 **Context**: dev-implement.md Section D Step 8 (CI Attestation Gate) cannot complete for PR #4 (closed) — this follow-up PR restarts real CI verification for the one remaining known gap (D3_sast/semgrep pkg_resources) before Story 1.2 branches off the epic branch.
+
+## dev-implement Story 1.1 — CI follow-up PR #6, SH-LOOP-10 attempts 2-3
+
+**Timestamp**: 2026-09-17T06:22:24Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**TRACKER ITEM**: 1.1 (LOCAL)
+**Epic Link**: Self-Serve Premium Upgrade (Atlas solution 4039) — epic/EPIC-LOCAL-1-self-serve-premium-upgrade
+**AIRE VERSION**: 1.0
+**SH-LOOP**: SH-LOOP-10 (CI Attestation Gate), attempts 2 and 3 of 3 (final)
+**User Input**: N/A — automatic continuation of the user-authorized follow-up PR
+**AI Response**: PR #5 (branch `ci/story-1.1-d3-sast-setuptools-fix`) closed unmerged — its branch name resolved to the wrong `EVAL_KEY` (`ci-story` instead of `story-1.1`) via the pipeline's own `resolve-eval-key.sh`, cascading into unrelated bogus gate results. Re-raised as **PR #6** (`story/1.1-ci-followup`, verified locally to resolve `EVAL_KEY=story-1.1`). PR #6's own CI run (35111239051) surfaced two further real defects: (1) `tests/.evals/behavior/run.sh`'s `tr '-.' '__'` slug computation — code I authored in the STACK-RESOLVED region at the STOP CHECKPOINT — is parsed by GitHub Actions' coreutils `tr` as an invalid option (`tr: invalid option -- '.'`), never reproduced locally; (2) unpinned `setuptools` in `toolInstallCommands.semgrep` resolves to 84.0.0, which no longer bundles `pkg_resources` at all (removed upstream), so semgrep 1.127.0 still crashed even after attempt 2 installed it. Self-repair independently found and fixed defect (1) on its own pass (commit `07ef0a4`, "SH-LOOP static-behavior-judge attempt 1/3" — its own separate budget) and correctly diagnosed defect (2) without fixing it (out of its scope: `tests/.evals/config.json`). Rebased onto its fix, then applied the real fix myself: pinned `setuptools<81` (resolves to 80.10.2, confirmed locally to still provide `pkg_resources`) in both `ci.roots[]` entries, plus a diagnostic-only change (capture D3_sast's previously-swallowed semgrep stderr) so a future failure is visible rather than a blind "semgrep run failed". Committed (`d41c717`) and pushed.
+**Context**: This exhausts my own SH-LOOP-10 budget (3/3) for this CI Attestation Gate follow-up. Watching PR #6's resulting CI run next; if it still fails, per the Self-Healing Retry Policy this HALTS with a Retry-Limit Report rather than a further attempt.
+
+## dev-implement Story 1.1 — CI Attestation Gate CLOSED (PR #6 verified clean)
+
+**Timestamp**: 2026-09-17T06:25:48Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**TRACKER ITEM**: 1.1 (LOCAL)
+**Epic Link**: Self-Serve Premium Upgrade (Atlas solution 4039) — epic/EPIC-LOCAL-1-self-serve-premium-upgrade
+**AIRE VERSION**: 1.0
+**SH-LOOP**: SH-LOOP-10 (CI Attestation Gate) — CLOSED, resolved on attempt 3/3
+**User Input**: N/A — automatic
+**AI Response**: PR #6's CI run (35189556703, head `d41c717`) completed **clean**: `placement: success · static: success · unit: success · coverage: success · behavior: success · playwright: success · judge: success`. `self-repair` job **skipped** (never triggered — nothing failed). This confirms all 4 real defects found during this Story 1.1 CI Attestation follow-up are genuinely fixed: (1) missing ruff/mypy/pip-licenses/radon tool declarations, (2) the `run.sh` `tr` portability bug, (3) unpinned setuptools breaking semgrep's `pkg_resources` import, (4) the D3_sast stderr-visibility gap. Epic branch's own CI configuration is now fully verified in a real clean-room GitHub Actions run.
+**Context**: dev-implement.md Section D Step 8 (CI Attestation Gate) is now satisfied for Story 1.1, closing out the gap left when PR #4 merged mid-gate. Next: merge PR #6, then proceed to Section E (auto PR review — N/A, already superseded by the merge path taken here) and Section F (Next-Action Handoff).
