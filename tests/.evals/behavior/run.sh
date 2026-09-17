@@ -49,7 +49,7 @@ run_features() { # $@ = feature files
   local modules=()
   local feature slug module
   for feature in "$@"; do
-    slug="$(basename "$feature" .feature | tr '-.' '__')"
+    slug="$(basename "$feature" .feature | tr '.-' '__')"
     if [ "$feature" = "$CROSS_STORY" ]; then
       slug="behavior"
     fi

@@ -189,7 +189,7 @@ if [ "$COVERAGE_ONLY" -eq 0 ]; then
 if has_tool semgrep; then
   if command -v semgrep >/dev/null 2>&1; then
     out="${STATIC_DIR}/semgrep-delta.json"
-    if semgrep --config auto --baseline-commit "$BASE_SHA" --json --quiet "${SOURCES[@]}" > "$out" 2>/dev/null; then
+    if semgrep --config auto --baseline-commit "$BASE_SHA" --json --quiet "${SOURCES[@]}" > "$out" 2>"${out}.err"; then
       crit=$(jq '[.results[]? | select(.extra.severity=="ERROR")] | length' "$out")
       high=$(jq '[.results[]? | select(.extra.severity=="WARNING")] | length' "$out")
       if [ "$crit" -gt "$SEMGREP_CRIT" ] || [ "$high" -gt "$SEMGREP_HIGH" ]; then
@@ -198,7 +198,7 @@ if has_tool semgrep; then
         record D3_sast PASS "no new findings above threshold"
       fi
     else
-      record D3_sast ERROR "semgrep run failed"
+      record D3_sast ERROR "semgrep run failed — $(tail -n 1 "${out}.err" 2>/dev/null)"
     fi
   else
     record D3_sast ERROR "semgrep in manifest but not installed"
