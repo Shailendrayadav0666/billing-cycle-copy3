@@ -13,52 +13,48 @@
 |-----------|----------|-------|--------|
 | Integration | — | — | N/A — single monolith calling its own in-memory dict, no separate service/datastore/queue/3rd-party boundary |
 | E2E | e2e-test-steps.md | 1 | ⬜ Not run |
-| API | api-test-steps.md | 6 | ⬜ Not run |
+| API | — | — | REMOVED — see 2026-09-22 update below |
 | Contract | — | — | N/A — no microservices, no consumer/provider schema |
-| Security | security-test-steps.md | 3 | ⬜ Not run |
+| Security | — | — | REMOVED — see 2026-09-22 update below |
 | Performance | — | — | N/A — no NFR Requirements stage ran; no latency/throughput target exists for this cycle |
-| Accessibility | accessibility-test-steps.md | 3 | ⬜ Not run |
+| Accessibility | — | — | REMOVED — see 2026-09-22 update below |
 
-> **2026-09-22 update**: per explicit user request, TC-E2E-02 (Cancel), TC-E2E-03 (CTA hidden for
+> **2026-09-22 update (1)**: per explicit user request, TC-E2E-02 (Cancel), TC-E2E-03 (CTA hidden for
 > Premium), TC-E2E-04 (modal failure handling), and TC-E2E-05 (no-regressions sweep) were discarded,
-> keeping only TC-E2E-01 (the E2E happy path). The user was told this leaves AC-11 with zero
-> test-case coverage — a violation of the mandatory AC-coverage rule
-> (`implementation/specs-and-test-plans.md` Section 4.1) — and confirmed discarding it anyway. This is
-> a deliberate, disclosed exception, not an oversight.
+> keeping only TC-E2E-01 (the E2E happy path).
+>
+> **2026-09-22 update (2)**: per a further explicit user request ("remove the accessibility tests, api
+> tests, security tests files ... i only want to run the e2e single test"), `api-test-steps.md`,
+> `security-test-steps.md`, and `accessibility-test-steps.md` were deleted entirely.
+> `spec/test-plans/story-1.1-self-serve-premium-upgrade/` now contains exactly one test case,
+> `TC-E2E-01`, across the whole story. This is a deliberate, disclosed, user-confirmed reduction —
+> not an oversight — and it is a large exception to the mandatory AC-coverage rule
+> (`implementation/specs-and-test-plans.md` Section 4.1): only the 5 ACs TC-E2E-01 itself traces to
+> retain any manual test-case coverage; the other 6 have none. `spec/behavior/story-1.1.feature` (the
+> Gherkin behavior contract, a separate artifact) is untouched — all 11 ACs still have their
+> `@AC-<n>`-tagged scenarios there; only this manual test-plan side was reduced.
 
 ## Acceptance Criteria → Test Case Coverage
 | AC | Criterion (short) | Test cases | Covered |
 |----|-----------|------------|---------|
 | AC-1 | Dynamic plan-name rendering | TC-E2E-01 | ✅ |
-| AC-2 | Upgrade CTA visible only for Standard | TC-E2E-01, TC-A11Y-01 | ✅ |
-| AC-3 | Confirmation modal preview | TC-E2E-01, TC-A11Y-01, TC-A11Y-02 | ✅ |
-| AC-4 | Cancel does nothing | TC-A11Y-01 | ✅ |
-| AC-5 | Backend applies the upgrade | TC-API-01, TC-API-02, TC-API-03, TC-API-06, TC-SEC-01, TC-SEC-03 | ✅ |
-| AC-6 | Already-Premium guard | TC-API-04, TC-SEC-02 | ✅ |
-| AC-7 | Unknown-user guard | TC-API-05, TC-SEC-01, TC-SEC-02 | ✅ |
+| AC-2 | Upgrade CTA visible only for Standard | TC-E2E-01 | ✅ |
+| AC-3 | Confirmation modal preview | TC-E2E-01 | ✅ |
+| AC-4 | Cancel does nothing | — NONE | ❌ Deliberately discarded |
+| AC-5 | Backend applies the upgrade | — NONE | ❌ Deliberately discarded |
+| AC-6 | Already-Premium guard | — NONE | ❌ Deliberately discarded |
+| AC-7 | Unknown-user guard | — NONE | ❌ Deliberately discarded |
 | AC-8 | Immediate UI update, no reload | TC-E2E-01 | ✅ |
-| AC-9 | Persistent success banner | TC-E2E-01, TC-A11Y-02, TC-A11Y-03 | ✅ |
-| AC-10 | Modal failure handling | TC-SEC-02 | ✅ |
-| AC-11 | No regressions | — NONE | ❌ Deliberately discarded — see the 2026-09-22 update above |
+| AC-9 | Persistent success banner | TC-E2E-01 | ✅ |
+| AC-10 | Modal failure handling | — NONE | ❌ Deliberately discarded |
+| AC-11 | No regressions | — NONE | ❌ Deliberately discarded |
 
-**Coverage check**: 10/11 acceptance criteria have at least one test case. ❌ AC-11 has zero coverage — a known, user-confirmed exception, not a gap to silently fix.
+**Coverage check**: 5/11 acceptance criteria have at least one test case. ❌ AC-4, AC-5, AC-6, AC-7, AC-10, AC-11 have zero manual test-case coverage — a known, user-confirmed exception, not a gap to silently fix. The Gherkin behavior contract (`spec/behavior/story-1.1.feature`) still covers all 11 ACs.
 
 ## Execution Record (filled in by ve when the story is tested)
 | Test case | Run date | Result | Defect raised |
 |-----------|----------|--------|---------------|
-| TC-API-01 | | ⬜ Pass / Fail | |
-| TC-API-02 | | ⬜ Pass / Fail | |
-| TC-API-03 | | ⬜ Pass / Fail | |
-| TC-API-04 | | ⬜ Pass / Fail | |
-| TC-API-05 | | ⬜ Pass / Fail | |
-| TC-API-06 | | ⬜ Pass / Fail | |
 | TC-E2E-01 | | ⬜ Pass / Fail | |
-| TC-SEC-01 | | ⬜ Pass / Fail | |
-| TC-SEC-02 | | ⬜ Pass / Fail | |
-| TC-SEC-03 | | ⬜ Pass / Fail | |
-| TC-A11Y-01 | | ⬜ Pass / Fail | |
-| TC-A11Y-02 | | ⬜ Pass / Fail | |
-| TC-A11Y-03 | | ⬜ Pass / Fail | |
 
 ## Open Questions
-- 🔴 TO CONFIRM: the merged PR URL for Story 1.1, once `dev-implement` raises and merges it — needed to fill the System Under Test block in each artifact before ve executes these steps.
+- 🔴 TO CONFIRM: the merged PR URL for Story 1.1, once `dev-implement` raises and merges it — needed to fill the System Under Test block before ve executes this step.
