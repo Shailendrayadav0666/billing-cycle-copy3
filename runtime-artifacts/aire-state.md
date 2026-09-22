@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-09-22T10:35:04Z
-- **Current Stage**: PLANNING - Requirements Analysis
+- **Current Stage**: PLANNING - Dependency Graph
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -46,7 +46,7 @@
 
 ## Branching
 - Base Branch: main
-- Epic Branch: epic/self-serve-premium-upgrade
+- Epic Branch: epic/self-serve-premium-upgrade (pushed to origin, commit d3601a8912bf40391a2ca61383b07ba9d9359644)
 - Epic PR: (not raised — raised manually at cycle end via pr-generator)
 
 ## Context Project
@@ -66,6 +66,11 @@
 | 1 | Mockup's demo logic collapses Premium video quality to generic `"4K + HDR"`, reuses one `devices` value (4) for BOTH "watch at the same time" and "download on devices", and shows no separate Dolby Vision perk row | EXCLUDED — the Epic (`spec/plans/epic-brief.md`, the mockup's own product source) already gives a detailed, deliberate feature table: video quality = "4K Ultra HD", simultaneous streams = 4 devices, downloads = 6 devices (not 4), plus a distinct Dolby Vision perk. `requirements.md` REQ-F-08 already recorded this table before the mockup was supplied. The mockup's collapsed values read as prototype-demo shortcuts (it also hardcodes an arbitrary `days=38`, `current=$20` in its click-handler logic), not a considered product decision to change the numbers. Keeping the Epic's numbers; adopting the mockup's LAYOUT/structure only for this point. | Requirements Analysis | 2026-09-22T10:58:53Z |
 | 1 | Mockup's button/badge palette (`#0d9b74` / `#0a7a5b` / `#c8f2df` / `#0a6a4f`) | EXCLUDED — REQ-NF-06 already commits to the existing `src/frontend/src/App.css` design language, which uses a different teal (`#0d9488` / `#0f766e` / `#2dd4bf` family); those hex values do not appear anywhere in the current codebase. Using the app's existing teal tokens instead of introducing the mockup's slightly different green, to avoid a second competing accent color in the same UI. Layout/spacing/border-radius/typography from the mockup are still adopted. | Requirements Analysis | 2026-09-22T10:58:53Z |
 
+## User Stories Configuration
+- **team_size**: 2 (fixed default, not asked)
+- **story_creation_mode**: all-at-once (fixed default, not asked)
+- **target_story_count**: 1 — USER OVERRIDE, confirmed after warning (see runtime-artifacts/audit.md "User Stories — Ambiguous Answer" and "User Stories — Single-Story Override Confirmed"). Deliberately breaks the team_size=2 parallelism rule (only one story exists, so no parallel work is possible) and exceeds the Step 1.5 hard sizing ceilings (>5 ACs, multiple newly-touched architectural layers in one story). This is a knowing, confirmed exception, not an unnoticed violation.
+
 ## Extension Configuration
 | Extension | Enabled | Decided At |
 |---|---|---|
@@ -73,6 +78,23 @@
 | Playwright Test Automation | Yes (always mandatory) | Workflow Start |
 | Resiliency Baseline | No | Requirements Analysis |
 | Property-Based Testing | No | Requirements Analysis |
+
+## Story Tracker
+| Story ID | Title | Requires | Tracker ID | Status | PR | Merged | Start | End | Recorded |
+|---|---|---|---|---|---|---|---|---|---|
+| 1.1 | Self-Serve Premium Upgrade — End-to-End Mid-Cycle Upgrade Flow | none | LOCAL | 🟢 Ready for Development | — | — | — | — | 2026-09-22T11:52:29Z |
+
+## Dependency Graph
+
+```mermaid
+graph TD
+    S11["1.1 Self-Serve Premium Upgrade<br/>(no prerequisites)"]
+```
+
+- **Total stories**: 1 | **Immediately startable (no prerequisites)**: 1
+- **team_size**: 2 (target: ≥2 independent stories available at a time) — **NOT met**: only 1 story exists in this cycle (confirmed single-story override at User Stories GATE 1), so no parallel development is possible this cycle. This is a direct, disclosed consequence of that override, not a Dependency Graph inference failure.
+- **Inferred edges**: none — Story 1.1 has no prerequisites (it is the only story; R1/R2/R3/R4 have nothing to apply against).
+- **Shared files**: none tracked (single story, no cross-story file contention possible).
 
 ## Stage Progress
 - [x] Workspace Detection — Session identity captured (silent), base branch synced (main, up to date with origin), Tracker Selection (LOCAL), Parent Epic + Deep Dive fetched via Helix MCP

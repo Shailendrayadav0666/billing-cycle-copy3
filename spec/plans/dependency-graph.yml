@@ -1,0 +1,12 @@
+version: 1
+generated_at: 2026-09-22
+team_size: 2
+
+shared_files: []
+
+stories:
+  - id: "1.1"
+    title: "Self-Serve Premium Upgrade — End-to-End Mid-Cycle Upgrade Flow"
+    tracker_id: LOCAL
+    requires: []
+    enables: []
