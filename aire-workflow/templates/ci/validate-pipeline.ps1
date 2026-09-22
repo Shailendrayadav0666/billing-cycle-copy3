@@ -17,7 +17,7 @@ if (-not (Test-Path $wf)) { CheckFail "workflow file $wf does not exist" }
 else {
   # 🔴 Exclude legitimate RUNTIME shell vars set via step env: (${EVAL_KEY}, ${BASE_SHA}, ${GITHUB_*}).
   $hits = Select-String -Path $wf -Pattern '\$\{[A-Z_]+\}|# GENERATE:|<[a-z][a-z-]*>|>>> [A-Z_ ]+ (START|END) <<<' |
-    Where-Object { $_.Line -notmatch '\$\{(EVAL_KEY|BASE_SHA|GITHUB_[A-Z_]+|SONAR_TOKEN|CE_TASK_URL|ANALYSIS_ID|SERVER_URL|REPORT_TASK)\}' }
+    Where-Object { $_.Line -notmatch '\$\{(EVAL_KEY|BASE_SHA|GITHUB_[A-Z_]+|SONAR_TOKEN|CE_TASK_URL|ANALYSIS_ID|SERVER_URL|REPORT_TASK|EVIDENCE_DIR|BASELINE_DIR|PRESERVE)\}' }
   if ($hits) { $hits | ForEach-Object { Write-Host $_.Line }; CheckFail "unresolved slot/placeholder/marker remains (V14)" }
   else { CheckOk "no unresolved slots or placeholders (V14)" }
 }
@@ -35,9 +35,18 @@ if (Get-Command actionlint -ErrorAction SilentlyContinue) {
 if ((Test-Path $config) -and (Get-Command jq -ErrorAction SilentlyContinue)) {
   $gates = @(jq -r '.ci.gates[]?' $config)
   if ($gates.Count -gt 0) { CheckOk "ci.gates present ($($gates.Count) gates)" } else { CheckFail "ci.gates empty (manifest not filled)" }
-  foreach ($agg in @("static","unit","coverage","behavior","judge","sonar")) {
-    if (-not (Select-String -Path $wf -Pattern "`"${agg}:")) { CheckFail "verdict tally missing aggregate outcome '$agg' (V8/V18)" }
+  # 🔴 Post-split-jobs: the aggregate tally moved into merge-verdict.ps1, which the `verdict` job calls
+  #    with each gate job's needs.<job>.result passed in as an env var (CI-SPLIT-JOBS-PLAN.md Section 3).
+  foreach ($aggEnv in @("STATIC_RESULT","UNIT_RESULT","BEHAVIOR_RESULT","PLAYWRIGHT_RESULT","JUDGE_RESULT","SONAR_RESULT")) {
+    if (-not (Select-String -Path $wf -Pattern "${aggEnv}:")) { CheckFail "verdict job does not pass '$aggEnv' to merge-verdict.ps1 (V8/V18)" }
   }
+  $mv = "tests/.evals/scripts/merge-verdict.ps1"
+  if (Test-Path $mv) {
+    foreach ($agg in @("static","unit","coverage","behavior","playwright","judge","sonar")) {
+      if (-not (Select-String -Path $mv -Pattern "name = `"$agg`"")) { CheckFail "merge-verdict.ps1 missing aggregate outcome '$agg' from its failed-gates.txt tally (V8/V18)" }
+    }
+    if (-not (Select-String -Path $mv -Pattern 'ci\.gates')) { CheckFail "merge-verdict.ps1 does not iterate ci.gates - the consolidated scorecard can drift (4.0c.3)" }
+  } else { CheckFail "tests/.evals/scripts/merge-verdict.ps1 missing - the verdict job has nothing to compute the tally with (V8/V18)" }
   if (Test-Path "tests/.evals/scripts/run-evals.sh") {
     if (-not (Select-String -Path "tests/.evals/scripts/run-evals.sh" -Pattern 'ci.gates')) { CheckFail "run-evals.sh does not iterate ci.gates (4.0c.3)" }
   }
@@ -141,8 +150,16 @@ if (Test-Path $wf) {
 Note "V23 (clean-room dry-run) cannot be verified statically from this file — confirm Section 4.0.1a's clean-room dry-run was actually performed before this commit."
 
 if (Test-Path $wf) {
-  if (Select-String -Path $wf -Pattern '\|\|\s*true|\|\|\s*exit 0|;\s*true') { CheckFail "forbidden '|| true' style masking in a step (V8)" }
-  else { CheckOk "no '|| true' style masking (V8)" }
+  # 🔴 Whitelist three narrow, well-justified shapes that never carry a gate's own verdict — see
+  #    validate-pipeline.sh's matching V8 block for the full rationale: (1) kill/wait teardown of a
+  #    *_pid variable after the gate's real exit code was already captured, (2) a command-substitution
+  #    ASSIGNMENT read for diagnostics only, (3) a best-effort write into tests/.evals/_run/*.
+  $v8Hits = Select-String -Path $wf -Pattern '\|\|\s*true|\|\|\s*exit 0|;\s*true' |
+    Where-Object { $_.Line -notmatch 'kill\s+"\$[A-Za-z_]*pid"|wait\s+"\$[A-Za-z_]*pid"' } |
+    Where-Object { $_.Line -notmatch '^\s*[A-Z_][A-Z0-9_]*="?\$\(' } |
+    Where-Object { $_.Line -notmatch '>\s*"?tests/\.evals/_run/' }
+  if ($v8Hits) { $v8Hits | ForEach-Object { Write-Host $_.Line }; CheckFail "forbidden '|| true' style masking of a gate's own result (V8)" }
+  else { CheckOk "no '|| true' style masking of a gate's own result (V8)" }
   $vcount = (Select-String -Path $wf -Pattern '^\s*-\s*name:\s*"Verdict"').Count
   if ($vcount -eq 1) { CheckOk "exactly one Verdict step (V8)" } else { CheckFail "expected exactly one Verdict step, found $vcount (V8)" }
 }
@@ -184,10 +201,13 @@ if (Test-Path "tests/.evals/scripts/auto-fix-agent.ps1") {
   }
 }
 
+# 🔴 Match a genuine N/A STATUS EMISSION (quoted "N/A", or a bare N/A bounded by whitespace on both
+#    sides) — never any line merely mentioning the substring "N/A" in prose. See validate-pipeline.sh's
+#    matching V20 block for the two real false positives this fixes.
 $v20Hit = $false
 foreach ($s in @("tests/.evals/scripts/run-static-evals.ps1", "tests/.evals/scripts/run-evals.ps1", "tests/.evals/scripts/auto-fix-agent.ps1")) {
   if (Test-Path $s) {
-    $hits = Select-String -Path $s -Pattern "N/A" | Where-Object { $_.Line -match 'yet|TODO|not wired|not bootstrapped|not installed|not enabled|pending' }
+    $hits = Select-String -Path $s -Pattern '"N/A"|\sN/A\s' | Where-Object { $_.Line -match 'yet|TODO|not wired|not bootstrapped|not installed|not enabled|pending' }
     if ($hits) { $v20Hit = $true; $hits | ForEach-Object { Write-Host $_.Line } }
   }
 }
@@ -215,14 +235,198 @@ if (Test-Path "tests/.evals/scripts/run-static-evals.ps1") {
   }
 }
 
+# 🔴 V37 — config.json HARD SCHEMA VALIDATION (CI-SPLIT-JOBS-PLAN.md Section 4). See validate-pipeline.sh's
+#    matching V37 block for the full rationale. Prefers ajv; falls back to a jq-based structural check.
+$schema = "tests/.evals/config.schema.json"
+if (Test-Path $config) {
+  if (-not (Test-Path $schema)) {
+    CheckFail "tests/.evals/config.schema.json is missing - V37 cannot validate config.json against it (CI-SPLIT-JOBS-PLAN.md Section 4)"
+  } elseif (Get-Command ajv -ErrorAction SilentlyContinue) {
+    ajv validate -s $schema -d $config 2>$null
+    if ($LASTEXITCODE -eq 0) { CheckOk "config.json validates against config.schema.json via ajv (V37)" }
+    else { CheckFail "config.json fails config.schema.json validation (V37)" }
+  } elseif (Get-Command jq -ErrorAction SilentlyContinue) {
+    $v37Fail = $false
+    $isLegacy = (jq -r 'if (.ci.roots // null) == null then "true" else "false" end' $config)
+    foreach ($k in @("evalFrameworkVersion","thresholds","ci")) {
+      if (-not ((jq -e --arg k $k 'has($k)' $config) 2>$null; $LASTEXITCODE -eq 0)) {
+        CheckFail "config.json missing required top-level key '$k' (V37)"; $v37Fail = $true
+      }
+    }
+    foreach ($k in @("unitTestCoverageMin","disallowedLicenses","maxCyclomaticComplexity")) {
+      if (-not ((jq -e --arg k $k '.thresholds // {} | has($k)' $config) 2>$null; $LASTEXITCODE -eq 0)) {
+        CheckFail "config.json .thresholds missing required key '$k' (V37)"; $v37Fail = $true
+      }
+    }
+    foreach ($k in @("baseBranch","integrationBranchPrefixes","manifestState","roots","gates")) {
+      if (-not ((jq -e --arg k $k '.ci // {} | has($k)' $config) 2>$null; $LASTEXITCODE -eq 0)) {
+        CheckFail "config.json .ci missing required key '$k' (V37)"; $v37Fail = $true
+      }
+    }
+    if ($isLegacy -ne "true") {
+      $rootCount = [int](jq -r '.ci.roots | length' $config)
+      for ($i = 0; $i -lt $rootCount; $i++) {
+        $rootName = (jq -r ".ci.roots[$i].root" $config)
+        $mismatch = (jq -r ".ci.roots[$i] | (.tools // []) as `$t | (.toolInstallCommands // {}) as `$m | ([`$t[] | select((`$m[.] // `"`") == `"`")] + [`$m | keys[] | select(([`$t[]] | index(.)) == null)]) | join(`", `")" $config)
+        if ($mismatch) {
+          CheckFail "ci.roots[$i] ('$rootName'): tools[]/toolInstallCommands mismatch: $mismatch (V37, cross-ref 4.0i.1 P1)"
+          $v37Fail = $true
+        }
+      }
+    }
+    if (-not $v37Fail) { CheckOk "config.json passes the jq-based structural fallback for config.schema.json (V37 - ajv not available, record this in the announcement)" }
+  } else {
+    CheckFail "neither ajv nor jq is available - V37 cannot validate config.json"
+  }
+} else {
+  CheckFail "$config missing - V37 cannot validate it"
+}
+
+# 🔴 V38 — every conditional gate job's `if:` reads a needs.setup.outputs.* fact (CI-SPLIT-JOBS-PLAN.md
+#    Section 1's own job table + Section 6). See validate-pipeline.sh's matching V38 block for the full
+#    rationale. Only THREE jobs are conditional at all; static-evals/judge-gates are "--" (unconditional)
+#    and must carry no job-level if:.
+if (Test-Path $wf) {
+  $v38WfLines = Get-Content $wf
+  $v38Expect = [ordered]@{
+    "unit-coverage" = "needs.setup.outputs.has_unit_tests"
+    "behavior-gherkin" = "needs.setup.outputs.has_behavior_tests"
+    "playwright-e2e" = "needs.setup.outputs.has_e2e_tests"
+  }
+  $v38Fail = $false
+  foreach ($jid in $v38Expect.Keys) {
+    $seen = $false
+    $ifLine = $null
+    foreach ($l in $v38WfLines) {
+      if ($seen -and $l -match '^  [a-zA-Z0-9_-]+:$') { break }
+      if ($seen -and $l -match '^ {4}if:' -and -not $ifLine) { $ifLine = $l }
+      if ($l -eq "  ${jid}:") { $seen = $true }
+    }
+    if ($ifLine -and $ifLine.Contains($v38Expect[$jid])) {
+      CheckOk "job '$jid' gates on $($v38Expect[$jid]) (V38)"
+    } else {
+      CheckFail "job '$jid' does not gate on the expected fact '$($v38Expect[$jid])' - found: '$ifLine' (V38)"
+      $v38Fail = $true
+    }
+  }
+  foreach ($jid in @("static-evals", "judge-gates")) {
+    $seen = $false
+    $ifLine = $null
+    foreach ($l in $v38WfLines) {
+      if ($seen -and $l -match '^  [a-zA-Z0-9_-]+:$') { break }
+      if ($seen -and $l -match '^ {4}if:' -and -not $ifLine) { $ifLine = $l }
+      if ($l -eq "  ${jid}:") { $seen = $true }
+    }
+    if ($ifLine) {
+      CheckFail "job '$jid' carries a job-level if: ($ifLine) the template does not define - Section 1's table lists it unconditional (V38)"
+      $v38Fail = $true
+    }
+  }
+  if (-not $v38Fail) { CheckOk "every per-stage job conditional reads a needs.setup.outputs.* fact, none hardcoded/re-derived, and the unconditional jobs carry no job-level if: (V38)" }
+}
+
+# 🔴 V39 — the `judge-gates` job's run-evals.sh step carries continue-on-error: true. See
+#    validate-pipeline.sh's matching V39 block for the full rationale.
+if (Test-Path $wf) {
+  $wfLines = Get-Content $wf
+  $inJudge = $false
+  $inStep = $false
+  $judgeStepLines = @()
+  foreach ($l in $wfLines) {
+    if ($l -match '^  judge-gates:$') { $inJudge = $true; continue }
+    if ($inJudge -and $l -match '^  [a-zA-Z0-9_-]+:$') { break }
+    if ($inJudge -and $l -match 'name: "Stage 3: judge gates J1 \+ J2"') { $inStep = $true }
+    if ($inStep -and $l -match '^      - name:' -and $l -notmatch 'Stage 3') { break }
+    if ($inStep) { $judgeStepLines += $l }
+  }
+  if (($judgeStepLines -join "`n") -match 'continue-on-error:\s*true') {
+    CheckOk "judge-gates' run-evals.sh step carries continue-on-error: true (V39)"
+  } else {
+    CheckFail "judge-gates' 'Stage 3: judge gates J1 + J2' step is missing continue-on-error: true - run-evals.sh's own structural cross-job blindness will fail this job on EVERY run regardless of J1/J2's real score, permanently poisoning failed-gates.txt and firing self-repair every time (V39)"
+  }
+}
+
+# 🔴 V40 — auto-fix-agent.*'s sonar-infrastructure triage must FILTER sonar out of the working set, not
+#    abort the entire attempt on the first sonar match. See validate-pipeline.sh's matching V40 block
+#    for the full rationale and the production failure this fixes.
+foreach ($af in @("tests/.evals/scripts/auto-fix-agent.sh", "tests/.evals/scripts/auto-fix-agent.ps1")) {
+  if (Test-Path $af) {
+    if (Select-String -Path $af -Pattern 'GATES=\("\$\{REPAIRABLE_GATES\[@\]\}"\)|\$gates = \$repairableGates' -Quiet) {
+      CheckOk "$af filters the sonar-infra gate out of the working set instead of aborting the whole attempt on it (V40)"
+    } else {
+      CheckFail "$af does not reassign the gate list after sonar triage - a co-occurring, genuinely repairable failure (static/unit/etc.) would be silently abandoned the instant sonar also appears in failed-gates.txt (V40)"
+    }
+  }
+}
+
+# 🔴 V41 — the "Purge inherited evidence" step preserves static/baseline/, never a bare rm of the
+#    whole EVIDENCE_DIR. See validate-pipeline.sh's matching V41 block for the full rationale.
+if (Test-Path $wf) {
+  $wfLines2 = Get-Content $wf
+  $inPurge = $false
+  $purgeLines = @()
+  foreach ($l in $wfLines2) {
+    if ($l -match 'name: "Purge inherited evidence"') { $inPurge = $true }
+    if ($inPurge -and $l -match '^      - name:' -and $l -notmatch 'Purge inherited evidence') { break }
+    if ($inPurge) { $purgeLines += $l }
+  }
+  if (($purgeLines -join "`n") -match 'BASELINE_DIR') {
+    CheckOk "'Purge inherited evidence' preserves static/baseline/ before purging the rest of EVIDENCE_DIR (V41)"
+  } else {
+    CheckFail "'Purge inherited evidence' does not preserve static/baseline/ - a bare rm -rf of the whole EVIDENCE_DIR deletes the committed baseline from disk, forcing run-static-evals.sh's fallback checkout path, which can abort with a real git error (V41)"
+  }
+}
+
+# 🔴 V42 — sonarqube depends on unit-coverage (needs: [setup, unit-coverage], if: always()). See
+#    validate-pipeline.sh's matching V42 block for the full rationale.
+if (Test-Path $wf) {
+  $wfLines3 = Get-Content $wf
+  $seenSonar = $false
+  $sonarNeedsLine = $null
+  $sonarIfLine = $null
+  foreach ($l in $wfLines3) {
+    if ($l -match '^  sonarqube:$') { $seenSonar = $true; continue }
+    if ($seenSonar -and $l -match '^  [a-zA-Z0-9_-]+:$') { break }
+    if ($seenSonar -and -not $sonarNeedsLine) { $sonarNeedsLine = $l }
+    if ($seenSonar -and $l -match '^ {4}if:' -and -not $sonarIfLine) { $sonarIfLine = $l }
+  }
+  if ($sonarNeedsLine -match 'unit-coverage' -and $sonarIfLine -match 'always\(\)') {
+    CheckOk "sonarqube depends on unit-coverage and stays unconditional via if: always() (V42)"
+  } else {
+    CheckFail "sonarqube must declare needs: [setup, unit-coverage] and if: always() - without the dependency it can finish before unit-coverage uploads its coverage report, silently measuring 0% coverage on new code (V42)"
+  }
+}
+
+# 🔴 V43 — the `verdict` job's "Upload eval artifacts" step lists sonar-conditions.txt. See
+#    validate-pipeline.sh's matching V43 block for the full rationale.
+if (Test-Path $wf) {
+  $wfLines4 = Get-Content $wf
+  $inUpload = $false
+  $uploadLines = @()
+  foreach ($l in $wfLines4) {
+    if ($l -match 'name: "Upload eval artifacts"') { $inUpload = $true }
+    if ($inUpload -and $l -match '^      - name:' -and $l -notmatch 'Upload eval artifacts') { break }
+    if ($inUpload) { $uploadLines += $l }
+  }
+  if (($uploadLines -join "`n") -match 'sonar-conditions\.txt') {
+    CheckOk "'Upload eval artifacts' includes sonar-conditions.txt for self-repair's sonar triage (V43)"
+  } else {
+    CheckFail "'Upload eval artifacts' does not list tests/.evals/_run/sonar-conditions.txt - self-repair's sonar triage will always find it missing and always misdiagnose a real Sonar finding as infrastructure (V43)"
+  }
+}
+
+# 🔴 Two documented, sanctioned fallbacks are excluded: rubric-absent and empty-diff/zero-diff-run
+#    (ci-pipeline-generation.md Section 4.0.6). See validate-pipeline.sh's matching V9 block.
 foreach ($s in @("tests/.evals/scripts/run-static-evals.ps1", "tests/.evals/scripts/run-evals.ps1")) {
   if (Test-Path $s) {
-    $hits = Select-String -Path $s -Pattern '"status"\s*:\s*"(PASS|N/A)"' | Where-Object { $_.Line -notmatch 'rubric %s absent' }
+    $hits = Select-String -Path $s -Pattern '"status"\s*:\s*"(PASS|N/A)"' |
+      Where-Object { $_.Line -notmatch 'rubric %s absent' } |
+      Where-Object { $_.Line -notmatch 'empty diff vs' }
     if ($hits) {
-      CheckFail "hardcoded status literal outside the documented rubric-absent N/A fallback in $s — possible stub (V9)"
+      CheckFail "hardcoded status literal outside the documented rubric-absent/empty-diff N/A fallbacks in $s — possible stub (V9)"
       $hits | ForEach-Object { Write-Host $_.Line }
     } else {
-      CheckOk "no hardcoded PASS/N-A literal outside the documented rubric-absent fallback in $s (V9)"
+      CheckOk "no hardcoded PASS/N-A literal outside the documented rubric-absent/empty-diff fallbacks in $s (V9)"
     }
   }
 }
@@ -319,14 +523,22 @@ CheckInvocationResolved "tests/.evals/scripts/run-evals.ps1" "CLAUDE_JUDGE_INVOC
 #    🔴 KEEP THIS LIST IN SYNC WITH THE TEMPLATE. See validate-pipeline.sh's matching V27 block for the
 #    full rationale. ──
 if (Test-Path $wf) {
-  $fixedJobIds = @("verify-and-evaluate", "self-repair")
+  # 🔴 NINE-JOB SHAPE (CI-SPLIT-JOBS-PLAN.md Section 1/6) — replaces the old two-job list.
+  $fixedJobIds = @("setup", "static-evals", "unit-coverage", "behavior-gherkin", "playwright-e2e",
+                    "judge-gates", "sonarqube", "verdict", "self-repair")
   $fixedStepNames = @(
     "Checkout (full history for delta diffs)", "Resolve EVAL_KEY", "Resolve base SHA",
     "Purge inherited evidence", "Read manifest", "Setup Node", "Setup Python", "Setup Java",
-    "Setup Go", "Setup .NET", "Install dependencies",
-    "Compile / build", "Stage 1: static evals (delta-scoped)", "Stage 2: unit + coverage",
-    "Coverage gate (delta-scoped)", "Stage 2: behaviour (Gherkin, Podman)", "Install Claude Code CLI",
-    "Stage 3: judge gates J1 + J2", "Record SonarQube gate status", "Verdict",
+    "Setup Go", "Setup .NET", "Setup other toolchains", "Install dependencies",
+    "Compile / build", "Detect stage scopes", "Package workspace", "Upload workspace",
+    "Download workspace", "Extract workspace",
+    "Stage 1: static evals (delta-scoped)", "Stage 2: unit + coverage",
+    "Coverage gate (delta-scoped)", "Collect coverage reports", "Upload coverage reports",
+    "Stage 2: behaviour (Gherkin, Podman)",
+    "Stage 2: playwright e2e (headless, trust gate)", "Install Claude Code CLI",
+    "Stage 3: judge gates J1 + J2", "Download coverage reports", "Restore coverage reports",
+    "Resolve Sonar scope", "Record SonarQube gate status",
+    "Install eval tools", "Upload gate evidence", "Verdict",
     "Stage 4: publish scorecard", "Upload eval artifacts", "Checkout PR head",
     "Download eval artifacts", "Autonomous self-repair"
   )

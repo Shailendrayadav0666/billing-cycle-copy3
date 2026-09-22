@@ -24,7 +24,7 @@ users = {
         "password": "password",
         "plan": "Standard",
         "price": "$20/month",
-        "renew_at": (datetime.today() + timedelta(days=30)).strftime("%b %d, %Y"),
+        "renew_at": "Oct 30, 2026",
     }
 }
 
@@ -32,56 +32,40 @@ billing_data = {
     "tpg@example.com": {
         "plan_name": "Standard",
         "price": "$20/month",
-        "renew_at": (datetime.today() + timedelta(days=30)).strftime("%b %d, %Y"),
+        "renew_at": "Oct 30, 2026",
         "usages": [
             {
-                "id": "chat-credits",
-                "label": "Chat credits",
-                "used": 100,
-                "total": 2000,
-                "help": "Messages used this billing cycle.",
+                "id": "video-quality",
+                "label": "Video quality",
+                "type": "feature",
+                "value": "Full HD (1080p)",
+                "help": "The best video resolution available on the Standard plan.",
             },
             {
-                "id": "chatbots",
-                "label": "Chatbots",
-                "used": 1,
-                "total": 3,
-                "help": "Active chatbot agents out of the included limit.",
+                "id": "screens",
+                "label": "Watch at the same time",
+                "type": "feature",
+                "value": "Can watch on 2 devices at once",
+                "help": "Number of supported devices that can stream on your account simultaneously.",
             },
             {
-                "id": "documents-pages",
-                "label": "Documents pages",
-                "used": 15,
-                "total": 1000,
-                "help": "You can add 985 more pages of your documents.",
+                "id": "downloads",
+                "label": "Download on devices",
+                "type": "feature",
+                "value": "Can download on 2 devices",
+                "help": "Number of supported devices you can download titles to for offline viewing.",
             },
         ],
         "included_usage": {
-            "title": "Your included usage",
+            "title": "Plan perks",
             "items": [
-                {"id": "daily", "label": "Daily quota", "used_percent": 5, "resets_in": "23 hours"},
-                {"id": "weekly", "label": "Weekly quota", "used_percent": 10, "resets_in": "5 days"},
+                {"id": "ad-free", "label": "Ad-free streaming", "used_percent": 100},
+                {"id": "spatial-audio", "label": "Spatial audio (select titles)", "used_percent": 100},
             ],
-            "help": "Usage included in your plan.",
-        },
-        "on_demand_usage": {
-            "title": "On-demand usage",
-            "remaining_balance": "$18.00",
-            "your_usage": "$0.00",
-            "help": "Additional usage charges beyond your included quota.",
-            "notice": "On-demand credit is not available in standard plan for usage beyond your included quota.",
+            "help": "Perks included in your Standard plan.",
         },
     }
 }
-
-tasks_data = {
-    "tpg@example.com": [
-        {"id": 1, "title": "Review monthly invoice", "status": "pending", "due": "Today"},
-        {"id": 2, "title": "Add team member", "status": "completed", "due": "Yesterday"},
-        {"id": 3, "title": "Update billing address", "status": "pending", "due": "In 2 days"},
-    ]
-}
-
 
 class LoginRequest(BaseModel):
     email: str
@@ -96,11 +80,6 @@ class RegisterRequest(BaseModel):
 
 class TokenRequest(BaseModel):
     token: str
-
-
-class TaskCreateRequest(BaseModel):
-    email: str
-    title: str
 
 
 @app.post("/api/auth/login")
@@ -130,46 +109,36 @@ def register(payload: RegisterRequest):
         "renew_at": (datetime.today() + timedelta(days=30)).strftime("%b %d, %Y"),
         "usages": [
             {
-                "id": "chat-credits",
-                "label": "Chat credits",
-                "used": 0,
-                "total": 2000,
-                "help": "Messages used this billing cycle.",
+                "id": "video-quality",
+                "label": "Video quality",
+                "type": "feature",
+                "value": "Full HD (1080p)",
+                "help": "The best video resolution available on the Standard plan.",
             },
             {
-                "id": "chatbots",
-                "label": "Chatbots",
-                "used": 0,
-                "total": 3,
-                "help": "Active chatbot agents out of the included limit.",
+                "id": "screens",
+                "label": "Watch at the same time",
+                "type": "feature",
+                "value": "Can watch on 2 devices at once",
+                "help": "Number of supported devices that can stream on your account simultaneously.",
             },
             {
-                "id": "documents-pages",
-                "label": "Documents pages",
-                "used": 0,
-                "total": 1000,
-                "help": "You can add 1000 more pages of your documents.",
+                "id": "downloads",
+                "label": "Download on devices",
+                "type": "feature",
+                "value": "Can download on 2 devices",
+                "help": "Number of supported devices you can download titles to for offline viewing.",
             },
         ],
         "included_usage": {
-            "title": "Your included usage",
+            "title": "Plan perks",
             "items": [
-                {"id": "daily", "label": "Daily quota", "used_percent": 5, "resets_in": "23 hours"},
-                {"id": "weekly", "label": "Weekly quota", "used_percent": 10, "resets_in": "5 days"},
+                {"id": "ad-free", "label": "Ad-free streaming", "used_percent": 100},
+                {"id": "spatial-audio", "label": "Spatial audio (select titles)", "used_percent": 100},
             ],
-            "help": "Usage included in your plan.",
-        },
-        "on_demand_usage": {
-            "title": "On-demand usage",
-            "remaining_balance": "$0.00",
-            "your_usage": "$0.00",
-            "help": "Additional usage charges beyond your included quota.",
-            "notice": "On-demand credit is not available in standard plan for usage beyond your included quota.",
+            "help": "Perks included in your Standard plan.",
         },
     }
-    tasks_data[payload.email] = [
-        {"id": 1, "title": "Explore the dashboard", "status": "completed", "due": "Today"},
-    ]
     return {"access_token": payload.email, "user": {k: v for k, v in users[payload.email].items() if k != "password"}}
 
 
@@ -186,24 +155,6 @@ def billing(email: str):
     if email not in users:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
     return billing_data.get(email, billing_data["tpg@example.com"])
-
-
-@app.get("/api/tasks")
-def tasks(email: str):
-    if email not in users:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    return tasks_data.get(email, [])
-
-
-@app.post("/api/tasks")
-def add_task(payload: TaskCreateRequest):
-    if payload.email not in users:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    user_tasks = tasks_data.setdefault(payload.email, [])
-    new_id = max((t["id"] for t in user_tasks), default=0) + 1
-    new_task = {"id": new_id, "title": payload.title, "status": "pending", "due": "Today"}
-    user_tasks.append(new_task)
-    return new_task
 
 
 # Serve the built frontend if it exists (production build)

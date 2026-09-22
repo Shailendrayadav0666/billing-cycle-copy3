@@ -6,7 +6,7 @@ fill_level:       baseline  # baseline (from intake) | full (from Refinement)
 kpi:              # the business outcome / metric this moves
 confidence:       # low | med | high — how sure are we this is worth doing
 context_link:     # URL/path to the research, prototype, deck, or notes this came from
-tracker_id:       # the Epic — filled once it's real in the configured tracker (JIRA/ADO/GITHUB), or LOCAL
+tracker_id:       # the Epic — filled once it's real in the configured tracker (JIRA/ADO/GITHUB)
 gate:             open      # open | intake-passed 
 owner:            # the PO accountable
 created:
@@ -17,8 +17,8 @@ updated:
 
 > One document, two fill levels. **Intake** fills the BASELINE fields — just enough thought to be
 > real in the tracker. **Refinement** fills the FULL fields — the depth you do with engineers before
-> Stories exist. The configured tracker (or, for Local, this document itself) is the system of record for anything real; this doc is the workspace and the
-> traceability link. On any drift, **the tracker wins** (or this document, for Local).
+> Stories exist. The configured tracker is the system of record for anything real; this doc is the workspace and the
+> traceability link. On any drift, **the tracker wins**.
 
 ---
 

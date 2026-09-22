@@ -75,8 +75,8 @@ this file that describes a loop as uncapped, unbounded, or repeating "until clea
 | **SH-LOOP-11** | Playwright UI Automation | Step 7.7 | Every generated Playwright spec passes (zero `test.fixme()` outcomes), when the fix touches UI |
 | **SH-LOOP-6** | Judge Gates J1 + J2 | Step 8a Item 2.5 | `J1 ≥ llmJudgeArchitectureScoreMin` **and** `J2 ≥ llmJudgeSecurityScoreMin` (`N/A` passes) |
 | **SH-LOOP-5** | Auto-Remediate (code review + security findings) | Step 8c | Review verdict clean — zero 🔴 and zero 🟠 |
-| **SH-LOOP-9** | CI Preflight (provisioning + manifest executability) | Step 9 Item 1.5 | Every CI entrypoint runs in a clean room with zero missing tools, zero undeclared dependencies, zero Manifest defects, and no gate `N/A`/qualified pass on a root this fix touched |
-| **SH-LOOP-10** | CI Attestation (post-PR provisioning agreement) | Step 10.5 | CI's `gates` block agrees with this fix's own local gate results on every root the diff touched — no gate the diff touched is absent, `N/A`, or provisioning-errored in CI when it passed locally |
+| **SH-LOOP-9** | CI Preflight (provisioning + manifest executability) — **N/A when `## CI/CD Configuration` `Enabled: No`** | Step 9 Item 1.5 | Every CI entrypoint runs in a clean room with zero missing tools, zero undeclared dependencies, zero Manifest defects, and no gate `N/A`/qualified pass on a root this fix touched |
+| **SH-LOOP-10** | CI Attestation (post-PR provisioning agreement) — **N/A when `## CI/CD Configuration` `Enabled: No`** | Step 10.5 | CI's `gates` block agrees with this fix's own local gate results on every root the diff touched — no gate the diff touched is absent, `N/A`, or provisioning-errored in CI when it passed locally |
 
 **SH-1 — Attempt budget.** Each loop is allowed a **maximum of 3 remediation attempts**. One attempt
 is one complete `fix → re-verify` cycle. The initial verification run that first detects the failure
@@ -179,6 +179,10 @@ loop ONLY, and ONLY under option A or B; every other loop keeps the counter it a
 
 ---
 
+## Step 0 — 🔴 Execution-Context Check (MANDATORY, before anything else)
+
+Step 7.7's Playwright gate invokes Playwright's own Planner/Generator/Healer via the **Agent tool**. **A fork, or any subagent instructed "do NOT spawn subagents / you ARE the fork, execute directly", cannot call it** — the gate is then structurally impossible regardless of what is installed. Determine whether this run can call the Agent tool: if it **cannot**, announce it now (` This run cannot call the Agent tool — a UI fix will HALT at Step 7.7; run it from a normal session instead.`), log it in `runtime-artifacts/audit.md`, and continue. 🔴 **It is NEVER a reason to hand-author Playwright specs** (`implementation/code-generation.md` Step 11d Part B catch-all) — a UI fix halts and is re-run from a context that can invoke subagents.
+
 ## Step 1 — Preconditions
 
 1. Read `runtime-artifacts/aire-state.md`. Require `## Tracker` with `Workflow Type: bug` + `Parent Ticket`, and `## Branching` with `Bug Branch`. If missing, STOP: tell the user to run `ticket-implement <TICKET-ID>` first — this workflow only implements a prepared fix.
@@ -231,13 +235,17 @@ Running `bug-fix-implement` IS the claim. Without asking, dispatch on `## Tracke
       ```
    3. **Do NOT wait for a response** — go straight to Step 5. If the user volunteers a change to the plan, apply it, update the plan document, announce the revision, log it, and continue (an interrupt, not a gate).
 
-## Step 4.5 —  Write the Behaviour Spec (MANDATORY — before any code)
+## Step 4.5 —  Verify the Behaviour Spec (MANDATORY — before any code)
 
-Write `spec/behavior/bug-<TICKET-ID>.feature` per `common/behavior-spec.md` Section 2 — one Gherkin scenario per acceptance criterion, `@AC-n` tagged, failure paths included (for a bug, including the scenario that reproduces the defect). Authored **BEFORE** the implementation: it is the contract, not a description of what was built.
+`spec/behavior/bug-<TICKET-ID>.feature` was **already written and approved** at `bug-fix.md` Step 8.5 Item 4.5 (`implementation/specs-and-test-plans.md`) and is already committed on the bug branch. This step **READS** it — it does not author it. Confirm the file exists, parses, and carries one `@AC-n`-tagged scenario per acceptance criterion **plus the scenario that reproduces the defect**.
 
-🔴 **That is the ONLY spec file this work unit gets.** No per-unit requirements, architecture, constraints or deep-dive document. The agent reads the tracker item for acceptance criteria, `requirements.md` for the covered REQ-IDs, `spec/plans/architecture.md` for design constraints, and `tests/.evals/config.json` for thresholds — copying any of that per unit only creates something that can drift.
+**Backfill only if genuinely absent** (legacy project, or a ticket that skipped the checkpoint): write it now per `common/behavior-spec.md` Section 2 and **announce the backfill explicitly** (`Behaviour spec for <TICKET-ID> was missing from the approved set — generated now at spec/behavior/bug-<TICKET-ID>.feature`).
 
-Announce the file path and the scenario/AC counts. Log both in runtime-artifacts/audit.md.
+🔴 **NEVER rewrite an approved scenario to match the fix you are about to generate** — the spec is the contract, and code that cannot satisfy it is the thing that changes. A genuine spec defect is raised with the user, amended and logged; it is never silently edited.
+
+🔴 **That is still the ONLY spec file this work unit gets.** No per-unit requirements, architecture, constraints or deep-dive document. The agent reads the tracker item for acceptance criteria, `requirements.md` for the covered REQ-IDs, `spec/plans/architecture.md` for design constraints, and `tests/.evals/config.json` for thresholds — copying any of that per unit only creates something that can drift.
+
+Announce the file path and the scenario/AC counts. Log the verification (or backfill) in runtime-artifacts/audit.md.
 
 ## Step 5 — Generate the Fix
 
@@ -313,12 +321,12 @@ Re-run D1–D7 per `common/eval-framework.md` Section 2, save to `reports/eval-e
 
 🔴 **This gate INVOKES two existing skills via the Skill tool, in WORKFLOW MODE — it never re-implements them.** Full mechanics: `implementation/code-generation.md` Step 11d.
 
-1. **Invoke the `ve-implement` skill — 🔴 ALWAYS** (skipped only if `spec/test-plans/<TICKET-ID>-<title>/` already has this ticket's manual steps from ve's own run — any state; its approval status is irrelevant here). Pass this ticket and **`mode: workflow`**: per `agents/ve-implement-agent.md` **Mode Detection** it skips its story-picker, its `ve/…` branch, its Approve/Request-Changes checkpoint and its push/PR, and the generated `spec/test-plans/…` files stay in the working tree to ride THIS fix's commit. 🔴 This is scope derivation, not ve's sign-off — ve's own standalone `/ve-implement` run remains the only sign-off path.
+1. **Manual test plan — VERIFY FIRST, invoke `ve-implement` only to backfill.** `spec/test-plans/<TICKET-ID>-<title>/` was **already generated and approved** at `bug-fix.md` Step 8.5 Item 4.5 and is already committed on the bug branch, so the normal case here is a **check, not a run**: confirm the folder exists and covers this ticket's ACs, record `Manual test plan: present (approved at STOP CHECKPOINT)`, and move to part 2. **Only if it is genuinely absent** invoke the skill with this ticket and **`mode: workflow`** — per `agents/ve-implement-agent.md` **Mode Detection** it skips its story-picker, its `ve/…` branch, its Approve/Request-Changes checkpoint and its push/PR, and the generated `spec/test-plans/…` files stay in the working tree to ride THIS fix's commit — and announce the backfill explicitly. 🔴 Never regenerate or overwrite an approved test plan to match the code. 🔴 Either way this is scope derivation, not ve's sign-off — ve's own standalone `/ve-implement` run remains the only sign-off path.
 2. **Invoke the `playwright-implement` skill — UI fixes only** — with the same ticket and **`mode: workflow`**: per `agents/playwright-implement-agent.md` **Mode Detection** it skips its story-picker, its both-merges gate (nothing has merged yet by design — the fix is in this working tree), its integration-branch checkout, its Planner-plan Approval Gate and its Push Gate; auto-derives the Seed Test Gate; **starts the app locally itself** (and tears it down); invokes the real Planner/Generator/Healer subagents; and **executes `--headed`, exactly as the standalone skill does** (`npx playwright test tests/e2e/… --headed`) — this is the developer's own machine and the browser is meant to be visible; 🔴 headless belongs to CI alone, because a runner has no display.
 3. **Iterate** — fixing the application code (never `test.fixme()`-ing a genuine failure) within the SAME run until every generated spec passes.  **This is SH-LOOP-11 — capped at 3 remediation attempts (SH-1). On exhaustion apply SH-4: HALT and emit the Retry-Limit Report.** 🔴 WORKFLOW MODE skips **approvals and git mechanics only** — never a verification.
 4. **Capture evidence** to `reports/playwright-test-evidence/bug-<TICKET-ID>/` (`playwright-test-run.log`, the **mandatory machine-readable** `playwright-test-report.json`, `evidence-manifest.md`) and reference it in `bug-<TICKET-ID>-summary.md` + runtime-artifacts/audit.md. Write the result into `eval.json`'s `gates.playwright`, and record the resolved `startCommand`/`readinessUrl` into the `ci.playwright` manifest fragment (Step 8.5) so CI's trust-gate run reuses the identical commands.
 5. **Commit the generated Playwright artifacts** (`tests/e2e/...`, `tests/playwright-specs/...`, any confirmed `seed.spec.ts` addition, `spec/test-plans/<TICKET-ID>-<title>/automation-summary.md`) together with the rest of the fix — no separate branch/PR.
-6. 🔴 CI later re-executes these SAME specs as a **trust gate, never the first execution** (headless there only because a runner has no display) — cross-checked automatically by the CI Attestation gate (Step 10.5, SH-LOOP-10).
+6. 🔴 CI later re-executes these SAME specs as a **trust gate, never the first execution** (headless there only because a runner has no display) — cross-checked automatically by the CI Attestation gate (Step 10.5, SH-LOOP-10) **when `## CI/CD Configuration` `Enabled: Yes`**; when `Enabled: No` there is no CI run to cross-check against, so this run's local Playwright pass is the only evidence for this fix.
 
 ## Step 8 — AUTO Code Review →  Verdict Routing + Auto-Remediate Loop
 
@@ -370,7 +378,9 @@ The review's own verdict decides what happens next. **Do NOT present an A/B choi
 ### 8d. Status
 The ticket stays `🔵 In Development` throughout review and remediation.
 
-## Step 8.5 — Manifest Reconciliation (MANDATORY, AUTOMATIC — after local gates pass, BEFORE the commit)
+## Step 8.5 — Manifest Reconciliation — CONDITIONAL on `## CI/CD Configuration` `Enabled: Yes` (MANDATORY, AUTOMATIC when it applies — after local gates pass, BEFORE the commit)
+
+**If `## CI/CD Configuration` records `Enabled: No` (`## CI Setup Status` = "declined"), SKIP this step entirely** — there is no CI manifest to reconcile without a pipeline — and go straight to Step 9. Otherwise:
 
 Identical mechanism to `dev-implement.md` Section D Step 1.5 — see
 `common/ci-pipeline-generation.md` Section 4.0f for the full contract. Write ONE NEW file,
@@ -394,7 +404,7 @@ no prompts**. Announce each action; never ask whether to do it.
    git commit -m "[BUG][TICKET-ID] <concise fix summary>" -m "AIRE-Version: [N]"
    ```
    The `AIRE-Version: [N]` trailer goes on its own line at the end of the message body (alongside any existing trailers). Record the hash in runtime-artifacts/audit.md.
-1.5. **🔴 CI PREFLIGHT GATE (MANDATORY, AUTOMATIC — after this commit, BEFORE the push)** — identical
+1.5. **🔴 CI PREFLIGHT GATE — CONDITIONAL on `## CI/CD Configuration` `Enabled: Yes` (MANDATORY, AUTOMATIC when it applies — after this commit, BEFORE the push)**: **if `Enabled: No`, SKIP this gate entirely** — there is no CI pipeline to preflight — and go straight to Step 2 (invoke `pr-generator`). Otherwise, identical
    mechanism to `dev-implement.md` Section D Step 2.5; `common/ci-pipeline-generation.md` **Section 4.0i**
    is the contract. In a **clean room** (fresh venv / empty `node_modules` / throwaway Podman container —
    never this agent's ambient shell, never an install the manifest does not declare), against the
@@ -416,9 +426,9 @@ no prompts**. Announce each action; never ask whether to do it.
 2. 🔴 **Do NOT transition the ticket to "Ready for Testing"** (or any further state) — the ticket stays In Development after the PR. Add a **comment** on the ticket (automatic) linking the PR with evidence (tests passing, coverage %, regression clean vs baseline), dispatching on `## Tracker` → `Type` per `common/tracker-sync.md` Section 10: JIRA `addCommentToJiraIssue`, ADO `az boards work-item update --discussion`, GITHUB `gh issue comment`, LOCAL a note appended to the local bug entry (no external call).
 3. Log in runtime-artifacts/audit.md (with the TRACKER ITEM field).
 
-## Step 10.5 — CI Attestation Gate (MANDATORY, AUTOMATIC — after the PR is raised, before Step 11)
+## Step 10.5 — CI Attestation Gate — CONDITIONAL on `## CI/CD Configuration` `Enabled: Yes` (MANDATORY, AUTOMATIC when it applies — after the PR is raised, before Step 11)
 
-Identical mechanism to `dev-implement.md` Section D Step 8. Confirm a run of
+**If `## CI/CD Configuration` records `Enabled: No`, SKIP this gate entirely and proceed straight to Step 11** — there is no CI pipeline run to attest against. Otherwise, identical mechanism to `dev-implement.md` Section D Step 8. Confirm a run of
 `agentic-eval-pipeline.yml` exists for this PR's head SHA (`gh pr checks` / `gh run list`) — no run is a
 blocking finding. Watch it to conclusion, download `eval.json`, and cross-check CI's `gates` block
 against this fix's own local gate results.
@@ -502,9 +512,14 @@ The ONLY permitted modification is substituting `<url>`, `<bug-branch>`, `<base-
           on `<bug-branch>`, same as an epic cycle.
    4⃣  Use the skill archive-epic  on bug branch (bug mode → `aire-archives/bugs/<TICKET-ID>-<slug>/`)
        🔴 MUST happen while the [BUG] PR is still OPEN — its cycle-close archive commit rides that
-          open PR onto `<base-branch>`. It generates NO RE delta and stitches nothing.
-   5⃣  ONLY NOW merge the [BUG] PR into `<base-branch>`: <url> — this completes the cycle. The next
-       cycle pulls fresh current-system truth from Atlas via the Helix MCP.
+          open PR onto `<base-branch>`. It writes this cycle's RE delta to
+          `spec/plans/delta/<TICKET-ID>-<slug>/`, archives it, and then REMOVES the live spec/,
+          reports/ and runtime-artifacts/ trees — it never stitches.
+   5⃣  ONLY NOW merge the [BUG] PR into `<base-branch>`: <url>
+   6⃣  On `<base-branch>`, after that merge, type: /stitch-delta
+       It reads the delta from the cycle archive and publishes it to the deep dive on Atlas via the
+       Helix MCP; its own PR is a single ledger row. 🔴 The cycle is NOT closed until this lands —
+       skipping it leaves Atlas a cycle stale.
 
 🔴 ORDER IS LOAD-BEARING: archive-epic (4⃣) runs BEFORE the [BUG] PR merges (5⃣).
    Merging first strands the cycle archive off the PR and forces a manual recovery.
@@ -528,9 +543,9 @@ The ONLY permitted modification is substituting `<url>`, `<bug-branch>`, `<base-
 - 🔴 The 8c auto-remediate loop (**SH-LOOP-5**) is **capped at 3 rounds** by the Self-Healing Retry Policy and is otherwise **unchanged by the eval layer** — it receives no eval input and gains no other stop condition. The J1/J2 judge scores never enter it.
 - Unit tests must include at least one test reproducing the defect; coverage on new/changed code ≥90%.
 - 🔴 **API & Contract Testing Gate (Step 6.5) is MANDATORY WHEN the fix touches an API endpoint** — applicability is plan-derived and automatic, never asked. Generate automated tests against the real endpoint(s), RUN them, and iterate until every applicable checklist item (functional, response-code validation, role-based authorization 401/403, error-response validation, request validation, response contract/schema validation) passes, in the SAME run, BEFORE the Full Regression Gate (Step 7). This is **SH-LOOP-2**, capped at **3 remediation attempts**; on exhaustion apply SH-4 (HALT + Retry-Limit Report). N/A (with a stated reason) when the fix touches no API layer. Capture proof artifacts to `reports/api-contract-test-evidence/story-1.1/`. This gate does NOT replace ve's `/ve-implement` MANUAL API/Contract test steps.
-- 🔴 **Step 7.7 has TWO halves with DIFFERENT applicability — never skip the whole step because the fix has no UI.** **Part 1 — `ve-implement` → the ticket's manual test plans — runs ALWAYS** (skipped only if ve already produced them); that is what lets the ve simply execute the plan once the `[BUG]` PR merges instead of generating it first. **Part 2 — `playwright-implement` → browser automation — runs ONLY when the fix plan touches UI**; otherwise record `Playwright UI Automation: N/A — no UI touched by this fix` and move on, **with part 1 still done**. Applicability is plan-derived and automatic, never asked. Both halves run **by INVOKING those skills in WORKFLOW MODE with the ticket passed in**, never by re-implementing their steps inline. WORKFLOW MODE skips their story-pickers, ve's branch/approval/PR, the both-merges gate, the integration-branch checkout, the Planner-plan Approval Gate and the Push Gate — and nothing else. The skill starts the app locally, runs the real Planner/Generator/Healer subagents, executes **`--headed`** (same as standalone — headless is CI's alone, since a runner has no display), and iterates — fixing the application code, never `test.fixme()`-ing a real failure — in the SAME run, BEFORE Step 8 Code Review. This is **SH-LOOP-11**, capped at **3 remediation attempts**; on exhaustion apply SH-4 (HALT + Retry-Limit Report). N/A (with a stated reason) when the fix touches no UI. Capture proof artifacts to `reports/playwright-test-evidence/bug-<TICKET-ID>/` and write the result into `eval.json`'s `gates.playwright`. CI later re-executes it headless as a **trust gate, never the first execution**, cross-checked by the CI Attestation gate (SH-LOOP-10). This gate does NOT replace ve's own independently-scheduled `/ve-implement` run.
+- 🔴 **Step 7.7 has TWO halves with DIFFERENT applicability — never skip the whole step because the fix has no UI.** **Part 1 — the ticket's manual test plan — is VERIFIED ALWAYS**: it was authored and approved at `bug-fix.md` Step 8.5 Item 4.5, so the normal case is a presence check; `ve-implement` is invoked in WORKFLOW MODE only to backfill a genuinely absent plan, announced. Either way the ve simply executes the plan once the `[BUG]` PR merges instead of generating it first. **Part 2 — `playwright-implement` → browser automation — runs ONLY when the fix plan touches UI**; otherwise record `Playwright UI Automation: N/A — no UI touched by this fix` and move on, **with part 1 still done**. Applicability is plan-derived and automatic, never asked. Both halves run **by INVOKING those skills in WORKFLOW MODE with the ticket passed in**, never by re-implementing their steps inline. WORKFLOW MODE skips their story-pickers, ve's branch/approval/PR, the both-merges gate, the integration-branch checkout, the Planner-plan Approval Gate and the Push Gate — and nothing else. The skill starts the app locally, runs the real Planner/Generator/Healer subagents, executes **`--headed`** (same as standalone — headless is CI's alone, since a runner has no display), and iterates — fixing the application code, never `test.fixme()`-ing a real failure — in the SAME run, BEFORE Step 8 Code Review. This is **SH-LOOP-11**, capped at **3 remediation attempts**; on exhaustion apply SH-4 (HALT + Retry-Limit Report). N/A (with a stated reason) when the fix touches no UI. Capture proof artifacts to `reports/playwright-test-evidence/bug-<TICKET-ID>/` and write the result into `eval.json`'s `gates.playwright`. CI later re-executes it headless as a **trust gate, never the first execution**, cross-checked by the CI Attestation gate (SH-LOOP-10). This gate does NOT replace ve's own independently-scheduled `/ve-implement` run.
 - NEVER commit/push/raise the PR while the review verdict is unclean. An exhausted SH-LOOP-5 (8c.7) HALTS the run — it does NOT proceed to the PR. PR via `pr-generator` only, target = Base Branch, `[BUG]` prefix, `ai-generated` label. **The whole chain is automatic and prompt-free** — pr-generator runs in workflow mode with Phase 5 skipped; asking whether to push or open the PR is a defect.
 - The ticket stays `🔵 In Development` after the PR — NEVER transition it to Ready for Testing yourself; that is ve's, via `ve-list-work` Option B run **on the bug branch, before `archive-epic` and before the `[BUG]` PR merges** (not post-merge on the base branch — after the archive's workspace reset there is no Story Tracker left to promote). No Parent-Epic sync exists in this flow.
 - **Test Plan sign-off remains ve's, and only ve's.** ve still runs `/ve-implement` independently, on its own schedule, and only `ve-list-work` can approve/reject a test plan or move the ticket to Ready for Testing. 🔴 **The ONE narrow exception**: Step 7.7 above may auto-generate `implementation/test-plan.md` Steps 1–5 (never Step 6, the ve approval checkpoint) purely as UI-scenario scope for the Playwright gate, when ve hasn't produced that content yet — this is scope derivation for an automated test, not a substitute for ve's sign-off. Never write anything under `spec/build-and-test/`, and never treat Step 7.7's auto-generated content as an approved test plan.
 - At Step 2, ALWAYS assign the ticket to the operator who invoked `bug-fix-implement` per `common/tracker-sync.md` Section 5 (automatic, verified where applicable, logged). Unresolvable identity → leave unassigned, warn, continue — assignment failure never blocks the fix. LOCAL has no assignee concept.
-- 🔴 After the PR: AUTO `pr-review` (comment-only), then **STOP — the archive is MANUAL**. NEVER invoke `archive-epic` from this workflow. **Re-read Step 12 before emitting its handoff, and emit that block VERBATIM with placeholders substituted** — do not paraphrase it. The operator runs `archive-epic` once the ve `ve/...` PR(s) (and any `ve-list-work` Option C amendments) have merged **into the bug branch**, and **BEFORE the `[BUG]` PR merges into the base branch**, so the cycle archive rides the open PR. archive-epic generates no RE delta and stitches nothing; merging the `[BUG]` PR completes the cycle. Never tell the user the archive runs post-merge — that inverts the invariant.
+- 🔴 After the PR: AUTO `pr-review` (comment-only), then **STOP — the archive is MANUAL**. NEVER invoke `archive-epic` from this workflow. **Re-read Step 12 before emitting its handoff, and emit that block VERBATIM with placeholders substituted** — do not paraphrase it. The operator runs `archive-epic` once the ve `ve/...` PR(s) (and any `ve-list-work` Option C amendments) have merged **into the bug branch**, and **BEFORE the `[BUG]` PR merges into the base branch**, so the cycle archive rides the open PR. archive-epic writes the cycle's RE delta and keeps `atlas-deep-dive.md`, but never stitches. After the `[BUG]` PR merges, the operator runs **`/stitch-delta`** on the base branch to publish that delta to Atlas and clear `spec/` — the cycle is not closed until that lands. Never tell the user the archive runs post-merge (that inverts the invariant), and never tell them the stitch runs pre-merge (that inverts the other one).

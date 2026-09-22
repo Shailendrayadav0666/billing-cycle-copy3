@@ -11,9 +11,16 @@ yet, may be half-written, or may sit on an unmerged branch. Everything you write
 acceptance criteria and the project documents — never from implementation code.
 
 **🔴 You produce MANUAL test steps only.** You do not generate, run, or maintain automated test
-scripts, and you never touch application code. You DO cut your own `ve/…` branch and raise your
-own PR to carry the generated test docs — see Step 3 and Step 5 — but you never depend on, wait
-for, or touch the **dev's** branch, PR, or merge state.
+scripts, and you never touch application code.
+
+**🔴 Git behaviour depends ENTIRELY on the mode** (resolve it first — Mode Detection below):
+- **STANDALONE** — you DO cut your own `ve/…` branch and raise your own PR to carry the generated
+  test docs (Step 3 and Step 5).
+- **WORKFLOW** — you touch git **not at all**. No branch, no checkout, no pull, no commit, no push,
+  no PR. You write the files into the **branch you were invoked on** and hand control back; the
+  caller commits them with its own work.
+
+Either way you never depend on, wait for, or touch the **dev's** branch, PR, or merge state.
 
 ---
 
@@ -27,17 +34,28 @@ unit's uncommitted code).
   exactly as written, including the story-picker (Step 2), the `ve/…` branch (Step 3), the
   Approve/Request-Changes checkpoint (Step 6 / `test-plan.md` Step 6), and the push + PR (Step 5).
 
-- **WORKFLOW MODE** — invoked as a step by `dev-implement` / `bug-fix-implement` /
-  `enhancement-implement` (their Playwright UI Automation Gate — `implementation/code-generation.md`
-  Step 11d), with the story/ticket **passed in** and `mode: workflow`. The invoking workflow has no
-  approval gates and is already mid-run on the work unit's own branch, so:
+- **WORKFLOW MODE** — invoked as a step by another AIRE procedure, with the story/ticket **passed in**
+  and `mode: workflow`. Two callers exist:
+  - 🔴 **The STOP CHECKPOINT — the PRIMARY caller now** (`CLAUDE.md` Step 1.7, `bug-fix.md` /
+    `enhancement-implement.md` Step 8.5 Item 4.5, mechanics in
+    `implementation/specs-and-test-plans.md`): invoked **once per work unit of the cycle, before ANY
+    code is generated**, on the epic/bug/enhancement branch. The generated plans are approved there,
+    at that stage's own 2-option gate, and ride that checkpoint's commit.
+  - **The implement workflows' Playwright UI Automation Gate** (`implementation/code-generation.md`
+    Step 11d Part A, `dev-implement` Step 6.7, `bug-fix-implement` Step 7.7,
+    `enhancement-implement` Step 14.7): now a **verify-first backfill path only** — the plan normally
+    already exists from the checkpoint, so the caller checks for it and invokes this skill only when
+    it is genuinely absent.
+
+  In both cases the invoking workflow has no approval gates of its own here and is already mid-run on
+  the relevant branch, so:
 
   | Step | WORKFLOW MODE behaviour |
   |---|---|
-  | **Step 2 — Resolve the target story** | 🔴 **SKIPPED.** The story is passed in. Never present the story-picker table; never ask. If the folder already exists, reuse it — do NOT ask refresh-or-stop; the caller already decided (it only invokes this skill when the content is absent). |
+  | **Step 2 — Resolve the target story** | 🔴 **SKIPPED.** The story is passed in. Never present the story-picker table; never ask. If the folder already exists, reuse it — do NOT ask refresh-or-stop; the caller already decided (it only invokes this skill when the content is absent). 🔴 **Never overwrite a plan that was approved at the STOP CHECKPOINT.** |
   | **Step 3 — Resolve branch + cut `ve/…`** | 🔴 **SKIPPED ENTIRELY.** Stay on the branch you were invoked on (the story/bug/enhancement branch). **Never `git checkout`, never cut a branch, never pull** — the caller's uncommitted work is in this tree. |
   | **Step 4 — Generate the artifacts** | ▶ **RUNS IN FULL**, with two carve-outs inside `test-plan.md`: its **Step 2 applicability confirmation is auto-confirmed** (announce the applicability table, do not wait), and its **Step 6 Approve/Request-Changes checkpoint is SKIPPED**. |
-  | **Step 5 — Commit, push, raise the PR** | 🔴 **SKIPPED ENTIRELY.** No commit, no push, no PR, no labels. The generated `spec/test-plans/…` files are left in the working tree and ride the **caller's own commit**. |
+  | **Step 5 — Commit, push, raise the PR** | 🔴 **SKIPPED ENTIRELY.** No commit, no push, no PR, no labels. The generated `spec/test-plans/…` files are left in the working tree and ride the **caller's own commit** — the STOP CHECKPOINT's design commit, or the work unit's own commit when backfilling. |
   | **Step 6 — Completion + checkpoint** | Present a short **announcement** of what was generated (no Approve/Request-Changes question), then hand control straight back to the caller. |
   | **Step 7 — Audit log** | ▶ **RUNS**, with `**Approve / Request Changes checkpoint**: Approved (automatic — workflow mode, no ve review)` and an explicit `**Mode**: workflow (invoked by <workflow>) — no ve branch, no ve PR` line. |
 
@@ -83,8 +101,9 @@ or an already-running service.
 5. `spec/plans/atlas-deep-dive.md` and the flat RE docs under `spec/plans/`, if present — for the system's **external
    interfaces** (endpoints, ports, payload shapes).
 6. `spec/test-plans/` — story folders already generated by earlier `/ve-implement` runs.
-7. `## Branching` and `Workflow Type` in `runtime-artifacts/aire-state.md` — needed in Step 3 to resolve
-   which branch your `ve/…` branch cuts from.
+7. `## Branching` and `Workflow Type` in `runtime-artifacts/aire-state.md` — needed in Step 3
+   (STANDALONE only) to resolve which branch your `ve/…` branch cuts from. In WORKFLOW mode Step 3
+   is skipped, so this is read for context only — you stay on the current branch regardless.
 
 ### Step 2: Resolve the Target Story
 
@@ -133,6 +152,13 @@ Wait for the user to select one story. **This table is shown ONLY when the track
 
 ### Step 3: Resolve the Integration Branch, Pull Latest, and Cut the ve Branch
 
+> 🔴 **STANDALONE MODE ONLY. In WORKFLOW MODE this entire step is SKIPPED — do not read it
+> further, do not run a single git command.** You are already on the branch the caller is working on
+> (the epic / bug / enhancement branch at the STOP CHECKPOINT, or a story branch when an implement
+> workflow is backfilling), and that tree holds the caller's uncommitted work. A `git checkout`,
+> `git pull` or `git checkout -b` here orphans it. Write the test-plan files where you are and go
+> straight to Step 4.
+
 1. Read `Workflow Type` and `## Branching` in `runtime-artifacts/aire-state.md` to resolve the
    **integration branch** — the branch the dev's work for this story/ticket is happening on:
    - **Epic or Brownfield cycle** (`Workflow Type: epic`, or the field is absent) → the recorded
@@ -167,6 +193,11 @@ Wait for the user to select one story. **This table is shown ONLY when the track
 2. Honour its applicability confirmation checkpoint (its Step 2) before writing any files.
 
 ### Step 5: Commit, Push, and Raise the PR
+
+> 🔴 **STANDALONE MODE ONLY. In WORKFLOW MODE this entire step is SKIPPED — no commit, no push, no
+> PR, no labels, no `gh` call.** The generated `spec/test-plans/…` files stay in the working tree and
+> the caller commits them with its own work. Go straight to Step 6.
+
 
 1. Stage only this story's new/changed files under
    `spec/test-plans/<TICKET-ID>-<title-kebab>/`.
@@ -290,8 +321,11 @@ not reach `<integration-branch>`.` Drop line 3⃣ when no story remains.
 5. **Never generate build instructions.** Identical across stories, traced to no AC, and already
    owned by the project's README. State the System Under Test precondition and defer the build.
 6. **Manual test steps only.** No automated test scripts, no test frameworks, no test execution.
-   You DO cut your own `ve/…` branch (Step 3) and raise your own PR (Step 5) to carry the test
-   docs — that is the only branch/PR activity this agent performs.
+   **In STANDALONE mode** you cut your own `ve/…` branch (Step 3) and raise your own PR (Step 5) to
+   carry the test docs — that is the only branch/PR activity this agent ever performs.
+   🔴 **In WORKFLOW mode there is NO branch and NO PR**: you stay on the branch you were invoked on,
+   write the files there, and let the caller's own commit carry them. Cutting a branch mid-run would
+   orphan the caller's uncommitted work.
 6b. **Every ve PR carries BOTH canonical labels** — `ai-generated` AND `aire-v[N]` (full version
    incl. minor, read live from the "AIRE Framework Version" line in `CLAUDE.md`, never hardcoded),
    exactly as `pr-generator` labels dev PRs. Match label existence by exact name; on a refresh run

@@ -50,15 +50,35 @@ function AbortLeaveOpen {
   Fail "aborting - leaving $prUrl open for inspection, scratch branch $scratchBranch NOT deleted"
 }
 
+# 🔴 RESOLVE THE RUN BY HEAD SHA, NEVER BY "LATEST RUN FOR THIS BRANCH NAME." See smoke-test-epic.sh's
+#    matching long-form comment for the full production failure this fixes: $scratchBranch is a
+#    DETERMINISTIC name reused across sessions (a failed smoke test deliberately leaves it open), so
+#    "the first run gh run list returns for this branch" can be a stale leftover run, not the one this
+#    session just triggered — that stale run was watched, falsely declared PASS, and the PR was merged
+#    while the real run was still in flight.
+function Get-RemoteHeadSha($branch) {
+  $line = git ls-remote origin "refs/heads/$branch" 2>$null
+  if ($line) { return ($line -split '\s+')[0] }
+  return $null
+}
+function Get-RunIdForSha($sha) {
+  # 🔴 gh's own --jq takes exactly ONE expression string (no jq --arg pass-through) — a SHA is a
+  #    fixed-format hex string, never a shell/jq metacharacter, so direct interpolation is safe here.
+  $result = (gh run list --branch $scratchBranch --limit 20 --json databaseId,headSha --jq ".[] | select(.headSha == `"$sha`") | .databaseId")
+  if ($result) { return ($result -split "`n")[0] }
+  return $null
+}
+
+$currentSha = $smokeSha
 $runId = $null
 $waited = 0
 while ($waited -lt 60) {
-  $runId = (gh run list --branch $scratchBranch --limit 1 --json databaseId --jq '.[0].databaseId // empty')
+  $runId = Get-RunIdForSha $currentSha
   if ($runId) { break }
   Start-Sleep -Seconds 5; $waited += 5
 }
 if (-not $runId) {
-  Fail "no workflow run appeared for $scratchBranch within 60s after opening the PR"
+  Fail "no workflow run appeared for commit $currentSha on $scratchBranch within 60s after opening the PR"
   AbortLeaveOpen
   exit 1
 }
@@ -66,28 +86,40 @@ if (-not $runId) {
 $attempt = 1   # logging only — no independent attempt cap
 $passed = $false
 while ($true) {
-  NoteMsg "watching run $runId (attempt $attempt, unbounded - stops only when self-repair stops)"
+  NoteMsg "watching run $runId for commit $currentSha (attempt $attempt, unbounded - stops only when self-repair stops)"
   gh run watch $runId --exit-status *> $null
   if ($LASTEXITCODE -eq 0) {
-    NoteMsg "run $runId PASSED"
+    NoteMsg "run $runId (commit $currentSha) PASSED"
     $passed = $true
     break
   }
-  NoteMsg "run $runId FAILED - failed-step logs:"
+  NoteMsg "run $runId (commit $currentSha) FAILED - failed-step logs:"
   $failedLog = gh run view $runId --log-failed 2>&1
   if ($failedLog) { $failedLog | ForEach-Object { Write-Host "  $_" } } else { NoteMsg "(could not fetch failed-step logs for run $runId - inspect $prUrl manually)" }
-  NoteMsg "checking whether self-repair pushed a fix"
-  $newRunId = $null
+  NoteMsg "checking whether self-repair pushed a fix - watching $scratchBranch's remote tip for a NEW commit SHA (never just 'a new run appeared')"
+  $newSha = $null
   $waited = 0
   while ($waited -lt 120) {
     Start-Sleep -Seconds 10; $waited += 10
-    $candidate = (gh run list --branch $scratchBranch --limit 1 --json databaseId --jq '.[0].databaseId // empty')
-    if ($candidate -and $candidate -ne $runId) { $newRunId = $candidate; break }
+    $candidateSha = Get-RemoteHeadSha $scratchBranch
+    if ($candidateSha -and $candidateSha -ne $currentSha) { $newSha = $candidateSha; break }
   }
-  if (-not $newRunId) {
-    NoteMsg "no new run appeared - self-repair did not push a fix, or exhausted its own retries"
+  if (-not $newSha) {
+    NoteMsg "no new commit appeared on $scratchBranch - self-repair did not push a fix, or exhausted its own retries"
     break
   }
+  $newRunId = $null
+  $waited = 0
+  while ($waited -lt 60) {
+    $newRunId = Get-RunIdForSha $newSha
+    if ($newRunId) { break }
+    Start-Sleep -Seconds 5; $waited += 5
+  }
+  if (-not $newRunId) {
+    NoteMsg "self-repair pushed commit $newSha but no workflow run appeared for it within 60s - treating as a stall, not a pass"
+    break
+  }
+  $currentSha = $newSha
   $runId = $newRunId
   $attempt++
 }

@@ -398,6 +398,23 @@ Produce a comprehensive Playwright test plan that covers EXACTLY the following U
 Save the plan via planner_save_plan to tests/playwright-specs/<story-slug>.md.
 ```
 
+🔴 **PERFORMANCE — CONTRACT GROUNDING (MANDATORY)**: before invoking the Planner, read this story's
+code-generation plan / `spec/plans/architecture.md` for any endpoint(s) this story's UI calls, and if
+an exact method + path + **query-string/body shape** is known, append it to the Planner prompt as
+grounding, e.g.:
+
+```
+This story's UI calls <METHOD> <path>[?query-params] (state whether a query string / path suffix is
+always present — any interceptor/mock for this endpoint MUST use a wildcard-suffixed glob, e.g.
+'**/<path>*', never an exact-path glob). [repeat for every other endpoint this story's scenarios touch]
+```
+
+Carry this same grounding text forward into every Step 3 Generator invocation for this story (below)
+so each one has it, not just the Planner. This does not replace the Planner/Generator's own live
+verification — it removes a specific, avoidable defect class (a route interceptor glob that silently
+fails to intercept because it doesn't account for the real request's exact shape) before it has a
+chance to occur.
+
 🔴 **Before invoking the Planner, assert `tests/playwright-specs/` exists** (`mkdir -p` it if not —
 Step 0a owns this, but assert it here too; `planner_save_plan` is Playwright's own MCP tool and this
 framework must not assume it creates directories).
@@ -464,6 +481,21 @@ retry until they were manually killed). One scenario, one Generator call, wait f
 run more than one Playwright subagent at a time in this extension, regardless of what other parts of
 this environment support running agents in parallel.
 
+🔴 **PERFORMANCE — KEEP THE STACK WARM ACROSS THE WHOLE SEQUENTIAL CHAIN (MANDATORY)**: the "strictly
+sequential" rule above is about never running more than one Generator **process** at a time — it does
+not require tearing the app down between calls. Before the first Generator call for this story:
+1. Confirm the app under test (backend + frontend, per `playwright.config.ts`'s `webServer[]`) is
+   already up and reachable (same check as Step 0b) — start it once here if it isn't, and leave it
+   running for the entire Step 3 loop.
+2. Pass each Generator invocation the confirmation that the app is already warm (do not let it
+   re-derive login/navigation from scratch if `seed.spec.ts`'s helper already gets it there) — reuse
+   the seed's login/navigation helper as the shared precondition for every scenario in this story
+   rather than having each Generator call rediscover "log in, navigate to X" live.
+3. Only stop the app after the LAST Generator call in the sequence, immediately before Step 4's own
+   execution run (which manages its own server lifecycle via `webServer[]`).
+This keeps every guarantee (real subagent, real live verification, one process at a time) while
+removing the repeated cold-start/re-discovery cost of restarting the app for every scenario.
+
 For each top-level scenario in the Approved `tests/playwright-specs/<story-slug>.md`, **in sequence**, invoke the agent
 (`subagent_type: "playwright-test-generator"`) using its own documented per-scenario contract:
 
@@ -517,6 +549,20 @@ Generator agent. Log what was reconciled/removed in `automation-summary.md` (Ste
 
 ---
 
+## Step 3.6: PERFORMANCE — Static Route-Interceptor Pre-Check (MANDATORY, before first execution)
+
+Before running Step 4 for the first time, grep every newly generated spec in `tests/e2e/<story-slug>/`
+for `page.route(` calls. For each one, check the glob against the contract gathered in Step 1 (or, if
+none was recorded, against the endpoint's known behavior): a glob with no trailing wildcard (e.g.
+`'**/api/users/me'`) covering an endpoint that the real app calls with a query string or path suffix is
+a near-certain miss. Fix it to a wildcard-suffixed glob (e.g. `'**/api/users/me*'`) before the first
+headed run, not after a guaranteed failure. This is a cheap, deterministic text check — it does not
+replace live verification, it just avoids spending a full headed run + Healer cycle on a defect class
+that's mechanically detectable up front. Log a one-line note in `automation-summary.md` either way
+("route-glob pre-check: N interceptors checked, M fixed" or "route-glob pre-check: nothing to fix").
+
+---
+
 ## Step 4: LOCAL EXECUTION — Headed
 
 Re-verify Step 0's checks, then (from `<playwright-root>`):
@@ -525,6 +571,14 @@ cd <playwright-root> && npx playwright test tests/e2e/<story-slug>/ --headed
 ```
 A visible browser window opens for each test — this is the "open the instance in headed mode"
 behavior. Capture pass/fail per spec for the summary; anything failing goes to Step 5.
+
+🔴 **PERFORMANCE**: this initial run and the ONE re-run after Step 5 (Healer) fixes something are both
+legitimate and both required — that is 2 full-suite executions, not a waste. The waste to avoid is a
+**third** run: never diagnose-and-re-verify failures file-by-file via the Healer's own `test_debug`
+calls and then ALSO perform a separate, full `npx playwright test ... --headed` re-run afterward solely
+to regenerate `playwright-test-report.json`. Step 5 below removes that third run — Healer's own
+per-file re-verification doubles as the post-heal evidence run, so there is exactly one re-run after
+healing, not two.
 
 🔴 **WORKFLOW MODE runs `--headed` too — this step is IDENTICAL in both modes.** The developer is at
 their own machine while `dev-implement` runs, and watching the browser exercise the story they just
@@ -547,6 +601,25 @@ under `tests/e2e/<story-slug>/`. The real Healer subagent runs its own complete 
 explanatory comment if it has high confidence the test is correct and the failure reflects a real app
 issue) — **do not intervene in or shortcut that loop**, and do not add a separate retry cap of our
 own on top of it; the shipped agent owns its own completion criteria.
+
+🔴 **PERFORMANCE — CLUSTER IDENTICAL FAILURES BEFORE DIAGNOSING EACH ONE SEPARATELY**: when more than
+one spec fails after Step 4, before pointing the Healer at each file individually, group the failures
+by signature (same timeout/selector, same assertion message, same missing-network-call symptom). Run
+the Healer's diagnosis on ONE representative file from each group first. If that diagnosis's root cause
+and fix generalize to the rest of the group (e.g. "this glob needs a trailing wildcard" applies
+verbatim to every file using the same interceptor pattern), apply the same fix to the rest of the group
+directly and verify each with a single lightweight re-run rather than a full independent `test_debug`
+diagnosis per file. Only fall back to a full independent diagnosis for a file whose failure signature
+genuinely differs from the group. This does not shortcut the Healer's judgment on any failure that
+isn't provably identical — it only removes redundant re-diagnosis of the SAME already-understood cause.
+
+🔴 **PERFORMANCE — THE HEALER'S OWN FINAL VERIFICATION IS THE POST-HEAL EVIDENCE RUN, NOT A THIRD
+PASS**: once every spec in `tests/e2e/<story-slug>/` passes (via the Healer's own re-verification),
+run **one** `npx playwright test tests/e2e/<story-slug>/ --headed` pass over the whole story directory
+to produce the authoritative `playwright-test-report.json` / `playwright-test-run.log` for
+`reports/playwright-test-evidence/story-[N.M]/` — this is the SAME re-run Step 4 already calls for
+("the ONE re-run after Step 5"), not an additional one. Do not run the suite a further time beyond
+this for evidence-capture purposes alone.
 
 If the Healer marks a test `test.fixme()`, treat that as a **candidate product defect signal** — flag
 it in the summary and point the user at `raise-defect`. Never edit a `test.fixme()` back to passing
@@ -605,6 +678,12 @@ Present completion with the same confirm-first Approve/Request-Changes checkpoin
 **Execution**: "[pass]/[fail] before healing"
 **Healer outcome**: "[n] healed to passing, [n] marked test.fixme() as candidate defects"
 **Code location**: `tests/e2e/<story-slug>/`   **Plan location**: `tests/playwright-specs/<story-slug>.md`
+**Gate timing** (🔴 PERFORMANCE — MANDATORY): `Planner: [real clock start]→[end] | Generator:
+[start]→[end] ([n] scenarios) | Route-glob pre-check: [start]→[end] | Execution (pre-heal):
+[start]→[end] | Healer: [start]→[end] | Execution (post-heal, authoritative): [start]→[end]` — each
+read live at that sub-step's actual start/end, never rounded, estimated, or backfilled after the fact
+from memory. This is what lets a later timing question about this gate be answered from real evidence
+instead of guesswork.
 **AI Response**: "[what was generated/changed]"
 **Context**: `/playwright-implement` skill — Playwright Test Automation
 
@@ -618,6 +697,10 @@ Present completion with the same confirm-first Approve/Request-Changes checkpoin
 1. **Orchestration only — never re-implement the Planner/Generator/Healer.** Their real definitions
    live at `.claude/agents/playwright-test-{planner,generator,healer}.md`, installed by
    `npx playwright init-agents --loop=claude`, and are never edited by this framework.
+1a. 🔴 **REQUIRES A CONTEXT THAT CAN CALL THE AGENT TOOL.** Planner/Generator/Healer are Agent-tool
+   invocations, so a **fork** — or any subagent told "do NOT spawn subagents / you ARE the fork" —
+   **cannot run this extension at all.** Structural: installing Playwright or restarting the session
+   does not help. HALT and say the run needs a normal session or a general-purpose agent.
 1b. 🔴 **"Never re-implement" includes never HAND-WRITING the output.** A `.spec.ts` this framework
    typed itself — however faithfully transcribed from the manual test plan — is **not** a result of
    this extension, and a `tests/playwright-specs/<story-slug>.md` this framework wrote instead of the
@@ -659,3 +742,14 @@ Present completion with the same confirm-first Approve/Request-Changes checkpoin
     cross-scenario consistency pass after all scenarios are generated; never assume independently
     generated specs are internally consistent with each other just because each one individually
     looked fine.
+15. **Performance rules (Steps 1, 3, 3.6, 4, 5, 7) reduce wall-clock time without weakening any
+    verification** — keep the app warm across the sequential Generator chain instead of cold-starting
+    per call, ground interceptors in the real API contract up front, statically pre-check route globs
+    before spending a headed run on a mechanically-detectable defect, cluster identical Healer
+    failures instead of diagnosing each one independently, and let the Healer's own final
+    re-verification double as the post-heal evidence run instead of a separate third pass. **Do NOT**
+    parallelize Generator/Planner/Healer invocations to save time — Step 3's "strictly sequential" rule
+    stays in force regardless; it is backed by a reproduced incident (parallel calls left zombie MCP
+    server processes contending for the same `playwright.config.ts`), and speed is never a reason to
+    reopen it. Any future attempt at safe concurrency here needs a redesign (e.g. per-call isolated
+    config/port) proven incident-free first, not a policy change to this rule.

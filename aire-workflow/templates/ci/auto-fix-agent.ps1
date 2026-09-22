@@ -48,14 +48,29 @@ $smokeContext = $false
 if ($headRef -and $headRef -like "ci/epic-smoke-*") { $smokeContext = $true }
 
 # -- INFRASTRUCTURE class (Section 6.4) --
+# 🔴 An infra-class gate (sonar with no reported conditions) must never swallow other gates that ALSO
+#    failed in the same run. See auto-fix-agent.sh's matching block for the full rationale and the
+#    production failure this fixes (self-repair reporting ONLY a sonar infra note while static/unit
+#    were also genuinely red and never even attempted).
+$repairableGates = @()
+$infraNotes = @()
 foreach ($g in $gates) {
   if ($g -eq "sonar") {
     $cond = "$runDir/sonar-conditions.txt"
-    if (-not ((Test-Path $cond) -and (Get-Item $cond).Length -gt 0)) {
-      ReportAndExit "sonar failed WITHOUT reported conditions (auth/unreachable/timeout) — infrastructure, not a code defect. Not consuming a retry." 1
+    if ((Test-Path $cond) -and (Get-Item $cond).Length -gt 0) {
+      $repairableGates += $g
+    } else {
+      $infraNotes += "sonar failed WITHOUT reported conditions (auth/unreachable/timeout) - infrastructure, not a code defect. Excluded from this repair attempt; fix the Sonar connection/secret separately."
     }
+  } else {
+    $repairableGates += $g
   }
 }
+foreach ($n in $infraNotes) { Write-Error "auto-fix-agent: $n" -ErrorAction Continue }
+if ($repairableGates.Count -eq 0) {
+  ReportAndExit "every failing gate this run is infrastructure-class (see notes above) - not consuming a retry." 1
+}
+$gates = $repairableGates
 
 # -- Retry budget (only a genuinely repairable failure gets this far, so only it consumes an attempt) --
 $limit = 3

@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate, NavLink } from 'react-router-do
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Billing from './pages/Billing'
-import Tasks from './pages/Tasks'
 import './App.css'
 
 function Layout({ children }) {
@@ -10,19 +9,13 @@ function Layout({ children }) {
   return (
     <div className="app">
       <header className="topbar">
-        <div className="brand">Billing & Tasks</div>
+        <div className="brand">StreamPlex</div>
         <nav className="nav-links">
           <NavLink
             to="/billing"
             className={({ isActive }) => (isActive ? 'active' : '')}
           >
             Billing
-          </NavLink>
-          <NavLink
-            to="/tasks"
-            className={({ isActive }) => (isActive ? 'active' : '')}
-          >
-            Tasks
           </NavLink>
           <div className="user-pill">
             <span className="avatar">{user?.name?.[0] || 'U'}</span>
@@ -56,16 +49,6 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Billing />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/tasks"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Tasks />
                 </Layout>
               </ProtectedRoute>
             }

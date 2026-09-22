@@ -577,7 +577,7 @@ matching completion handoff — pick by cycle type:
        — the archive in 2⃣ can only capture what is on the branch.
    2⃣  Use the skill archive-epic — run it HERE, on `<cycle-branch>`, while the [BUG]/[ENH] PR is
        still OPEN. It archives the complete spec/, reports/ and runtime-artifacts/, and its commit
-       resides in the open PR. It generates NO reverse-engineering delta and stitches nothing.
+       resides in the open PR. It writes the cycle's RE delta and keeps `atlas-deep-dive.md`, but never stitches — `/stitch-delta` does that on the base branch after the PR merges.
    3⃣  Merge the [BUG]/[ENH] PR into `<base-branch>`: <pr-url> — this completes the cycle. The next
        cycle pulls fresh current-system truth from Atlas via the Helix MCP.
 

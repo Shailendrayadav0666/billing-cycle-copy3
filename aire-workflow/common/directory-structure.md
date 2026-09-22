@@ -107,7 +107,10 @@ this specific project** (see `common/ci-pipeline-generation.md`).
 │   │   ├── application-design.md         #     components / methods / services / dependency, merged
 │   │   ├── bug-brief.md                  #     ticket-implement (bug-fix): fetched/captured ticket brief
 │   │   ├── enhancement-brief.md          #     ticket-implement (enhancement): fetched/captured brief
-│   │   └── impact-analysis.md            #     bug-fix / enhancement-implement: affected files + root cause
+│   │   ├── impact-analysis.md            #     bug-fix / enhancement-implement: affected files + root cause
+│   │   └── delta/<CYCLE-ID>-<slug>/      #     the cycle's RE delta — change record + evidence for
+│   │       └── delta.md                  #     atlas-deep-dive.md. Written by archive-epic (Step 3),
+│   │                                     #     applied + published to Atlas by stitch-delta after merge
 │   ├── spec-generation/                 #    the *-generation.md plan + clarifying-question files
 │   │   ├── story-generation.md          #   nfr-generation.md, application-design-generation.md,
 │   │   ├── functional-design-generation.md #   infrastructure-design-generation.md,
@@ -115,10 +118,11 @@ this specific project** (see `common/ci-pipeline-generation.md`).
 │   │   └── requirement-verification-questions.md
 │   ├── behavior/                         #    ONE .feature per work unit — the only per-unit spec
 │   │   ├── story-1.1.feature             #     SPEC (contract), stays in spec/ — NOT evidence
-│   │   ├── story-1.2.feature
-│   │   └── bug-PROJ-123.feature
-│   ├── test-plans/                      #   ve Test Plan — one folder per work unit
-│   │   └── Test-plan-<feature>-story-<n.m>/  #  integration/e2e/api/contract/security/perf/a11y steps
+│   │   ├── story-1.2.feature             #     ALL units written at the STOP CHECKPOINT (Step 1.7),
+│   │   └── bug-PROJ-123.feature          #     approved together, BEFORE any code exists
+│   ├── test-plans/                      #   ve Test Plan — one folder per work unit, also written
+│   │   └── Test-plan-<feature>-story-<n.m>/  #  at the STOP CHECKPOINT; integration/e2e/api/contract/
+│   │                                     #     security/perf/a11y steps
 │   └── context-project/                  #    HUMAN-CURATED INPUT — two subfolders, nothing else.
 │       ├── existing-knowledge/           #    HUMAN-AUTHORED — how the CURRENT system works.
 │       └── new-references/               #    HUMAN-SUPPLIED — wireframes, mockups, UI/API specs.
@@ -150,6 +154,10 @@ this specific project** (see `common/ci-pipeline-generation.md`).
 │   └── extensions/                       #    Opt-in and mandatory rule extensions
 │
 ├── aire-archives/                        #  Closed release cycles (archive-epic skill)
+│   ├── stitch-ledger.md                  #    APPEND-ONLY, written by stitch-delta alone: one row per
+│   │                                     #    delta published to Atlas (doc id + version). A delta with
+│   │                                     #    no row is pending — absence is the signal. Lives HERE
+│   │                                     #    because archive-epic deletes spec/ at cycle close.
 │   └── epics|bugs|enhancements/<ID>-<name>/
 │       ├── spec/                        #    EXACT MIRROR of the live spec/ at cycle close —
 │       │                                 #    all docs, every work-unit .feature, context-project,
@@ -177,19 +185,23 @@ this specific project** (see `common/ci-pipeline-generation.md`).
    `personas.md`, `epic-brief.md`, `dependency-graph.yml`, `functional-design.md`, `nfr.md`,
    `infrastructure-design.md`, `application-design.md`), **`spec-generation/`** (the `*-generation.md`
    plan / clarifying-question files), **`behavior/`** (one `.feature` per work unit), **`test-plans/`**
-   (ve manual test plans), and
+   (ve manual test plans) — 🔴 **both of those are written for EVERY work unit at the STOP CHECKPOINT,
+   in one approved pass, before any code is generated** (`CLAUDE.md` Step 1.7 /
+   `implementation/specs-and-test-plans.md`); the implement workflows read them and never author them
+   — and
    **`context-project/`** — the single human-curated input folder, which has exactly two subfolders:
    `existing-knowledge/` (how the CURRENT system works) and `new-references/` (wireframes, mockups,
    API specs defining the target). 🔴 There is no `context-references/` at the top level — both live
    inside `context-project/`. The framework **creates the folders and reads them only at a path the
    user explicitly supplies** — it never auto-populates them and never auto-scans them. They are
-   cross-cycle: `archive-epic`'s option-A reset preserves them in place. The one apparent exception, `<work-unit>.feature`, is a *specification* written in
+   🔴 **not cross-cycle**: `archive-epic` removes the whole `spec/` tree at cycle close, `context-project/` included, once it is mirrored into the cycle archive. Nothing regenerates them, so the next cycle re-curates them from the archived copy at `aire-archives/<type>/<ID>-<slug>/spec/context-project/`; Workspace Detection (Step 4.6) recreates the two folders empty. The one apparent exception, `<work-unit>.feature`, is a *specification* written in
    Gherkin; its executable step definitions live in `tests/behavior/steps/`.
 3. **`spec/plans/architecture.md` is the architecture source of truth, and there is exactly one.**
    🔴 A work unit never gets its own architecture document — it reads the relevant section of this
    one. The blocking J1 rubric is derived from its Section 10 and from nothing else.
    3b. **One `.feature` per work unit is the ONLY per-unit spec file**, under
-   `spec/behavior/`. No per-story requirements, architecture,
+   `spec/behavior/`, written at the STOP CHECKPOINT alongside that unit's `spec/test-plans/` folder.
+   No per-story requirements, architecture,
    constraints or deep-dive documents — that information is already authoritative in
    `stories.md`, `requirements.md`, `architecture.md` and `tests/.evals/config.json`, and copying it per
    story only creates something that can drift.
@@ -247,6 +259,8 @@ branch. Nothing is ever pushed to the base branch.**
 | `src/**`, `tests/**`                        | work-unit branch | Generate during code generation                |
 | `.gitignore`'s `tests/.evals/_run/` entry     | cycle branch     | **Add it** if the entry is missing — never overwrite the rest of an existing `.gitignore` |
 | `tests/.evals/ci-manifest.d/<work-unit-key>.json` | **work-unit branch** | **Create it** — one NEW file per work unit, written ONLY by that unit at the end of its own run (`common/ci-pipeline-generation.md` Section 4.0f) |
+| `spec/plans/delta/<CYCLE-ID>-<slug>/delta.md` | cycle branch | **Create it at cycle close** — `archive-epic` Step 3. One folder per cycle, so parallel cycles never collide. 🔴 Survives archive-epic's reset; deleted only by `stitch-delta` after the delta reaches Atlas |
+| `aire-archives/stitch-ledger.md` | **base** only | **Create it** — written by `stitch-delta` alone, one appended row per delta after its Atlas write verifies. 🔴 `archive-epic` never writes it, there is no pending row, and no row is ever edited — a delta is pending precisely because it has none |
 
 **"Cycle branch"** = the epic branch for an epic cycle, the bug branch for a bug cycle, the
 enhancement branch for an enhancement cycle.

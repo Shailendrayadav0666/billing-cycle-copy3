@@ -4,6 +4,11 @@
 
 **Always executes** right after User Stories. Produces `spec/plans/dependency-graph.yml` and records each story's `Requires` in the Story Tracker.
 
+🔴 **This stage is also the single commit point for all Planning-phase story artifacts** — `stories.md`,
+`personas.md` (both written by User Stories but left uncommitted until now) and `dependency-graph.yml`
+(written here) are committed and pushed to the Epic branch together, once, at Step 9 below. User
+Stories itself performs no commit/push of its own.
+
 ## Execution Steps
 
 1. **MANDATORY**: Log start of Dependency Graph stage in runtime-artifacts/audit.md
@@ -26,6 +31,26 @@
    ```
    **Do NOT ask "Proceed? (yes / revise graph)" and do NOT block.** If the user volunteers a correction, apply it and re-announce — that is an interrupt, not a gate.
 8. **MANDATORY**: Log in runtime-artifacts/audit.md that the graph was generated and auto-approved, with the complete inferred edge list + justifications; log verbatim any correction the user volunteers afterwards
+
+## Step 9: Epic Branch Commit & Push (MANDATORY — immediately after the Dependency Graph is generated)
+
+**Runs automatically, no gate, right after Step 8's log entry, for both greenfield and brownfield
+work, and regardless of tracker type (JIRA/ADO/GITHUB/LOCAL).** The epic branch was already created at
+workflow start (Workspace Detection Step 4.5 → `common/branching-strategy.md` Section 1) — do NOT
+create a new branch here. This is the single commit point for `stories.md`, `personas.md` and
+`dependency-graph.yml` — none of these three files are committed anywhere before this step.
+
+1. Confirm the active branch is the **Epic Branch** recorded in `runtime-artifacts/aire-state.md`
+   `## Branching` (`git branch --show-current`); switch to it if not.
+2. Stage and commit exactly: `spec/plans/stories.md`, `spec/plans/personas.md`,
+   `spec/plans/dependency-graph.yml`, `runtime-artifacts/aire-state.md`, `runtime-artifacts/audit.md`.
+   Commit message trailer carries `AIRE-Version: [N]` ([N] read live from CLAUDE.md).
+3. Push the epic branch to origin (`git push origin <epic-branch>`). **🔴 Do NOT raise an Epic → Base
+   PR at this point.** The Epic PR is raised manually by the user at the end of the cycle via
+   `pr-generator`. No PR is opened here.
+4. Log in `runtime-artifacts/audit.md`: commit hash and push confirmation, with an ISO 8601 timestamp.
+5. If the push fails, tell the user to push manually — do not silently continue with unpushed commits.
+6. Then proceed to the **Workflow Planning** stage (remaining on the epic branch).
 
 ## TRUE-PARALLELISM RULES (apply when computing `requires`)
 

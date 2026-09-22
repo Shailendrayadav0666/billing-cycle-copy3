@@ -5,9 +5,18 @@
 **manual, executable-by-a-human test steps** covering every test plan that applies to that story.
 
 **Owner**: ve. This file is loaded and executed by the **`/ve-implement` skill**
-(`aire-workflow/agents/ve-implement-agent.md`). It is **NOT** a Implementation-phase stage — it is
-neither an epic-level nor a story-level step of the development workflow, and no development
-workflow runs it.
+(`aire-workflow/agents/ve-implement-agent.md`).
+
+**Two invocation paths, same content:**
+- **STANDALONE** — ve types `/ve-implement <story>` on their own schedule. This is the only path that
+  produces a ve **sign-off**; only `ve-list-work` can approve a plan or move a ticket to Ready for Testing.
+- **WORKFLOW MODE, at the STOP CHECKPOINT** — the framework invokes the skill **once per work unit of
+  the cycle**, before any code is generated (`CLAUDE.md` Step 1.7, `bug-fix.md` /
+  `enhancement-implement.md` Step 8.5 Item 4.5; mechanics in
+  `implementation/specs-and-test-plans.md`). The plans are reviewed there at that stage's own
+  2-option approval gate and committed with the design artifacts, so every story's plan is on the
+  epic branch before its code exists. 🔴 That approval is **scope approval, not ve sign-off** — and an
+  approved plan is never regenerated or overwritten later to match the code.
 
 **🔴 WRITTEN EARLY, EXECUTED AFTER MERGE — AND NOTHING IS EVER DEPLOYED.** These steps are
 *authored* as soon as the design stages finish (no code needed). They are *executed* by the ve
@@ -32,10 +41,13 @@ documents listed under Inputs — never from implementation code.
 - A target story/ticket has been resolved (Story ID `N.M` and/or a Tracker ID) by the `/ve-implement` skill.
 - **No dependency on the DEV's code, branch, PR, or merge state.** This runs at any time after the
   story exists — typically while the developer is still building it.
-- **This file's own git mechanics — cutting the `ve/…` branch, committing, pushing, and raising
-  the PR that carries these artifacts — are handled by `ve-implement-agent.md` Step 3 and Step 5, wrapped
-  around this file's execution.** This file is the authority for WHAT test content to generate; it
-  does not itself run git commands.
+- **This file never runs a git command.** It is the authority for WHAT test content to generate.
+  Whatever git happens around it is the caller's, and depends on the mode:
+  **STANDALONE** — `ve-implement-agent.md` Step 3 and Step 5 cut the `ve/…` branch, commit, push and
+  raise the PR around this file's execution.
+  🔴 **WORKFLOW** (the STOP CHECKPOINT specs & test-plans stage, or an implement workflow
+  backfilling a missing plan) — **no branch, no commit, no push, no PR**. The files are written into
+  the branch already checked out and ride the caller's own commit.
 
 ---
 
@@ -330,7 +342,7 @@ Append (never rewrite) one entry to `runtime-artifacts/audit.md`:
 **User Input**: "[complete raw user input]"
 **Story**: "[Story ID N.M] — [title] — [PROJ-XXX](<site>/browse/PROJ-XXX) or local Story ID"
 **Output folder**: `spec/test-plans/<TICKET-ID>-<title-kebab>/`
-**ve branch / PR**: "ve/<TICKET-ID>-<title-kebab> → PR <url> into <Epic Branch | Bug Branch | Enhancement Branch>"
+**ve branch / PR**: "ve/<TICKET-ID>-<title-kebab> → PR <url> into <Epic Branch | Bug Branch | Enhancement Branch>" — STANDALONE only; in WORKFLOW mode write exactly "none — workflow mode, files written on <current branch> and carried by the caller's commit"
 **Test plans generated**: "[list of applicable plans, with case counts] — N/A plans: [list with reasons]"
 **Coverage**: "[n]/[n] acceptance criteria covered"
 **Approve / Request Changes checkpoint**: "[Approved / Request Changes → re-did [what] → re-approved]"
@@ -357,8 +369,10 @@ Tracker, story status, or tracker status — those remain `ve-list-work`'s job.
   or anything similar.
 - 🔴 **Manual test steps only.** This file produces human-executable test cases — it does NOT
   generate, run, or reference automated test scripts. It never touches application code. The
-  `ve/…` branch, commit, and PR that carry these artifacts are cut/raised by `ve-implement-agent.md` Step 3
-  and Step 5, wrapped around this file's execution — this file itself defines content, not git steps.
+  `ve/…` branch, commit and PR that carry these artifacts exist **only in STANDALONE mode**, cut/raised
+  by `ve-implement-agent.md` Step 3 and Step 5 around this file's execution. 🔴 In WORKFLOW mode there
+  is no branch and no PR — the files are written on the current branch and the caller commits them.
+  Either way, this file itself defines content, not git steps.
 - 🔴 **One story per run**, into its own `spec/test-plans/<TICKET-ID>-<title>/` folder. Never
   overwrite another story's folder; ask before refreshing an existing one.
 - 🔴 **Every test case traces to an AC; every AC has ≥1 test case.** The coverage check in the

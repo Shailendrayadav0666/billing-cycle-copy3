@@ -91,17 +91,45 @@ cleanup_on_abort() {
 }
 trap cleanup_on_abort ERR
 
-# Wait for the first run to be scheduled (opening a PR does not instantly have a queued run).
+# 🔴 RESOLVE THE RUN BY HEAD SHA, NEVER BY "LATEST RUN FOR THIS BRANCH NAME." SCRATCH_BRANCH is a
+#    DETERMINISTIC name (ci/epic-smoke-<slug>) — the SAME name across every session for this epic,
+#    including a previous session's branch that a FAILED smoke test deliberately left open (line
+#    ~21's own contract: "Exits 1 on exhaustion — the draft PR is left OPEN... nothing is merged").
+#    `gh run list --branch "$SCRATCH_BRANCH" --limit 1` (the old, wrong query here) returns whatever
+#    GitHub's API hands back first for that branch NAME, with no guarantee it is a run for the commit
+#    THIS session just pushed — a leftover run from that earlier session satisfies "a run exists for
+#    this branch" just as well as a fresh one. Observed in production: a stale PASSING run from days
+#    earlier was watched and declared the result, the PR was merged, and the scratch branch was
+#    deleted while the REAL run this session triggered was still in flight — which is also why
+#    self-repair then failed on its own follow-up (the branch it needed no longer existed).
+# 🔴 Fix: track the branch's CURRENT tip SHA ourselves (git ls-remote, not gh run list) and resolve
+#    the run FOR THAT EXACT SHA (gh run list --json headSha, filtered). This is unambiguous regardless
+#    of how many stale runs or leftover branches share the same name.
+remote_head_sha() {
+  git ls-remote origin "refs/heads/$1" 2>/dev/null | awk '{print $1}'
+}
+run_id_for_sha() {
+  local sha="$1"
+  # 🔴 `gh`'s own `--jq` takes exactly ONE expression string — unlike the real `jq` binary, it has no
+  #    `--arg` pass-through. A SHA is a fixed-format hex string (never shell/jq metacharacters), so
+  #    interpolating it directly into the expression is safe here.
+  gh run list --branch "$SCRATCH_BRANCH" --limit 20 --json databaseId,headSha \
+    --jq ".[] | select(.headSha == \"${sha}\") | .databaseId" 2>/dev/null | head -n1
+}
+
+current_sha="$SMOKE_SHA"
+# Wait for the first run to be scheduled (opening a PR does not instantly have a queued run) — and
+# for it to be a run FOR THE SHA WE JUST PUSHED, never merely the first thing gh run list returns.
 run_id=""
 waited=0
 while [ "$waited" -lt 60 ]; do
-  run_id=$(gh run list --branch "$SCRATCH_BRANCH" --limit 1 --json databaseId --jq '.[0].databaseId // empty' 2>/dev/null)
+  run_id="$(run_id_for_sha "$current_sha")"
   [ -n "$run_id" ] && break
   sleep 5; waited=$((waited + 5))
 done
 if [ -z "$run_id" ]; then
   trap - ERR
-  fail "no workflow run appeared for ${SCRATCH_BRANCH} within 60s after opening the PR"
+  fail "no workflow run appeared for commit ${current_sha} on ${SCRATCH_BRANCH} within 60s after opening the PR"
   cleanup_on_abort
   exit 1
 fi
@@ -109,29 +137,42 @@ fi
 attempt=1   # logging only — this loop has no independent attempt cap (see the note above)
 passed=0
 while :; do
-  note "watching run ${run_id} (attempt ${attempt}, unbounded — stops only when self-repair stops)"
+  note "watching run ${run_id} for commit ${current_sha} (attempt ${attempt}, unbounded — stops only when self-repair stops)"
   if gh run watch "$run_id" --exit-status >/dev/null 2>&1; then
-    note "run ${run_id} PASSED"
+    note "run ${run_id} (commit ${current_sha}) PASSED"
     passed=1
     break
   fi
-  note "run ${run_id} FAILED — failed-step logs:"
+  note "run ${run_id} (commit ${current_sha}) FAILED — failed-step logs:"
   gh run view "$run_id" --log-failed 2>&1 | sed 's/^/  /' || note "(could not fetch failed-step logs for run ${run_id} — inspect ${PR_URL} manually)"
-  note "checking whether self-repair pushed a fix"
-  new_run_id=""
+  note "checking whether self-repair pushed a fix — watching ${SCRATCH_BRANCH}'s remote tip for a NEW commit SHA (never just 'a new run appeared')"
+  new_sha=""
   waited=0
   while [ "$waited" -lt 120 ]; do
     sleep 10; waited=$((waited + 10))
-    candidate=$(gh run list --branch "$SCRATCH_BRANCH" --limit 1 --json databaseId --jq '.[0].databaseId // empty' 2>/dev/null)
-    if [ -n "$candidate" ] && [ "$candidate" != "$run_id" ]; then
-      new_run_id="$candidate"
+    candidate_sha="$(remote_head_sha "$SCRATCH_BRANCH")"
+    if [ -n "$candidate_sha" ] && [ "$candidate_sha" != "$current_sha" ]; then
+      new_sha="$candidate_sha"
       break
     fi
   done
-  if [ -z "$new_run_id" ]; then
-    note "no new run appeared — self-repair did not push a fix, or exhausted its own retries"
+  if [ -z "$new_sha" ]; then
+    note "no new commit appeared on ${SCRATCH_BRANCH} — self-repair did not push a fix, or exhausted its own retries"
     break
   fi
+  # The commit is on the branch; its run may not be queued/visible yet — same bounded wait as above.
+  new_run_id=""
+  waited=0
+  while [ "$waited" -lt 60 ]; do
+    new_run_id="$(run_id_for_sha "$new_sha")"
+    [ -n "$new_run_id" ] && break
+    sleep 5; waited=$((waited + 5))
+  done
+  if [ -z "$new_run_id" ]; then
+    note "self-repair pushed commit ${new_sha} but no workflow run appeared for it within 60s — treating as a stall, not a pass"
+    break
+  fi
+  current_sha="$new_sha"
   run_id="$new_run_id"
   attempt=$((attempt + 1))
 done

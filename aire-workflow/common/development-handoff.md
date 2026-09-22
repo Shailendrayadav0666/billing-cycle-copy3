@@ -4,7 +4,7 @@
 (after the system-level design stages complete or are skipped, before any Code Generation). This is
 the moment the workflow hands off to development and ve.
 
-**Load and emit this** at Step 4 of the STOP CHECKPOINT. Emit the block below **verbatim**, with
+**Load and emit this** at Step 5 of the STOP CHECKPOINT (after the design commit and the conditional epic-level smoke test). Emit the block below **verbatim**, with
 every placeholder substituted from real values — never ship an unsubstituted placeholder. Then
 **HALT** and wait for the user to type `dev-implement`.
 
@@ -19,25 +19,27 @@ every placeholder substituted from real values — never ship an unsubstituted p
 
  Dependency Graph: [M] stories are ready to start now (no unfinished prerequisites).
  Design stages: [list which ran vs were skipped].
+ Behaviour specs + manual test plans: **[N] of [N] stories** — `spec/behavior/story-*.feature` and
+   `spec/test-plans/*/`, approved at this checkpoint, so every story's contract and test plan exist
+   before a line of its code does.
  Epic branch: `[epic-branch]` — design artifacts **committed and pushed** ([commit hash]).
 
 > ** <u>**DEV — use the keyword `dev-implement`**</u>**
 > 1⃣  Stay on / switch to the epic branch `[epic-branch]` and pull the latest.
 > 2⃣  Type **`dev-implement`** and pick a story (by Story ID / number, or Tracker ID).
 > Run it **once per story** — it cuts `story/N.M-…` from the epic branch.
+> It **reads** that story's already-approved `.feature` contract and test plan; it never rewrites them.
 
-> **🧪 <u>**ve — use the skill `/ve-implement`**</u>** (in parallel, starting now)
-> ve does **not** wait for development — no dev code, branch, PR or merge is needed.
-> 1⃣  `git fetch origin && git checkout [epic-branch] && git pull --ff-only`
-> 2⃣  Type **`/ve-implement <story-ID or Tracker ID>`** — once per story.
-> It cuts `ve/<TICKET-ID>-<title>` from this branch, writes the MANUAL test steps to
-> `spec/test-plans/<TICKET-ID>-<title>/` from the story's acceptance criteria, and raises
-> its own PR back into `[epic-branch]`.
+> **🧪 <u>**ve — the manual test plans are already on the epic branch.**</u>**
+> Every story's `spec/test-plans/<TICKET-ID>-<title>/` was generated and approved at this checkpoint,
+> so you can review the plans now and simply **execute** each one as its story PR merges
+> (`ve-list-work`), instead of having to generate it first.
 
-🔴 Type `dev-implement` / `/ve-implement` EXACTLY as shown — do not describe what you want in your
+🔴 Type `dev-implement` EXACTLY as shown — do not describe what you want in your
    own words. Any other phrasing is not a framework trigger and the workflow will not advance.
 ```
 
 - **[N]** = total stories. Show the tracker line only if stories were pushed (Tracker ID column populated); Epic ID from `## Tracker`. Otherwise show the local-only line.
+- The behaviour-specs/test-plans line reports the Step 1.7 counts (`implementation/specs-and-test-plans.md`); both numbers equal the story count, or the line names the gap.
 - Substitute `[epic-branch]` and the commit hash with real values from `## Branching` / the Step 3 commit — never ship a placeholder.
 - Log this handoff in runtime-artifacts/audit.md.

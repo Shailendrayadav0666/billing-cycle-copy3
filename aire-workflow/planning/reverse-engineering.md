@@ -15,7 +15,7 @@
 - **One artifact set**: All artifacts are generated FLAT in `spec/plans/` (the ROOT reverse engineering documents, alongside `atlas-deep-dive.md`). NEVER generate separate per-module reverse engineering document sets.
 - **Module detail lives inside the root docs**: each module/package gets its own component-level sections within `business-overview.md`, `atlas-deep-dive.md`, `code-structure.md`, `component-inventory.md`, and `dependencies.md`.
 - **All modules reuse the root artifacts**: every downstream stage (Requirements Analysis, User Stories, design stages, `dev-implement`), regardless of which module a story touches, loads the SAME root artifacts. Do NOT re-run reverse engineering per module or per story.
-- **Keeping root docs current**: current-system truth is refreshed **fresh from Atlas via the Helix MCP** at the start of each cycle (`common/helix-atlas-integration.md`), or by re-running this stage. There is no per-cycle delta and no stitching — a cycle never has to diff itself against a prior cycle's documents.
+- **Keeping root docs current**: current-system truth is refreshed **fresh from Atlas via the Helix MCP** at the start of each cycle (`common/helix-atlas-integration.md`), or by re-running this stage — and is kept current *at the other end* by the per-cycle delta, which `archive-epic` produces and `stitch-delta` publishes back to the Atlas deep dive after the cycle's PR merges. A cycle never has to diff itself against a prior cycle's documents.
 
 ## Standalone Invocation — `reverse-engineering-root` Skill
 
@@ -356,12 +356,17 @@ Update `runtime-artifacts/aire-state.md`:
 
 ## Keeping the Root Docs Current Across Cycles
 
-There is **no per-cycle delta and no stitching**. Current-system truth is refreshed **fresh from Atlas
-via the Helix MCP** at the start of each new cycle (`common/helix-atlas-integration.md`) — the knowledge
-graph plus the deepdive docs (`spec/plans/atlas-deep-dive.md` and the flat RE docs under `spec/plans/`) — so a
-cycle never has to diff itself against a prior cycle's documents or fold changes back into root
-documents. `archive-epic` archives the cycle's `spec/` + `reports/` + `runtime-artifacts/` and generates
-no delta.
+Current-system truth is refreshed **fresh from Atlas via the Helix MCP** at the start of each new cycle
+(`common/helix-atlas-integration.md`) — the knowledge graph plus the deepdive docs
+(`spec/plans/atlas-deep-dive.md` and the flat RE docs under `spec/plans/`) — so a cycle never has to diff
+itself against a prior cycle's documents.
+
+**What keeps that Atlas truth current is the per-cycle delta**, produced and applied at cycle close:
+`archive-epic` (`agents/archive-epic-agent.md` Step 3) writes what the cycle actually shipped to
+`spec/plans/delta/<CYCLE-ID>-<slug>/delta.md` as a change record with path-level evidence, and
+after the cycle's PR merges `stitch-delta` (`agents/stitch-delta-agent.md`) applies them and publishes
+the result to the Atlas document itself. So a cycle never folds changes into a *prior cycle's local
+documents* — it folds them into the shared Atlas source everyone pulls from next.
 
 > **Post-release recommendation**: after `archive-epic` completes, when Atlas is not the source, run the
 > **`reverse-engineering-root`** skill to fully regenerate the root artifacts from the released codebase —

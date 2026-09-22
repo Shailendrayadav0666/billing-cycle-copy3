@@ -31,7 +31,7 @@ trap cleanup EXIT
 #    ${BASE_SHA}) — those are NOT unresolved template slots. Everything else in ${UPPER_CASE} is.
 if [ ! -f "$WF" ]; then check_fail "workflow file $WF does not exist"; else
   slot_hits="$(grep -nE '\$\{[A-Z_]+\}|# GENERATE:|<[a-z][a-z-]*>|>>> [A-Z_ ]+ (START|END) <<<' "$CODEVIEW" \
-    | grep -vE '\$\{(EVAL_KEY|BASE_SHA|GITHUB_[A-Z_]+|SONAR_TOKEN|CE_TASK_URL|ANALYSIS_ID|SERVER_URL|REPORT_TASK)\}' || true)"
+    | grep -vE '\$\{(EVAL_KEY|BASE_SHA|GITHUB_[A-Z_]+|SONAR_TOKEN|CE_TASK_URL|ANALYSIS_ID|SERVER_URL|REPORT_TASK|EVIDENCE_DIR|BASELINE_DIR|PRESERVE)\}' || true)"
   if [ -n "$slot_hits" ]; then
     echo "$slot_hits"
     check_fail "unresolved slot/placeholder/marker remains in the committed workflow (V14)"
@@ -57,12 +57,28 @@ if [ -f "$CONFIG" ] && command -v jq >/dev/null 2>&1; then
   # the verdict step in the workflow tallies the five aggregate outcomes the templates emit.
   gate_count=$(jq -r '.ci.gates | length' "$CONFIG" 2>/dev/null || echo 0)
   [ "${gate_count:-0}" -gt 0 ] && check_ok "ci.gates present (${gate_count} gates)" || check_fail "ci.gates empty (manifest not filled)"
-  for agg in static unit coverage behavior judge sonar; do
-    grep -q "\"${agg}:" "$WF" || check_fail "verdict tally missing aggregate outcome '${agg}' (V8/V18)"
+  # 🔴 Post-split-jobs: the aggregate tally no longer lives as literal text inside the workflow YAML —
+  #    it moved into merge-verdict.sh, which the `verdict` job calls with each gate job's own
+  #    needs.<job>.result passed in as an env var (CI-SPLIT-JOBS-PLAN.md Section 3). Check BOTH halves
+  #    of that contract: the workflow passes every *_RESULT env var, and merge-verdict.sh tallies every
+  #    aggregate name from it.
+  for agg_env in STATIC_RESULT UNIT_RESULT BEHAVIOR_RESULT PLAYWRIGHT_RESULT JUDGE_RESULT SONAR_RESULT; do
+    grep -q "${agg_env}:" "$WF" || check_fail "verdict job does not pass '${agg_env}' to merge-verdict.sh (V8/V18)"
   done
-  # eval.json schema check: run-evals must iterate ci.gates (grep the shipped script)
+  if [ -f "tests/.evals/scripts/merge-verdict.sh" ]; then
+    for agg in static unit coverage behavior playwright judge sonar; do
+      grep -q "\"${agg}:" tests/.evals/scripts/merge-verdict.sh \
+        || check_fail "merge-verdict.sh missing aggregate outcome '${agg}' from its failed-gates.txt tally (V8/V18)"
+    done
+  else
+    check_fail "tests/.evals/scripts/merge-verdict.sh missing — the verdict job has nothing to compute the tally with (V8/V18)"
+  fi
+  # eval.json schema check: run-evals (J1/J2) and merge-verdict (everything else) must both iterate ci.gates
   if [ -f "tests/.evals/scripts/run-evals.sh" ]; then
     grep -q 'ci.gates' tests/.evals/scripts/run-evals.sh || check_fail "run-evals.sh does not iterate ci.gates — scorecard can drift (4.0c.3)"
+  fi
+  if [ -f "tests/.evals/scripts/merge-verdict.sh" ]; then
+    grep -q 'ci.gates' tests/.evals/scripts/merge-verdict.sh || check_fail "merge-verdict.sh does not iterate ci.gates — the consolidated scorecard can drift (4.0c.3)"
   fi
 else check_fail "$CONFIG or jq missing — cannot validate the manifest"; fi
 
@@ -169,10 +185,29 @@ fi
 note "V23 (clean-room dry-run) cannot be verified statically from this file — confirm Section 4.0.1a's clean-room dry-run was actually performed before this commit."
 
 # ── V8: every gate step isolated (id + continue-on-error), exactly one verdict, sonar last & always() ──
+# 🔴 The forbidden pattern is `|| true` DISCARDING A GATE'S OWN RESULT (e.g. `semgrep ... || true`) —
+#    Defect B, Section 4.0c. It is NOT every `|| true` in the file. Three narrow, well-justified shapes
+#    never carry a gate's verdict and are explicitly whitelisted here (each is load-bearing, not
+#    decorative — see the template's own long-form comments at each site):
+#      1. `kill "$x_pid" ... || true` / `wait "$x_pid" ... || true` — background-process TEARDOWN after
+#         the gate's real exit code was already captured into `trc` earlier in the same step; killing
+#         an already-exited process is expected to fail, and must never abort the step under `set -e`.
+#      2. `VAR="$(cmd)" || true` / `VAR=$(cmd) || true` — a command-substitution ASSIGNMENT whose
+#         result is read for diagnostics/evidence only, never as a gate's pass/fail signal.
+#      3. A pipeline redirected into `tests/.evals/_run/*` guarded by `|| true` — a best-effort
+#         evidence/diagnostic WRITE (e.g. sonar-conditions.txt), in a step with no `continue-on-error`
+#         whose own crash must never fail the job independently of the real gate step it did not run.
+#    Anything else matching `|| true`/`|| exit 0`/`; true` still fails V8.
 if [ -f "$WF" ]; then
-  if grep -qE '\|\|[[:space:]]*true|\|\|[[:space:]]*exit 0|;[[:space:]]*true' "$CODEVIEW"; then
-    check_fail "forbidden '|| true' / '|| exit 0' / '; true' in a step (V8)"
-  else check_ok "no '|| true' style masking (V8)"; fi
+  v8_hits="$(grep -nE '\|\|[[:space:]]*true|\|\|[[:space:]]*exit 0|;[[:space:]]*true' "$CODEVIEW" \
+    | grep -vE 'kill "\$[A-Za-z_]*pid"|wait "\$[A-Za-z_]*pid"' \
+    | grep -vE '^[0-9]+:[[:space:]]*[A-Z_][A-Z0-9_]*="?\$\(' \
+    | grep -vE '>[[:space:]]*"?tests/\.evals/_run/' \
+    || true)"
+  if [ -n "$v8_hits" ]; then
+    echo "$v8_hits"
+    check_fail "forbidden '|| true' / '|| exit 0' / '; true' in a step, discarding a gate's own result (V8)"
+  else check_ok "no '|| true' style masking of a gate's own result (V8)"; fi
   vcount=$(grep -cE '^[[:space:]]*-[[:space:]]*name:[[:space:]]*"Verdict"' "$WF" || true)
   [ "${vcount:-0}" -eq 1 ] && check_ok "exactly one Verdict step (V8)" || check_fail "expected exactly one Verdict step, found ${vcount} (V8)"
 fi
@@ -227,10 +262,19 @@ if [ -f "tests/.evals/scripts/auto-fix-agent.sh" ]; then
 fi
 
 # ── V20: no deferred-setup N/A — these phrases paired with N/A status are ERROR, never N/A ──
+# 🔴 Match a genuine N/A STATUS EMISSION — a quoted `"N/A"` literal, or a bare `N/A` token bounded by
+#    whitespace on both sides (the `record_multi_root ... N/A "reason"` positional-arg shape) — never
+#    any line that merely mentions the substring "N/A" in running prose. Two real false positives this
+#    fixes: "...never a silent PASS and never an N/A: install it..." (an ERROR line's own explanation
+#    of why it is NOT N/A — "N/A" is followed by ':', not whitespace) and "...has not been built yet.
+#    It is N/A, not a failure." (advisory prompt text for the repair agent, not an emitted status —
+#    "N/A" is followed by ',', not whitespace, and never appears quoted). Both fail the whitespace-
+#    or-quote-bounded test below, so neither is a genuine N/A emission to check for a deferred-setup
+#    phrase.
 v20_hit=0
 for s in "tests/.evals/scripts/run-static-evals.sh" "tests/.evals/scripts/run-evals.sh" "tests/.evals/scripts/auto-fix-agent.sh"; do
   [ -f "$s" ] || continue
-  hits=$(grep -nE "N/A" "$s" | grep -Ei 'yet|TODO|not wired|not bootstrapped|not installed|not enabled|pending' || true)
+  hits=$(grep -nE '"N/A"|[[:space:]]N/A[[:space:]]' "$s" | grep -Ei 'yet|TODO|not wired|not bootstrapped|not installed|not enabled|pending' || true)
   if [ -n "$hits" ]; then v20_hit=1; echo "$hits"; fi
 done
 if [ "$v20_hit" -eq 1 ]; then
@@ -318,15 +362,236 @@ if [ -f "$WF" ] && grep -q 'sonarqube-scan-action' "$WF"; then
   fi
 fi
 
+# 🔴 V37 — config.json HARD SCHEMA VALIDATION (CI-SPLIT-JOBS-PLAN.md Section 4). tests/.evals/config.json
+#    carries the project's CI metadata and is the load-bearing input to the whole generated pipeline —
+#    a malformed or incomplete manifest here fails silently downstream (a missing `roots[]` field, a
+#    `tools`/`toolInstallCommands` mismatch) instead of being caught once, at generation time. Prefer
+#    `ajv` when available; fall back to a `jq`-based structural check (same "if the tool's unavailable,
+#    say so" pattern V2 already uses for actionlint) — never silently skip the whole check.
+SCHEMA="tests/.evals/config.schema.json"
+if [ -f "$CONFIG" ]; then
+  if [ ! -f "$SCHEMA" ]; then
+    check_fail "tests/.evals/scripts/config.schema.json is missing — V37 cannot validate config.json against it (CI-SPLIT-JOBS-PLAN.md Section 4)"
+  elif command -v ajv >/dev/null 2>&1; then
+    if ajv validate -s "$SCHEMA" -d "$CONFIG" >/tmp/vp_ajv.err 2>&1; then
+      check_ok "config.json validates against config.schema.json via ajv (V37)"
+    else
+      check_fail "config.json fails config.schema.json validation (V37): $(cat /tmp/vp_ajv.err)"
+    fi
+  elif command -v jq >/dev/null 2>&1; then
+    v37_fail=0
+    is_legacy=$(jq -r 'if (.ci.roots // null) == null then "true" else "false" end' "$CONFIG")
+    for k in evalFrameworkVersion thresholds ci; do
+      jq -e --arg k "$k" 'has($k)' "$CONFIG" >/dev/null 2>&1 \
+        || { check_fail "config.json missing required top-level key '${k}' (V37)"; v37_fail=1; }
+    done
+    for k in unitTestCoverageMin disallowedLicenses maxCyclomaticComplexity; do
+      jq -e --arg k "$k" '.thresholds // {} | has($k)' "$CONFIG" >/dev/null 2>&1 \
+        || { check_fail "config.json .thresholds missing required key '${k}' (V37)"; v37_fail=1; }
+    done
+    for k in baseBranch integrationBranchPrefixes manifestState roots gates; do
+      jq -e --arg k "$k" '.ci // {} | has($k)' "$CONFIG" >/dev/null 2>&1 \
+        || { check_fail "config.json .ci missing required key '${k}' (V37)"; v37_fail=1; }
+    done
+    # cross-field: rubricVersion in architecture-rubric.json equals architecture.md's own version
+    if [ -f "tests/.evals/rubrics/architecture-rubric.json" ] && [ -f "spec/plans/architecture.md" ]; then
+      rubric_ver=$(jq -r '.rubricVersion // empty' tests/.evals/rubrics/architecture-rubric.json 2>/dev/null)
+      arch_ver=$(grep -m1 -oE '[Vv]ersion:?[[:space:]]*[0-9][0-9.]*' spec/plans/architecture.md | grep -oE '[0-9][0-9.]*' | head -1)
+      if [ -n "$rubric_ver" ] && [ -n "$arch_ver" ] && [ "$rubric_ver" != "$arch_ver" ]; then
+        check_fail "architecture-rubric.json rubricVersion ('${rubric_ver}') does not equal architecture.md's own version ('${arch_ver}') (V37)"
+        v37_fail=1
+      fi
+    fi
+    # cross-field: disallowedLicenses/maxCyclomaticComplexity present whenever D5/D6 are in ci.gates
+    # (cross-referencing V35 rather than duplicating its own delta_diff-region check)
+    if jq -e '.ci.gates // [] | any(. == "D5_licenses")' "$CONFIG" >/dev/null 2>&1; then
+      jq -e '.thresholds.disallowedLicenses // [] | length > 0' "$CONFIG" >/dev/null 2>&1 \
+        || { check_fail "ci.gates declares D5_licenses but thresholds.disallowedLicenses is empty (V37, cross-ref V35)"; v37_fail=1; }
+    fi
+    if jq -e '.ci.gates // [] | any(. == "D6_complexity")' "$CONFIG" >/dev/null 2>&1; then
+      jq -e '.thresholds.maxCyclomaticComplexity // 0 | . > 0' "$CONFIG" >/dev/null 2>&1 \
+        || { check_fail "ci.gates declares D6_complexity but thresholds.maxCyclomaticComplexity is unset (V37, cross-ref V35)"; v37_fail=1; }
+    fi
+    # cross-field: every tools[] entry has a matching toolInstallCommands entry, and vice versa
+    # (cross-referencing 4.0i.1 P1's declaration-completeness rule, so preflight and generation-time
+    # validation agree) — skipped for a legacy flat manifest, which has no roots[] to iterate.
+    if [ "$is_legacy" != "true" ]; then
+      root_count=$(jq -r '.ci.roots | length' "$CONFIG" 2>/dev/null || echo 0)
+      for i in $(seq 0 $((root_count - 1))); do
+        [ "$root_count" -eq 0 ] && break
+        root_name=$(jq -r ".ci.roots[$i].root" "$CONFIG")
+        mismatch=$(jq -r ".ci.roots[$i] | (.tools // []) as \$t | (.toolInstallCommands // {}) as \$m | ([\$t[] | select((\$m[.] // \"\") == \"\")] + [\$m | keys[] | select(([\$t[]] | index(.)) == null)]) | join(\", \")" "$CONFIG" 2>/dev/null)
+        if [ -n "$mismatch" ]; then
+          check_fail "ci.roots[${i}] ('${root_name}'): tools[]/toolInstallCommands mismatch: ${mismatch} (V37, cross-ref 4.0i.1 P1)"
+          v37_fail=1
+        fi
+      done
+    fi
+    [ "$v37_fail" -eq 0 ] && check_ok "config.json passes the jq-based structural fallback for config.schema.json (V37 — ajv not available, record this in the announcement)"
+  else
+    check_fail "neither ajv nor jq is available — V37 cannot validate config.json (record this in the announcement, then fix and re-run once one is installed)"
+  fi
+else
+  check_fail "${CONFIG} missing — V37 cannot validate it"
+fi
+
+# 🔴 V38 — every conditional gate job's `if:` reads a needs.setup.outputs.* FACT, never a hardcoded
+#    true/false or a re-derived check inside the job itself (CI-SPLIT-JOBS-PLAN.md Section 1's own job
+#    table + Section 6, the same "single manifest fact, read identically by both sides" principle as
+#    Section 4.0d, applied to job gating). A job that re-derives "does tests/unit/ exist" itself,
+#    instead of reading needs.setup.outputs.has_unit_tests, can disagree with `setup`'s own answer.
+# 🔴 Only THREE jobs are conditional at all, per Section 1's table — unit-coverage/behavior-gherkin/
+#    playwright-e2e. static-evals and judge-gates are listed "--" (unconditional): D1-D7 degrade to an
+#    earned N/A per gate INSIDE run-static-evals.sh on an unresolved manifest (never a job skip), and
+#    J1/J2 score the diff regardless of ci.roots[] state. sonarqube keeps its own internal step-level
+#    scope guard (V36) rather than a job-level `if:`. V38 also asserts these three carry NO job-level
+#    `if:` at all — gaining one would silently turn an earned-N/A-by-script into a skipped-job N/A,
+#    which is the wrong signal for a gate that does not actually depend on the manifest.
+if [ -f "$WF" ]; then
+  declare -A V38_EXPECT=(
+    [unit-coverage]="needs.setup.outputs.has_unit_tests"
+    [behavior-gherkin]="needs.setup.outputs.has_behavior_tests"
+    [playwright-e2e]="needs.setup.outputs.has_e2e_tests"
+  )
+  v38_fail=0
+  for jid in "${!V38_EXPECT[@]}"; do
+    job_block="$(awk -v j="  ${jid}:" '/^  [a-zA-Z0-9_-]+:$/{if (seen) exit} $0==j{seen=1} seen{print}' "$WF")"
+    job_if_line="$(echo "$job_block" | grep -m1 -E '^ {4}if:')"
+    if echo "$job_if_line" | grep -qF "${V38_EXPECT[$jid]}"; then
+      check_ok "job '${jid}' gates on ${V38_EXPECT[$jid]} (V38)"
+    else
+      check_fail "job '${jid}' does not gate on the expected fact '${V38_EXPECT[$jid]}' — found: '${job_if_line:-<none>}' (V38)"
+      v38_fail=1
+    fi
+  done
+  for jid in static-evals judge-gates; do
+    job_block="$(awk -v j="  ${jid}:" '/^  [a-zA-Z0-9_-]+:$/{if (seen) exit} $0==j{seen=1} seen{print}' "$WF")"
+    job_if_line="$(echo "$job_block" | grep -m1 -E '^ {4}if:')"
+    if [ -n "$job_if_line" ]; then
+      check_fail "job '${jid}' carries a job-level if: (${job_if_line}) the template does not define — Section 1's table lists it unconditional (V38)"
+      v38_fail=1
+    fi
+  done
+  [ "$v38_fail" -eq 0 ] && check_ok "every per-stage job conditional reads a needs.setup.outputs.* fact, none hardcoded/re-derived, and the unconditional jobs carry no job-level if: (V38)"
+fi
+
+# 🔴 V39 — the `judge-gates` job's `run-evals.sh` step carries `continue-on-error: true`. run-evals.sh
+#    runs UNMODIFIED in the split-job pipeline and still computes its OWN internal verdict/exit-code by
+#    iterating ALL of ci.gates — in this isolated job it can only ever see J1_architecture/J2_security's
+#    real results; every other gate has no local file here and is unconditionally marked ERROR
+#    "declared but never run" in this job's own private eval.json copy. That drags the step's exit code
+#    non-zero on EVERY run, structurally, regardless of what J1/J2 actually scored. Without
+#    continue-on-error, needs.judge-gates.result would be "failure" on every single PR forever —
+#    permanently poisoning merge-verdict.sh's failed-gates.txt tally and firing self-repair on every
+#    run chasing a gate that never actually failed. The real J1/J2 verdict stays fully enforced —
+#    merge-verdict.sh extracts ONLY the J1_architecture/J2_security entries from this job's own
+#    eval.json — continue-on-error only stops this job's structurally-blind exit code from
+#    masquerading as that real verdict.
+if [ -f "$WF" ]; then
+  judge_block="$(awk '/^  judge-gates:$/{f=1;next} f && /^  [a-zA-Z0-9_-]+:$/{exit} f{print}' "$WF")"
+  judge_step="$(echo "$judge_block" | awk '/name: "Stage 3: judge gates J1 \+ J2"/{f=1} f{print} f && /^      - name:/ && !/Stage 3/{exit}')"
+  if echo "$judge_step" | grep -q 'continue-on-error: *true'; then
+    check_ok "judge-gates' run-evals.sh step carries continue-on-error: true (V39)"
+  else
+    check_fail "judge-gates' 'Stage 3: judge gates J1 + J2' step is missing continue-on-error: true — run-evals.sh's own structural cross-job blindness will fail this job on EVERY run regardless of J1/J2's real score, permanently poisoning failed-gates.txt and firing self-repair every time (V39)"
+  fi
+fi
+
+# 🔴 V40 — auto-fix-agent.*'s sonar-infrastructure triage must FILTER sonar out of the working set, not
+#    abort the entire attempt on the first sonar match. A prior version called report_and_exit
+#    unconditionally the instant "sonar" appeared in failed-gates.txt — if static/unit/etc. were ALSO
+#    present as genuinely repairable code defects, this silently abandoned the whole attempt and
+#    reported ONLY the sonar infra note. Observed in production exactly this way: static-evals and
+#    unit-coverage both genuinely red, self-repair's entire output was "fix the Sonar connection/secret."
+#    Static proof: the triage block must assign a FILTERED gate list (GATES=(...)/$gates = ...) after
+#    the sonar branch, never exit directly from inside the per-gate loop.
+for af in "tests/.evals/scripts/auto-fix-agent.sh" "tests/.evals/scripts/auto-fix-agent.ps1"; do
+  [ -f "$af" ] || continue
+  # The forbidden shape: report_and_exit/ReportAndExit called from directly inside the `case "$g" in
+  # sonar)`/`if ($g -eq "sonar")` branch with no surrounding "is anything else repairable" check —
+  # detected structurally as: a sonar-branch exit call with no REPAIRABLE_GATES/$repairableGates
+  # reassignment anywhere later in the file.
+  if grep -qE 'GATES=\("\$\{REPAIRABLE_GATES\[@\]\}"\)|\$gates = \$repairableGates' "$af"; then
+    check_ok "${af} filters the sonar-infra gate out of the working set instead of aborting the whole attempt on it (V40)"
+  else
+    check_fail "${af} does not reassign the gate list after sonar triage — a co-occurring, genuinely repairable failure (static/unit/etc.) would be silently abandoned the instant sonar also appears in failed-gates.txt (V40)"
+  fi
+done
+
+# 🔴 V41 — the "Purge inherited evidence" step preserves reports/eval-evidence/<key>/static/baseline/,
+#    never a bare `rm -rf` of the whole EVIDENCE_DIR. run-static-evals.sh's delta_diff() REUSES an
+#    already-committed baseline file (dev-implement.md Step 4.6 captures and commits it once, on the
+#    story branch, before any code is generated — a TRACKED path, never disposable scratch space)
+#    instead of re-deriving it via a fragile stash/checkout/restore dance. A bare purge deletes that
+#    committed baseline FROM DISK (even though it stays committed in git history), which makes
+#    `[ ! -f "$base" ]` look true and forces every gate down the fallback checkout path — which then
+#    hits a real git edge case ("untracked working tree files would be overwritten by checkout") and
+#    aborts. Observed in production exactly this way, on the first story ever to exercise this
+#    interaction (every earlier story touched no changed files under a real root, so it always
+#    short-circuited to N/A before reaching this code path).
+if [ -f "$WF" ]; then
+  purge_step="$(awk '/name: "Purge inherited evidence"/{f=1} f{print} f && /^      - name:/ && !/Purge inherited evidence/{exit}' "$WF")"
+  if echo "$purge_step" | grep -q 'BASELINE_DIR'; then
+    check_ok "'Purge inherited evidence' preserves static/baseline/ before purging the rest of EVIDENCE_DIR (V41)"
+  else
+    check_fail "'Purge inherited evidence' does not preserve static/baseline/ — a bare rm -rf of the whole EVIDENCE_DIR deletes the committed baseline from disk, forcing run-static-evals.sh's fallback checkout path, which can abort with a real git error (V41)"
+  fi
+fi
+
+# 🔴 V42 — the `sonarqube` job depends on `unit-coverage` (needs: [setup, unit-coverage], if:
+#    always()), never `needs: setup` alone. Sonar's own coverage-on-new-code measurement needs
+#    unit-coverage's freshly-generated coverage report, which does not exist in the pre-test
+#    `setup` tarball both jobs otherwise extract independently — without this dependency, sonarqube
+#    can (and, being a parallel sibling job, often will) finish before unit-coverage has even
+#    uploaded its coverage-reports-<key> artifact, silently measuring 0% coverage on genuinely
+#    well-covered new code and failing the quality gate. `if: always()` is required BECAUSE of the
+#    new dependency — a job with needs: [X] is skipped by default whenever X is skipped, and
+#    sonarqube must stay unconditional even when unit-coverage's own if: has_unit_tests is unmet.
+if [ -f "$WF" ]; then
+  sonar_needs_line="$(awk '/^  sonarqube:$/{f=1;next} f{print; exit}' "$WF")"
+  sonar_if_line="$(awk '/^  sonarqube:$/{f=1;next} f && /^  [a-zA-Z0-9_-]+:$/{exit} f && /^ {4}if:/{print; exit}' "$WF")"
+  if echo "$sonar_needs_line" | grep -q 'unit-coverage' && echo "$sonar_if_line" | grep -q 'always()'; then
+    check_ok "sonarqube depends on unit-coverage and stays unconditional via if: always() (V42)"
+  else
+    check_fail "sonarqube must declare needs: [setup, unit-coverage] and if: always() — without the dependency it can finish before unit-coverage uploads its coverage report, silently measuring 0% coverage on new code (V42)"
+  fi
+fi
+
+# 🔴 V43 — the `verdict` job's "Upload eval artifacts" step lists
+#    tests/.evals/_run/sonar-conditions.txt, not just failed-gates.txt + reports/eval-evidence/.
+#    merge-verdict.sh already copies the sonarqube job's own conditions file to this exact path so
+#    auto-fix-agent.sh's sonar triage (Section 6.4) can tell a REAL quality-gate finding apart from an
+#    infra failure — but that file never reaches self-repair at all unless it is ALSO in this upload
+#    list. Without it, self-repair always finds no conditions file, always concludes "infrastructure,
+#    not a code defect" regardless of what actually happened, and gives up with a misleading message
+#    even on a genuine, fixable Sonar finding. Harmless in the sense that it still stops rather than
+#    fabricating a pass, but the diagnosis is wrong every single time a real Sonar finding occurs.
+if [ -f "$WF" ]; then
+  upload_block="$(awk '/name: "Upload eval artifacts"/{f=1} f{print} f && /^      - name:/ && !/Upload eval artifacts/{exit}' "$WF")"
+  if echo "$upload_block" | grep -q 'sonar-conditions.txt'; then
+    check_ok "'Upload eval artifacts' includes sonar-conditions.txt for self-repair's sonar triage (V43)"
+  else
+    check_fail "'Upload eval artifacts' does not list tests/.evals/_run/sonar-conditions.txt — self-repair's sonar triage will always find it missing and always misdiagnose a real Sonar finding as infrastructure, regardless of what actually failed (V43)"
+  fi
+fi
+
 # ── V9 (partial — see note below): no hardcoded PASS/N-A literal bypassing record/Record ──
+# 🔴 Two documented, sanctioned N/A fallbacks are excluded, not every hardcoded-literal line: the
+#    rubric-absent case ('rubric %s absent') and the empty-diff/zero-diff-run case
+#    (ci-pipeline-generation.md Section 4.0.6 — a pre-story PR has nothing for J1/J2 to score, and
+#    run-evals.sh's own reason string names that section explicitly). Anything else hardcoding
+#    "status": "PASS"/"N/A" outside those two documented cases still fails V9.
 for s in "tests/.evals/scripts/run-static-evals.sh" "tests/.evals/scripts/run-evals.sh"; do
   [ -f "$s" ] || continue
-  hits=$(grep -nE '"status"[[:space:]]*:[[:space:]]*"(PASS|N/A)"' "$s" | grep -v 'rubric %s absent' || true)
+  hits=$(grep -nE '"status"[[:space:]]*:[[:space:]]*"(PASS|N/A)"' "$s" \
+    | grep -v 'rubric %s absent' \
+    | grep -v 'empty diff vs' \
+    || true)
   if [ -n "$hits" ]; then
-    check_fail "hardcoded status literal outside the documented rubric-absent N/A fallback in $s — possible stub (V9)"
+    check_fail "hardcoded status literal outside the documented rubric-absent/empty-diff N/A fallbacks in $s — possible stub (V9)"
     echo "$hits"
   else
-    check_ok "no hardcoded PASS/N-A literal outside the documented rubric-absent fallback in $s (V9)"
+    check_ok "no hardcoded PASS/N-A literal outside the documented rubric-absent/empty-diff fallbacks in $s (V9)"
   fi
 done
 note "V9's full requirement — prove each script can FAIL against a deliberately broken input — needs fault injection and is not fully automated here. The check above only catches the hardcoded-literal half of Section 5.0."
@@ -429,17 +694,18 @@ check_invocation_resolved "tests/.evals/scripts/run-evals.sh" "CLAUDE_JUDGE_INVO
 # ── V27: structural fidelity to templates/ci/agentic-eval-pipeline.yml.template — every FIXED job id
 #    and step name the template declares (i.e. everything OUTSIDE a ${SLOT} region — post-#7a, only
 #    ${BASE_BRANCH}/${PR_BRANCH_FILTERS}/${BEHAVIOR_IMAGE_TAG}/${SONAR_STEPS}/${CLAUDE_CODE_VERSION}
-#    remain) must appear verbatim in the committed workflow, and neither job may carry a `name:`
-#    override the template does not define — both jobs
-#    are named ONLY by their id (verify-and-evaluate, self-repair); GitHub renders the id as-is when no
+#    remain) must appear verbatim in the committed workflow, and no job may carry a `name:` override the
+#    template does not define — every job is named ONLY by its id; GitHub renders the id as-is when no
 #    `name:` is given. 🔴 KEEP THIS LIST IN SYNC WITH THE TEMPLATE — update it in the same commit
-#    whenever agentic-eval-pipeline.yml.template's fixed step names change. This is what turns "the
-#    model quietly re-authored the YAML instead of copying it" (observed in the wild: job display name
-#    "Verify and evaluate", a fused "Stage 1+2" step replacing the template's separately-isolated
-#    stages, a Verdict tallying only 2 outcomes instead of 6) from an undetectable drift into a hard
-#    generation-time failure. ──
+#    whenever agentic-eval-pipeline.yml.template's fixed job ids/step names change. This is what turns
+#    "the model quietly re-authored the YAML instead of copying it" from an undetectable drift into a
+#    hard generation-time failure.
+# 🔴 NINE-JOB SHAPE (CI-SPLIT-JOBS-PLAN.md Section 1/6) — replaces the old two-job
+#    (verify-and-evaluate/self-repair) list. A workflow still carrying the old single verify-and-evaluate
+#    job is exactly the "drifted from template, needs regeneration" case V27 exists to catch — see the
+#    completion message's own regeneration note. ──
 if [ -f "$WF" ]; then
-  FIXED_JOB_IDS="verify-and-evaluate self-repair"
+  FIXED_JOB_IDS="setup static-evals unit-coverage behavior-gherkin playwright-e2e judge-gates sonarqube verdict self-repair"
   FIXED_STEP_NAMES=(
     "Checkout (full history for delta diffs)"
     "Resolve EVAL_KEY"
@@ -451,15 +717,29 @@ if [ -f "$WF" ]; then
     "Setup Java"
     "Setup Go"
     "Setup .NET"
+    "Setup other toolchains"
     "Install dependencies"
     "Compile / build"
+    "Detect stage scopes"
+    "Package workspace"
+    "Upload workspace"
+    "Download workspace"
+    "Extract workspace"
     "Stage 1: static evals (delta-scoped)"
     "Stage 2: unit + coverage"
     "Coverage gate (delta-scoped)"
+    "Collect coverage reports"
+    "Upload coverage reports"
     "Stage 2: behaviour (Gherkin, Podman)"
+    "Stage 2: playwright e2e (headless, trust gate)"
     "Install Claude Code CLI"
     "Stage 3: judge gates J1 + J2"
+    "Download coverage reports"
+    "Restore coverage reports"
+    "Resolve Sonar scope"
     "Record SonarQube gate status"
+    "Install eval tools"
+    "Upload gate evidence"
     "Verdict"
     "Stage 4: publish scorecard"
     "Upload eval artifacts"
@@ -478,11 +758,12 @@ if [ -f "$WF" ]; then
     echo "$actual_job_ids" | grep -qx "$jid" \
       || { check_fail "job id '${jid}' missing from the committed workflow (V27) — has the YAML been re-authored instead of copied from the template?"; v27_fail=1; }
   done
-  extra_jobs="$(echo "$actual_job_ids" | grep -vxF -e "verify-and-evaluate" -e "self-repair" || true)"
+  # shellcheck disable=SC2086
+  extra_jobs="$(echo "$actual_job_ids" | grep -vxF $(for j in $FIXED_JOB_IDS; do printf -- '-e %s ' "$j"; done) || true)"
   [ -n "$extra_jobs" ] && { check_fail "unexpected job id(s) not in the template: ${extra_jobs} (V27)"; v27_fail=1; }
 
-  # No job-level `name:` override — the template defines none for either job.
-  for jid in verify-and-evaluate self-repair; do
+  # No job-level `name:` override — the template defines none for any of the nine jobs.
+  for jid in $FIXED_JOB_IDS; do
     job_block="$(awk -v j="  ${jid}:" 'seen && /^  [a-zA-Z0-9_-]+:$/{exit} $0==j{seen=1;next} seen{print}' "$WF")"
     if echo "$job_block" | grep -qE '^ {4}name:'; then
       check_fail "job '${jid}' carries a name: override the template does not define (V27) — e.g. a capitalized/spaced display name is proof the YAML was hand-edited rather than copied"
@@ -490,14 +771,16 @@ if [ -f "$WF" ]; then
     fi
   done
 
-  # Every fixed step name must be present verbatim.
+  # Every fixed step name must be present verbatim (at least once — several, like "Setup Node" or
+  # "Upload gate evidence", are intentionally repeated across gate jobs, Section 1's own "re-runs only
+  # the setup-* steps" rule).
   for sname in "${FIXED_STEP_NAMES[@]}"; do
     grep -qF "name: \"${sname}\"" "$WF" \
       || { check_fail "template step \"${sname}\" is missing from the committed workflow (V27) — steps may have been merged, renamed, or the YAML re-authored instead of copied"; v27_fail=1; }
   done
 
   [ "$v27_fail" -eq 0 ] \
-    && check_ok "workflow structurally matches agentic-eval-pipeline.yml.template — all fixed job ids and step names present, no unexpected name: overrides (V27)"
+    && check_ok "workflow structurally matches agentic-eval-pipeline.yml.template — all nine fixed job ids and step names present, no unexpected name: overrides (V27)"
 fi
 
 # ── V28 + V29 (#7a): the cd/verify and diff-scope logic no longer lives in generated, per-repo YAML

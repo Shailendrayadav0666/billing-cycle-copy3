@@ -5,7 +5,7 @@
 This agent closes **epic cycles**, **bug cycles** (`Workflow Type: bug` in `runtime-artifacts/aire-state.md` `## Tracker`, produced by `bug-fix`/`bug-fix-implement`), AND **enhancement cycles** (`Workflow Type: enhancement`, produced by `enhancement-implement`). The steps below are written in epic terms; in **bug or enhancement mode** apply these substitutions everywhere:
 - **Cycle ID** = the ticket key (`Parent Ticket`, e.g. `PROJ-123`); **cycle name** = the ticket title. Wherever the steps say `<EPIC-ID>`/`<epic-name-slug>`, use the ticket ID and its slug.
 - **Archive path**: epic cycles archive to **`aire-archives/epics/<EPIC-ID>-<epic-name-slug>/`**; bug cycles to **`aire-archives/bugs/<BUG-ID>-<ticket-name-slug>/`**; enhancement cycles to **`aire-archives/enhancements/<ENH-ID>-<ticket-name-slug>/`**. Wherever the steps say `aire-archives/<EPIC-ID>-<epic-name-slug>/`, read the type-appropriate subfolder path. Never write archives directly under `aire-archives/` — always inside `epics/`, `bugs/`, or `enhancements/`.
-- **Invocation mode**: **epic mode is the ONLY auto-triggered mode** — pr-generator invokes it on an Epic → Base PR, and that auto-trigger auto-selects workspace-reset option A. 🔴 **Bug and enhancement cycles are ALWAYS operator-invoked (manual)**: `bug-fix-implement` (Step 12) and `enhancement-implement` (Step 19) deliberately do NOT invoke this skill, and pr-generator's Phase 7 auto-trigger explicitly excludes `[BUG]`/`[ENH]` → Base PRs. In bug/enhancement mode, therefore, **always ask the Step 6 workspace-reset question** — never treat those cycles as auto-triggered.
+- **Invocation mode**: **epic mode is the ONLY auto-triggered mode** — pr-generator invokes it on an Epic → Base PR. 🔴 **Bug and enhancement cycles are ALWAYS operator-invoked (manual)**: `bug-fix-implement` (Step 12) and `enhancement-implement` (Step 19) deliberately do NOT invoke this skill, and pr-generator's Phase 7 auto-trigger explicitly excludes `[BUG]`/`[ENH]` → Base PRs. The invocation mode changes **who starts the run and which readiness checks apply** — it does NOT change Step 6 or Step 6.5, which are automatic in every mode.
   - **Why bug/enhancement archives are manual**: ve work lands on the cycle branch on its own schedule and is not synchronised with the `[BUG]`/`[ENH]` PR — `/ve-implement` writes `spec/test-plans/<TICKET-ID>-<title>/` on its own `ve/...` branch + PR (possibly raised *after* the fix is done), and `ve-list-work` Option C amends an existing test plan later still. Because this skill takes a ONE-SHOT destructive snapshot and then resets the live docs, an archive taken automatically at PR time would silently omit `tests/` or miss later test-plan edits, and nothing would ever re-capture them. The operator archives once everything has landed — see Step 2's ve readiness check.
 - **Release Readiness (Step 2) in bug/enhancement mode**: ve signs off **on the cycle branch, before this archive** (`ve-list-work` Option B). 🔴 **The cycle closes on BOTH sign-off outcomes** — approve and reject alike — so the ticket's status is NOT a pass/fail criterion here. What matters is only that the sign-off **happened**:
   - **Ticket `🧪 Ready for Testing`** → ve approved. Archive normally, no warning.
@@ -14,16 +14,29 @@ This agent closes **epic cycles**, **bug cycles** (`Workflow Type: bug` in `runt
   - ALSO verify the `[BUG]` / `[ENH]` PR has been **raised and is still open** (`Bug PR` / `Enhancement PR` in `## Branching`) — it must NOT be merged yet, because this skill's cycle-close commit has to ride it to the base branch. If the PR is already merged, warn loudly: the cycle-close commit will not reach the base branch.
 
 You are a **release manager** closing a release cycle. You will:
-1. **Archive** the complete `spec/` + `reports/` + the root `runtime-artifacts/` state files (`audit.md`, `aire-state.md`) into a cycle-named archive folder
-2. Optionally reset the live workspace for the next cycle
+1. **Generate the cycle's reverse-engineering delta** into `spec/plans/delta/<CYCLE-ID>-<slug>/` — the
+   change record: what this cycle actually changed about the system, with a path-level evidence table
+   and the problems it resolved (Step 3)
+2. **Archive** the complete `spec/` (the delta included) + `reports/` + the root `runtime-artifacts/`
+   state files (`audit.md`, `aire-state.md`) into a cycle-named archive folder
+3. **Delete the live `spec/`, `reports/` and `runtime-artifacts/` trees entirely** — the archive is now
+   the only copy, and it is the copy everything downstream reads
 
-🔴 **No reverse-engineering delta is generated, and there is no stitching.** Current-system truth
-(`spec/plans/atlas-deep-dive.md` and the flat RE docs) is pulled fresh from **Atlas via the Helix MCP** at the
-start of each new cycle (`common/helix-atlas-integration.md`), so a cycle never has to diff itself against
-the previous one or fold changes back into root documents. This skill's only job is to snapshot the cycle
-and (optionally) reset the workspace.
+🔴 **This skill generates the delta and archives it; it NEVER publishes anything.** Refreshing the
+**deep dive document on Atlas via the Helix MCP** belongs to the **`stitch-delta`** skill
+(`agents/stitch-delta-agent.md`), which runs **on the base branch after this cycle's PR has merged**,
+reads this delta **out of the archive this skill just created**, and refreshes the deep dive against the
+**merged code** — every section, not only the areas this delta names.
 
-**Confirm-first ethos applies throughout**: every destructive or irreversible step requires explicit user confirmation. NEVER delete anything before the archive copy is verified.
+That split is what makes the whole flow conflict-free. Because `spec/` is deleted here, in the cycle's
+own PR, base carries no `spec/` between cycles: the next cycle inherits nothing, rebuilds `spec/` from
+Atlas truth, and contributes back only **additions** under its own unique
+`aire-archives/<type>/<ID>-<slug>/` path. 🔴 **Do not "helpfully" leave `atlas-deep-dive.md` or
+`spec/plans/delta/` behind for the stitch** — an earlier design did exactly that, and that shared,
+per-cycle-rewritten file on base was the only genuine merge collision this flow ever had. The delta in
+the archive is what the stitch reads.
+
+**Where this skill stops to ask, and where it does not.** The gates are all **upstream**, about whether the cycle is ready to be captured: Step 2 (stories not yet Ready for Testing), Step 2.5 (ve artifacts missing or an ve PR still open), Step 2.6 (the typed `proceed` on bug/enhancement cycles) and Step 5's same-name archive collision. 🔴 **Everything downstream of a verified archive is AUTOMATIC and asks nothing** — the removal of the live trees (Step 6), the commit, the push and the PR (Step 6.5). The archive's byte-for-byte verification IS the safety gate; a confirmation prompt on top of a proven copy adds no safety and stalls the close. NEVER delete anything before the archive copy is verified.
 
 ---
 
@@ -109,13 +122,136 @@ Present this message VERBATIM (substituting real values) and then **HALT — do 
 
 ---
 
-## Step 3: (Removed) — No Delta Generation
+## Step 3: Generate the Reverse-Engineering Delta (MANDATORY — before the archive copy)
 
-🔴 **This skill no longer generates a reverse-engineering delta and does not stitch anything.**
-Current-system truth lives in `spec/plans/atlas-deep-dive.md` and the flat RE docs under `spec/plans/`, and
-is refreshed **fresh from Atlas via the Helix MCP** at the start of each new cycle
-(`common/helix-atlas-integration.md`) — so there is nothing to diff or fold back into root documents at
-cycle close. Proceed directly to the archive.
+🔴 **This step is the single source of truth for the delta format.** `stitch-delta`
+(`agents/stitch-delta-agent.md`) reads this schema to apply the delta — locally and to Atlas. Never
+change the shape here without updating that agent.
+
+**Runs AFTER the readiness checks and BEFORE the Step 5 archive copy**, so the delta is itself
+captured in the archive.
+
+**Output**: `spec/plans/delta/<CYCLE-ID>-<slug>/delta.md` — same `<CYCLE-ID>-<slug>` as the archive
+folder (`PROJ-50-payment-portal`, `PROJ-123-login-timeout`, …). One folder per cycle, so several
+pending deltas from parallel cycles never collide.
+
+### 3.1 Inputs — what the delta is derived FROM
+
+Read all of these; the delta is assembled from them, never invented:
+
+| Input | Contributes |
+|---|---|
+| `spec/plans/atlas-deep-dive.md` | The deep dive as it stands, so the delta can name areas and resolved findings **the way the document names them**. 🔴 It is NOT a patch target — `stitch-delta` refreshes it from the merged code. |
+| `spec/plans/architecture.md` — especially **Section 9 Delta from the Existing System** and Section 2 Component Inventory | The intended change, already approved |
+| `git diff --name-status <cycle-base-sha>...HEAD` and `git log --oneline <cycle-base-sha>..HEAD` | What actually shipped — the **commit range** recorded in the ledger |
+| `reports/ticket-summary/` | Per-work-unit summaries of what each story/fix changed |
+| `spec/plans/requirements.md`, `stories.md` | Why it changed — the Summary's narrative |
+
+🔴 **Describe what MERGED, not what was planned.** Where `architecture.md` and the real diff disagree,
+the diff wins and the discrepancy is noted in the delta's Notes section.
+
+### 3.2 `delta.md` — required structure
+
+The delta is the cycle's **change record**: what shipped, with evidence, and why. 🔴 It is **not** a
+patch script for the deep dive — `stitch-delta` derives the document's new content from the **merged
+code**, using this file for the narrative, the traceability and as a hint about which areas moved.
+
+````markdown
+# RE Delta — <CYCLE-ID> <cycle name>
+
+> **Cycle**: <epic | bug | enhancement> · <CYCLE-ID>
+> **Branch**: <cycle branch> → <base branch>
+> **Commit range**: <base-sha>..<head-sha>
+> **Generated**: <ISO 8601, from a real clock>
+> **AIRE**: v<N>
+
+## Summary
+<3–6 lines: what this cycle changed about the SYSTEM — components, contracts, data, dependencies,
+ structure. Not a changelog of stories.>
+
+## Changed Surfaces
+<The evidence table. One row per real change, each with a path a reader can open.>
+
+| Surface | Change | Evidence |
+|---|---|---|
+| `src/organization/` | new module — org hierarchy CRUD + membership | `src/organization/` (14 files) |
+| `src/team/`, `src/admin/` | new modules | `src/team/`, `src/admin/` |
+| `scripts/seed.ts` | new dev seeding script | `scripts/seed.ts` |
+| POST /orgs/{id}/members | new endpoint | `src/organization/routes.ts:88` |
+| `organizations`, `org_members` | new tables + FKs | `migrations/0007_org.sql` |
+| `@casl/ability` | new dependency (authz) | `package.json` |
+
+## Impacted Deep-Dive Areas
+<🔴 A HINT, explicitly NON-EXHAUSTIVE. Name the deep-dive areas this cycle plainly affects, so the
+ refresh has a starting point. `stitch-delta` still checks EVERY section against the code and is
+ never limited to this list — an area missing here is a hint that was not written, never permission
+ to leave a section stale.>
+
+- Directory Structure · Comprehensive Statistics · Entry Points · Component Catalog
+- Internal Dependencies + Coupling · Database Analysis · Test Coverage
+- Security → Authorization · Appendix A (File Inventory) · Appendix B (Dependency List)
+
+## Resolved
+<Anything the deep dive currently records as a problem that this cycle FIXED — an anti-pattern, a
+ debt item, an open recommendation, a security finding. Name it as the document names it, so the
+ refresh can strike or update it rather than leaving a resolved issue on the record.>
+
+| Recorded as | Section | How this cycle resolved it |
+|---|---|---|
+| "No role model — every authenticated user is an admin" | Security → Authorization | RBAC via `@casl/ability`, enforced in `src/admin/guard.ts` |
+
+## Notes
+<Anything a human must know: plan-vs-shipped discrepancies, a capability shipped behind a flag, a
+ change deliberately NOT reflected in the system's public behaviour.>
+````
+
+### 3.3 Content rules
+
+- 🔴 **Describe what MERGED, not what was planned.** Where `architecture.md` and the real diff disagree,
+  the diff wins and the discrepancy goes in Notes.
+- **Every Changed Surfaces row cites a real path** — a file, directory or `file:line` a reader can open.
+  A row without evidence is a claim, and the refresh cannot verify a claim.
+- **`Impacted Deep-Dive Areas` is a hint, never a contract.** Write it to help, not to bound. 🔴 Never
+  phrase it as "the sections to update" — that framing is exactly what once left `### Directory
+  Structure` describing a codebase that no longer existed.
+- **`Resolved` is what makes the document stop carrying fixed problems.** A deep dive that still lists a
+  resolved anti-pattern is as wrong as one missing a new module; this table is the only place the cycle
+  can say "this is no longer true".
+- 🔴 **No anchors, no find/replace payloads, no directive ordering.** Earlier versions of this schema
+  carried literal `old_string`/`new_string` pairs against the deep dive; that made the delta a fragile
+  patch whose coverage silently became the document's accuracy ceiling. The refresh reads the code.
+
+### 3.4 When the cycle changed nothing describable
+
+A cycle that changed no externally describable system surface (a docs-only fix, a test-only change)
+still gets a `delta.md` — with a Summary saying so and an explicitly empty Changed Surfaces table:
+
+```markdown
+## Changed Surfaces
+None — this cycle changed no component, contract, data model, dependency or structure described by the
+deep dive.
+```
+
+🔴 Never skip the file. `stitch-delta` still ledgers it (and still re-verifies the document against the
+code, which is how drift from any source gets caught).
+### 3.5 🔴 Do NOT touch the stitch ledger
+
+`aire-archives/stitch-ledger.md` is **written only by `stitch-delta`**, and only after a delta's Atlas
+write has verified. This skill writes **no row of any kind** — not a pending one, not a placeholder.
+
+**A delta is pending precisely because it has no ledger row.** Absence is the signal. That is what keeps
+the ledger strictly append-only. A pending row that a later run had to *edit into* a stitched row would
+turn a one-line append into a read-modify-write on a shared file — reintroducing exactly the collision
+this design removes. (`stitch-delta` additionally refuses to start while a stitch PR is open, so the
+ledger is only ever written by one run at a time.)
+
+### 3.6 Verify and log
+
+- Validate `delta.md` per `common/content-validation.md`.
+- Confirm every Changed Surfaces row cites a path that actually exists in the merged tree — a claim with
+  no evidence is fixed **now**, not discovered by `stitch-delta` on base.
+- Announce: the delta path, the Changed Surfaces count, and the commit range.
+- Log all of it in `runtime-artifacts/audit.md` (still live at this point).
 
 ---
 
@@ -144,7 +280,7 @@ cycle close. Proceed directly to the archive.
    [ -d runtime-artifacts ] && cp -R runtime-artifacts "$ARCH/runtime-artifacts"  # audit.md + aire-state.md
    ```
    Those copies carry **everything** the cycle was built from and produced:
-   - `spec/` — `architecture.md` (`spec/plans/architecture.md`) and all flat docs under `spec/plans/` (requirements, stories, personas, the design docs, `dependency-graph.yml`, `atlas-deep-dive.md` and the flat RE docs), `spec/spec-generation/`, `spec/behavior/`, `spec/test-plans/`
+   - `spec/` — `architecture.md` (`spec/plans/architecture.md`) and all flat docs under `spec/plans/` (requirements, stories, personas, the design docs, `dependency-graph.yml`, `atlas-deep-dive.md` and the flat RE docs), **`spec/plans/delta/<CYCLE-ID>-<slug>/` (this cycle's Step 3 delta)**, `spec/spec-generation/`, `spec/behavior/`, `spec/test-plans/`
    - `spec/behavior/` — one `.feature` file per work unit: the Gherkin contract the code was built against
    - `reports/` — the generated outputs: `unit-test-evidence/`, `behavior-test-evidence/`, `api-contract-test-evidence/`, `eval-evidence/`, `reviews/`, `code-security-reviews/`, `ticket-summary/` (mirrored only when the live `reports/` folder exists)
    - `runtime-artifacts/` — the cycle's `audit.md` and `aire-state.md` (mirrored only when the live folder exists)
@@ -173,7 +309,7 @@ cycle close. Proceed directly to the archive.
    - **ve Artifacts**: [test folders present: list |  Known Gaps: <what was missing / which ve PR was still open> — user chose to archive anyway at Step 2.5]
    ```
 5. **Verify the copy** — check BOTH of the following before proceeding; do NOT proceed until both pass:
-   - **Structural check (layout guardrail)**: list the archive folder's immediate children (`ls -a aire-archives/epics/<EPIC-ID>-<epic-name-slug>/`) — it MUST contain EXACTLY `spec/`, `archive-manifest.md`, and (when the corresponding live folder exists) `reports/` and `runtime-artifacts/`. If any OTHER entry appears at this level (e.g. `requirements/`, `design/`, `aire-state.md`, `audit.md`), the copy was flattened instead of mirrored — redo Step 3 before continuing.
+   - **Structural check (layout guardrail)**: list the archive folder's immediate children (`ls -a aire-archives/epics/<EPIC-ID>-<epic-name-slug>/`) — it MUST contain EXACTLY `spec/`, `archive-manifest.md`, and (when the corresponding live folder exists) `reports/` and `runtime-artifacts/`. If any OTHER entry appears at this level (e.g. `requirements/`, `design/`, `aire-state.md`, `audit.md`), the copy was flattened instead of mirrored — redo Step 5.3 before continuing.
    - **Content check**: spot-check key files exist at their mirrored paths: `runtime-artifacts/aire-state.md`, `runtime-artifacts/audit.md`, `spec/plans/architecture.md`, `spec/plans/atlas-deep-dive.md`, one `spec/behavior/<work-unit>.feature`, and (when `reports/` was copied) one evidence file such as `reports/eval-evidence/<work-unit>/eval.json`.
    - 🔴 **Completeness check (BLOCKING — same for every cycle type)**: prove nothing was dropped, by comparing each live tree against its archived copy — every diff MUST be **completely empty**:
      ```bash
@@ -185,7 +321,7 @@ cycle close. Proceed directly to the archive.
           <(cd "aire-archives/<type>/<CYCLE-ID>-<slug>/runtime-artifacts" && find . | sort)
      ```
      (PowerShell equivalent: `Compare-Object` on the `-Force` relative-path lists.)
-     🔴 **Every diff must be empty.** Any line at all means the copy dropped or added something — re-run the full recursive copy of Step 3 and re-verify.
+     🔴 **Every diff must be empty.** Any line at all means the copy dropped or added something — re-run the full recursive copy of Step 5.3 and re-verify.
      **Do NOT proceed to Step 6 (which deletes the live docs) until every diff is empty.** Report the archived file count in the completion message and the manifest.
    - Log the structural check, the file count, and the completeness-diff result in the live `runtime-artifacts/audit.md` (Step 6 has not yet deleted it at this point).
 
@@ -194,7 +330,8 @@ cycle close. Proceed directly to the archive.
 aire-archives/epics/<EPIC-ID>-<epic-name-slug>/
 ├── spec/                  ← the ENTIRE spec/ tree, folder name preserved
 │   ├── plans/                         ← architecture.md, atlas-deep-dive.md + flat RE docs, requirements,
-│   │                                     Stories/Personas, design docs, dependency-graph.yml
+│   │   │                                 Stories/Personas, design docs, dependency-graph.yml
+│   │   └── delta/<CYCLE-ID>-<slug>/    ← this cycle's RE delta (Step 3) — stitched later on base
 │   ├── spec-generation/               ← *-generation.md plan/clarifying-question files
 │   ├── behavior/                       ← .feature contracts
 │   ├── test-plans/                    ← ve manual test plans
@@ -240,76 +377,121 @@ keep accumulating in the next cycle's checkout forever. This is the ONE place th
 
 ---
 
-## Step 6: Reset the Live Workspace (Confirm-First)
+## Step 6: Remove the Live Trees (AUTOMATIC — no confirmation, in every mode)
 
-**Auto-triggered exception — EPIC CYCLES ONLY**: if this skill was invoked **automatically by pr-generator after an Epic → Base branch PR** (not by the user typing a trigger phrase), do NOT ask the question below — **auto-select option A**. 🔴 This exception NEVER applies to bug or enhancement cycles: those are always operator-invoked, so **always ask the question** there, even if the user ran `archive-epic` immediately after the `[BUG]`/`[ENH]` PR. Announce the auto-selection to the user:
+🔴 **THIS STEP ASKS NOTHING.** Not in epic mode, not in bug or enhancement mode, not on a standalone
+invocation. The archive's own **verification** is the gate — Step 5's structural check, content check
+and three empty completeness diffs. Once those pass, the live trees are redundant by proof, and a
+confirmation prompt on top of a byte-for-byte verified copy adds no safety, only a stall in the middle
+of a cycle close.
 
-```
- Auto-triggered from pr-generator (Epic → Base PR) — applying workspace reset
-   option A: clear cycle-scoped content, keep human-curated context.
-```
-
-Log the auto-selection (and that the question was skipped, with the reason) by appending to the **archived** audit copy at `aire-archives/epics/<EPIC-ID>-<epic-name-slug>/runtime-artifacts/audit.md` (the live runtime-artifacts/audit.md is deleted by this reset), then perform option A's reset. Option B is NEVER auto-selected.
-
-Otherwise (standalone invocation), ask the user — NEVER reset without explicit choice:
+**Announce it, then do it:**
 
 ```
- Archive created and verified at aire-archives/<EPIC-ID>-<epic-name-slug>/
-
-How should the live workspace be prepared for the next cycle?
-
-A) Reset, keep human-curated context (recommended) — clear cycle-scoped
-   content (all of spec/plans/, spec/spec-generation/, spec/behavior/, spec/test-plans/,
-   spec/behavior.feature, the whole reports/ tree, and runtime-artifacts/) but KEEP:
-     - spec/context-project/existing-knowledge/ and spec/context-project/new-references/
-       — human-authored, cross-cycle; the next cycle reads them again
-   The next cycle pulls fresh current-system truth (atlas-deep-dive.md + RE docs) from Atlas.
-B) Full reset — remove spec/ entirely (every doc + every work-unit bundle, AND the
-   context-project/ with both its subfolders), remove reports/, and remove runtime-artifacts/
-    also removes the human-curated context inputs from the working tree. They are
-   in this archive, but re-curating them is manual — prefer A unless you mean to
-   start from nothing
-
-[Answer]:
+ Archive verified at aire-archives/<type>/<CYCLE-ID>-<slug>/ ([N] files, [size]).
+   Removing the live spec/, reports/ and runtime-artifacts/ trees — all three mirrored,
+   all three completeness diffs empty.
+   Human-authored context is preserved at:
+     aire-archives/<type>/<CYCLE-ID>-<slug>/spec/context-project/
 ```
 
-🔴 **`spec/` (including every work unit's `.feature` file), `reports/` (all generated outputs) AND `runtime-artifacts/` are cleared on BOTH A and B** — all cycle-scoped, and Step 3 mirrored them into `<archive>/spec/`, `<archive>/reports/` and `<archive>/runtime-artifacts/`. Verify each mirror exists before deleting the corresponding live tree; if `<archive>/spec/` is missing, STOP and redo Step 3. (`reports/` may legitimately be absent if the cycle produced no outputs — only delete what was mirrored.) On option A, `spec/context-project/` is preserved in place.
+### 6.1 The removal itself — 🔴 use `git rm -r`, not `rm -rf`
 
-🔴 **`spec/context-project/existing-knowledge/` and `spec/context-project/new-references/` are deleted ONLY on B.** They are human-authored inputs, not cycle output, so option A preserves them in place — deleting them would silently discard work no framework step can regenerate.
+```bash
+git rm -r --quiet spec reports runtime-artifacts
+```
 
-On A or B, `runtime-artifacts/audit.md` and `runtime-artifacts/aire-state.md` are **deleted along with the other cycle-scoped docs — do NOT seed a replacement audit.md or state file**. The archive copy holds the cycle's complete trail; the next cycle's Workspace Detection creates fresh ones. This also keeps parallel cycles conflict-free: no two PRs carry competing audit/state files onto the base branch.
+- **Why `git rm -r` and not `rm -rf`**: it removes the files **and stages the deletions in one
+  operation**, so Step 6.5 cannot commit a partial reset by forgetting to stage a removal. It also
+  fails loudly on a path that is not tracked, rather than silently destroying untracked work.
+- `reports/` is legitimately absent on a cycle that produced no outputs — omit any path that does not
+  exist rather than letting the command fail on it.
+- **Untracked residue** (tool caches, an untracked evidence file) survives `git rm`. Clean only what is
+  genuinely left inside those three roots:
+  ```bash
+  git clean -fd spec reports runtime-artifacts
+  ```
+  🔴 Never widen that to the repo root, and never add `-x` (it would delete ignored files elsewhere).
+- 🔴 **If the environment's own safety classifier prompts for approval on the delete command, that is an
+  environment permission, not an archive-epic gate.** Answer it and continue — do **not** add a question
+  of your own on top of it, and do not treat the prompt as a reason to skip the removal.
 
-**MANDATORY**: From this point on, the live `runtime-artifacts/audit.md` no longer exists — log the user's raw answer (or the auto-selection), the reset actions taken, and everything in Step 6.5 by APPENDING to the **archived** copy at `aire-archives/epics/<EPIC-ID>-<epic-name-slug>/runtime-artifacts/audit.md`, so the trail stays complete.
+### 6.2 Preconditions — assert, do not ask
+
+All three must hold before the command runs. Any failure → STOP and fix, never prompt for permission to
+proceed anyway:
+
+1. Step 5's completeness diffs were run and were **all empty**.
+2. `<archive>/spec/` exists (and `<archive>/reports/`, `<archive>/runtime-artifacts/` for whichever live
+   trees exist). If `<archive>/spec/` is missing, redo Step 5.
+3. `git status` shows the three roots as tracked paths about to be deleted — nothing outside them.
+
+🔴 **THERE ARE NO SURVIVORS — `spec/` is removed in FULL**, `plans/` (including `atlas-deep-dive.md` and
+this cycle's `plans/delta/`), `spec-generation/`, `behavior/`, `test-plans/`, `behavior.feature` and
+`context-project/` alike, together with `reports/` and `runtime-artifacts/`. 🔴 **Do NOT keep
+`atlas-deep-dive.md` or `plans/delta/` back for the stitch** — `stitch-delta` reads the delta out of the
+archive, on base, after this PR merges. Leaving a shared, per-cycle-rewritten file on base is the one
+thing that made this flow conflict-prone.
+
+🔴 **`runtime-artifacts/audit.md` and `runtime-artifacts/aire-state.md` go with everything else — do NOT
+seed a replacement.** The archive copy holds the cycle's complete trail; the next cycle's Workspace
+Detection creates fresh ones. This is also what keeps parallel cycles conflict-free: no two PRs carry
+competing audit/state files onto the base branch.
+
+**MANDATORY**: From this point on the live `runtime-artifacts/audit.md` no longer exists — log the
+removal and everything in Step 6.5 by APPENDING to the **archived** copy at
+`aire-archives/<type>/<CYCLE-ID>-<slug>/runtime-artifacts/audit.md`, so the trail stays complete.
 
 ---
 
-## Step 6.5: Commit & Push the Cycle-Close Changes (MANDATORY)
+## Step 6.5: Commit, Push & Ensure the PR (AUTOMATIC — no confirmation)
 
-Everything this skill produced so far exists only in the working tree. 🔴 **If it is not committed and pushed, the cycle PR will NOT carry the archive and workspace reset.**
+Everything this skill produced so far exists only in the working tree. 🔴 **If it is not committed and
+pushed, the cycle PR will NOT carry the archive or the workspace reset.** So this step asks nothing
+either — it commits, pushes, and makes sure a PR exists, announcing each action as it goes.
 
-1. Stage the cycle-close changes:
-   - `aire-archives/<EPIC-ID>-<epic-name-slug>/` (the verified archive — includes the mirrored `spec/`, `reports/` and `runtime-artifacts/`)
-   - The workspace-reset changes from Step 6 (deleted cycle-scoped docs, the deleted `reports/` tree, and the deleted `runtime-artifacts/` — including `audit.md` and `aire-state.md`)
-   - The Step 5.5 collapse: `tests/.evals/config.json` (updated `ci.roots[]`/`manifestState`) and the deleted `tests/.evals/ci-manifest.d/*.json` fragment files
-2. Commit on the current (cycle) branch:
+1. **Stage the cycle-close changes**:
+   - `aire-archives/<type>/<CYCLE-ID>-<slug>/` (the verified archive — includes the mirrored `spec/`,
+     `reports/` and `runtime-artifacts/`, and therefore this cycle's delta)
+   - The Step 6 removals — already staged by `git rm -r`; confirm with `git status` that all three roots
+     show as deletions and that nothing outside them was touched
+   - The Step 5.5 collapse: `tests/.evals/config.json` (updated `ci.roots[]`/`manifestState`) and the
+     deleted `tests/.evals/ci-manifest.d/*.json` fragment files
+   - 🔴 **Nothing under `aire-archives/stitch-ledger.md`** — this skill never writes it (Step 3.5)
+2. **Commit on the current (cycle) branch**, with the `AIRE-Version:` trailer read **live** from the
+   canonical `AIRE Framework Version` line in `CLAUDE.md` — 🔴 never hardcode the number:
    ```
-   docs: close cycle <EPIC-ID> — release archive, workspace reset
+   docs: close cycle <CYCLE-ID> — release archive, workspace reset
+
+   AIRE-Version: [N]
    ```
-3. **Push (confirm-first)** — ask:
-   ```
-   ⬆ Push the cycle-close commit to origin/<cycle-branch>?
-      [If a PR is already open for this branch:] The open PR (<PR URL/number>) tracks this
-      branch and will automatically include this commit.
-      (yes / no)
-   ```
-   On yes: push and verify (`git log origin/<cycle-branch> -1`). On no: warn that the archive + reset are not on origin until this commit is pushed. Log the answer and outcome by appending to the archived audit copy (`aire-archives/epics/<EPIC-ID>-<epic-name-slug>/runtime-artifacts/audit.md`).
-4. If a PR is open for this branch (`gh pr list --head <cycle-branch>`), confirm after pushing that the PR now includes the commit.
-5. **Update the PR description** so reviewers aren't surprised by the cycle-close diff: fetch the current body (`gh pr view <PR> --json body`) and append (via `gh pr edit <PR> --body ...`, never replacing the existing content):
+3. **Push to origin automatically** — `git push origin <cycle-branch>`, then verify
+   (`git log origin/<cycle-branch> -1`). 🔴 No confirmation: the cycle-close commit is worthless off
+   origin, and the user already chose to close the cycle by invoking this skill.
+   - On a rejected push (branch moved): `git fetch` + rebase onto `origin/<cycle-branch>`, re-verify the
+     archive paths survived the rebase, and retry once. If it still fails, report the exact git error
+     and STOP — never force-push a cycle branch.
+4. **Ensure the PR exists — automatic, in every cycle type**:
+   - `gh pr list --head <cycle-branch> --state open --json number,url,title`
+   - **A PR is already open** (the normal case — `[EPIC]` raised by `pr-generator` just before it
+     auto-triggered this skill, or the `[BUG]`/`[ENH]` raised by the implement workflow): it tracks the
+     branch, so the push above already added the commit. Verify that (`gh pr view <n> --json commits`)
+     and continue.
+   - **No PR is open**: raise it now by invoking the **`pr-generator`** skill in **WORKFLOW mode**,
+     passing **target branch = the Base Branch** recorded in `## Branching` — workflow mode skips its
+     Phase 5 confirmation, so the push and PR happen automatically. It applies the correct
+     `[EPIC]`/`[BUG]`/`[ENH]` prefix and the `ai-generated` + `aire-v[N]` labels itself. 🔴 Never
+     hand-roll a `gh pr create` here — pr-generator owns PR mechanics.
+5. **Update the PR description** so reviewers aren't surprised by the cycle-close diff: fetch the current
+   body (`gh pr view <PR> --json body`) and append (via `gh pr edit <PR> --body ...`, never replacing the
+   existing content):
    ```markdown
    ##  Cycle-Close Commit (added after PR creation)
    This PR also includes the cycle-close commit from `archive-epic`:
    - **Added**: release archive at `aire-archives/<EPIC-ID>-<slug>/` (complete `spec/` + `reports/` + `runtime-artifacts/` snapshot incl. audit trail and state)
-   - **Removed**: cycle-scoped working docs (spec/plans, spec/spec-generation, behavior, test-plans), the `reports/` tree, and `runtime-artifacts/` (`audit.md`, `aire-state.md`) — preserved in the archive above
+   - **Added**: this cycle's RE delta ([N] changed surfaces), archived at `aire-archives/<type>/<CYCLE-ID>-<slug>/spec/plans/delta/<CYCLE-ID>-<slug>/`
+   - **Removed**: the live `spec/` tree in full (including `context-project/`), the `reports/` tree, and `runtime-artifacts/` (`audit.md`, `aire-state.md`) — all mirrored in the archive above
+   - ➡ **After merging**, run `/stitch-delta` on `<base-branch>`: it reads the delta from that archive and publishes it to the deep dive on Atlas. Its own PR is a single ledger row.
    ```
 
 ---
@@ -321,18 +503,25 @@ Everything this skill produced so far exists only in the working tree. 🔴 **If
 
 - **Archive**: `aire-archives/<EPIC-ID>-<epic-name-slug>/`
 - **Contents**: `spec/` (all planning/design artifacts, every work-unit `.feature`) + `reports/` (generated outputs) + `runtime-artifacts/` (audit.md, aire-state.md)
-- **Workspace**: [reset choice taken]
-- **Cycle-close commit**: [pushed to origin/<cycle-branch> — included in PR <URL> |  NOT pushed — push it so the archive reaches the base branch]
+- **Delta**: [N] stitch directive(s), commit range [base-sha]..[head-sha] — archived at
+  `aire-archives/<type>/<CYCLE-ID>-<slug>/spec/plans/delta/<CYCLE-ID>-<slug>/delta.md`
+  ↳ pending until `/stitch-delta` publishes it (it has no ledger row yet — that IS the pending signal)
+- **Workspace**: `spec/`, `reports/` and `runtime-artifacts/` removed — all mirrored in the archive
+  ↳ human-authored context to restore next cycle: `aire-archives/<type>/<CYCLE-ID>-<slug>/spec/context-project/`
+- **Cycle-close commit**: pushed to `origin/<cycle-branch>` — included in PR <URL> [| PR raised via pr-generator: <URL>]
 
-➡ NEXT ACTION:
+➡ NEXT ACTION — in order:
    1⃣  Merge the open PR into `<base-branch>`: <PR URL>
        (the cycle-close commit above rides this PR)
 
-   The next cycle pulls fresh current-system truth (atlas-deep-dive.md + RE docs) from Atlas via the
-   Helix MCP — there is nothing to stitch.
+   2⃣  On `<base-branch>`, after that merge, type: /stitch-delta
+       It reads this delta from the archive and publishes it to the deep dive on Atlas via the
+       Helix MCP, then appends one ledger row — in its own PR for you to review.
+
+🔴 Type `/stitch-delta` EXACTLY as shown — the cycle is not closed until the delta reaches Atlas.
 ```
 
 **Rules for this message**:
 - Substitute every placeholder with real values (`<base-branch>` and the PR URL from `## Branching` / `gh pr list`) — never ship a placeholder to the user.
-- If the cycle-close commit was **NOT pushed** (the user answered "no" at Step 6.5), replace line 1⃣ with: `1⃣   Push the cycle-close commit first: git push origin <branch>`.
+- The push is automatic, so there is no "not pushed" variant of this message. If the push genuinely **failed** (Step 6.5 item 3 exhausted its one retry), do not print this completion block at all — report the exact git error and STOP, so the failure is not dressed up as a successful close.
 - Output **nothing after this block** — no options menu, no further suggestions.

@@ -254,8 +254,17 @@ and re-confirm.
    EOF
    )"
    ```
-4. Report the PR URL returned by `gh pr create` back to the user.
-5. **If a PR for this branch ALREADY EXISTS** (found via `gh pr list --head <branch>` — see Execution Rule 7): do not create a duplicate. Push any new commits (the open PR tracks the branch and updates automatically) and, if the summary changed, update the PR body via `gh pr edit` (append — never wipe the existing description). **Standalone mode**: get the user's confirmation first. **Workflow mode**: do it automatically, announcing what was pushed/updated.
+4. 🔴 **VERIFY THE LABELS LANDED — do not assume `--label` on `gh pr create` was honored.** Immediately
+   after creation, read the PR back: `gh pr view <n-or-url> --json labels --jq '.labels[].name'`. If
+   either exact label (`ai-generated`, `aire-v1.0`) is missing, apply it now:
+   `gh pr edit <n-or-url> --add-label "ai-generated" --add-label "aire-v1.0"`, then re-verify. **Never
+   report the PR as done, and never write "labels applied: ai-generated, aire-v1.0" into
+   `runtime-artifacts/audit.md`, on the basis of having passed `--label` flags** — record only what
+   reading the PR's actual labels back showed. A claim in the audit trail that does not match the PR is
+   a defect in the audit trail — this is the same discipline `dev-implement.md` Section D already
+   applies to the eval scorecard ("VERIFY IT LANDED — do not assume").
+5. Report the PR URL returned by `gh pr create` back to the user.
+6. **If a PR for this branch ALREADY EXISTS** (found via `gh pr list --head <branch>` — see Execution Rule 7): do not create a duplicate. Push any new commits (the open PR tracks the branch and updates automatically) and, if the summary changed, update the PR body via `gh pr edit` (append — never wipe the existing description). **Standalone mode**: get the user's confirmation first. **Workflow mode**: do it automatically, announcing what was pushed/updated.
    - **🔴 Re-sync the version label to the current framework version (`aire-v1.0`).** An already-open PR may carry a stale `aire-v*` label (e.g. `aire-v1` from when it was first raised). Ensure the exact label `aire-v1.0` exists (create it per Step 2 if absent), then reconcile the PR's labels:
      ```
      # Current version label to apply (hardcoded aire-v1.0):
@@ -268,7 +277,7 @@ and re-confirm.
      ```
      Only touch `aire-v*` labels (and ensure `ai-generated` is present) — never strip a user's or another tool's unrelated labels. Announce the relabel (e.g. ` Updated version label: aire-v1 → aire-v1.0`).
    - Report the existing PR URL. **This path counts as a successful Phase 6** — it flows into Phase 7 exactly like a fresh creation.
-6. **Do NOT end the turn here.** Proceed IMMEDIATELY to Phase 7 — its evaluation is mandatory whether a new PR was just created OR an existing PR for this branch was found/updated, with no exceptions.
+7. **Do NOT end the turn here.** Proceed IMMEDIATELY to Phase 7 — its evaluation is mandatory whether a new PR was just created OR an existing PR for this branch was found/updated, with no exceptions.
 
 ---
 
@@ -312,7 +321,7 @@ Only touch `aire-v*` labels (and ensure `ai-generated` is present) — never str
      ```
      Treat **"yes — epic"** as conditions 2–4 PASS. Treat **"yes — bug"** / **"yes — enhancement"** as condition 2 FAIL → Step 4 (manual reminder, no auto-trigger).
 
-**If all conditions PASS** (epic cycle only): announce ` Epic → Base PR detected — invoking archive-epic automatically.` and invoke the `archive-epic` skill **in the same turn** (no separate trigger phrase needed from the user) — do not ask whether to run it, just run it. Pass along that it was **auto-triggered by pr-generator from an Epic → Base PR** — archive-epic uses this to auto-select workspace reset option A. `archive-epic` performs its own confirm-first gating internally for every destructive step, so this handoff stays safe. Note: archive-epic ends by committing and pushing the cycle-close changes (archive, reset) on this same branch — the just-opened PR tracks the branch and will automatically include that commit. archive-epic generates no reverse-engineering delta and stitches nothing; the next cycle pulls fresh current-system truth from Atlas via the Helix MCP.
+**If all conditions PASS** (epic cycle only): announce ` Epic → Base PR detected — invoking archive-epic automatically.` and invoke the `archive-epic` skill **in the same turn** (no separate trigger phrase needed from the user) — do not ask whether to run it, just run it. Pass along that it was **auto-triggered by pr-generator from an Epic → Base PR**. `archive-epic` gates on its own upstream readiness checks (incomplete stories, ve artifacts, archive collision) and on the byte-for-byte verification of the archive it writes; its removal/commit/push/PR steps are deliberately automatic in every mode, so this handoff neither adds nor needs a confirmation. Note: archive-epic ends by committing and pushing the cycle-close changes (archive, reset) on this same branch — the just-opened PR tracks the branch and will automatically include that commit. archive-epic writes the cycle's reverse-engineering delta to `spec/plans/delta/<EPIC-ID>-<slug>/`, archives it, and then removes the live `spec/`, `reports/` and `runtime-artifacts/` trees — but it never stitches. 🔴 **Tell the user, in this PR's handoff, that after merging this Epic → Base PR they must run `/stitch-delta` on the base branch** — that skill reads the delta from the archive and publishes it to the Atlas deep dive via the Helix MCP, in its own PR whose diff is a single ledger row. Do NOT invoke `stitch-delta` from here: it runs post-merge, on base, and this PR has not merged yet.
 
 > **🔴 GUARDRAIL — when archive-epic is required, pr-generator is NOT done until archive-epic has been invoked.**
 > - When all Phase 7 conditions PASS, invoking `archive-epic` is **mandatory and part of this skill's completion** — the pr-generator skill is **only considered ended AFTER archive-epic has been handed off/run in the same turn**. Ending the turn after reporting the PR URL but before invoking archive-epic is an **incomplete run**.
@@ -370,3 +379,8 @@ This reminder is the ONE exception to the "no next step" rule below — it exist
     NOT a substitute and MUST NOT cause label creation to be skipped. Decide existence by EXACT name
     match (never by fuzzy `gh label list --search`), create ours if the exact name is absent, and
     apply both exact labels to the PR. See Phase 6 Step 2.
+11. **Passing `--label` flags to `gh pr create` is NOT proof the labels landed** — `gh pr create` can
+    silently drop a `--label` when the label didn't exist at call time, or on a transient API hiccup.
+    Read the created PR's labels back (Phase 6 Step 4) before reporting the PR as done or writing a
+    labels-applied claim into `runtime-artifacts/audit.md`. A missing label caught here is fixed with
+    `gh pr edit --add-label` in the same run — never left for a later pass to notice.

@@ -14,6 +14,25 @@ tooling. Backend/API manual cases are never in scope here — they stay manual-o
 
 ---
 
+## 🔴 Execution-Context Precondition (check this BEFORE Mode Detection — both modes)
+
+This skill's entire job is invoking **Playwright's own Planner, Generator and Healer subagents**, which
+are **Agent tool** calls (`subagent_type: "playwright-test-planner"`, etc.). Therefore:
+
+🔴 **If the current execution context cannot call the Agent tool, this skill CANNOT run — at all.**
+That includes a **fork**, and any subagent whose own instructions say *"do NOT spawn subagents with the
+Agent tool … you ARE the fork, execute directly."* This is **structural**: it is not fixed by
+installing Playwright, by `init-agents`, or by restarting the session.
+
+**In that case: HALT and report it.** Say plainly that the run must happen in a normal session or a
+general-purpose agent that can call the Agent tool, and stop. 🔴 **Never hand-author the plan or the
+specs as a substitute** (Rule 1b) — an inability to invoke the real agents is *precisely* the condition
+under which hand-authoring is most tempting and least acceptable. Observed in a real run: a forked
+`dev-implement` hand-wrote five `.spec.ts` files and reported a passing Playwright gate that never
+opened a browser.
+
+---
+
 ## Mode Detection (do this FIRST — decides which steps run)
 
 This agent runs in one of **two modes**. Resolve the mode before anything else — it changes which

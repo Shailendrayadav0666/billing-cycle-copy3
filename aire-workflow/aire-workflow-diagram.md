@@ -80,7 +80,8 @@ flowchart TD
     NFR_D --> INFRA["<b>Infrastructure Design</b> (only when required)<br/>Where and how the solution runs — environments, hosting, storage,<br/>messaging, networking, monitoring — written to <b>infrastructure-design.md</b>."]
 
     INFRA --> ARCHDOC["<b>Architecture, rubrics, and CI pipeline</b><br/>The framework combines the approved design documents into one system design,<br/><b>spec/plans/architecture.md</b>, and from it derives the evaluation rubrics<br/>used to score the delivered code — the architecture rubric and an<br/>OWASP-based security rubric. It then generates the automated evaluation<br/>pipeline from this repo's own stack and quality thresholds.<br/>The framework presents the CI setup instructions and waits for the User<br/>to choose <b>proceed</b> or <b>skip</b>."]
-    ARCHDOC --> SMOKE["<b>Epic-level pre-handoff smoke test</b> (automatic)<br/>A zero-diff scratch pull request proves the CI environment is viable —<br/>not the delta-scoped gate logic. Its watch loop is unbounded and ends only<br/>when the self-repair agent itself stops producing a new run.<br/>On success the scratch PR is merged and deleted; on exhaustion it is left open<br/>and the Development Handoff does not happen."]
+    ARCHDOC --> SPECSET["<b>Behaviour Specs and Test Plans</b> (before any code — one approval)<br/>For <b>every</b> story in the Story Tracker the framework writes two artifacts:<br/><b>spec/behavior/story-N.M.feature</b> — one Gherkin scenario per acceptance criterion,<br/>tagged @AC-n, failure paths included — and the manual test plan in<br/><b>spec/test-plans/&lt;TICKET-ID&gt;-&lt;title&gt;/</b>, produced by the same ve-implement skill<br/>the Verification Engineer uses, run here in workflow mode.<br/>Every acceptance criterion must have at least one scenario and at least one test case.<br/>The framework then presents the whole set and waits for<br/><b>Request Changes</b> or <b>Continue to Next Stage</b>."]
+    SPECSET --> SMOKE["<b>Epic-level pre-handoff smoke test</b> (automatic)<br/>A zero-diff scratch pull request proves the CI environment is viable —<br/>not the delta-scoped gate logic. Its watch loop is unbounded and ends only<br/>when the self-repair agent itself stops producing a new run.<br/>On success the scratch PR is merged and deleted; on exhaustion it is left open<br/>and the Development Handoff does not happen."]
     SMOKE --> STOP[" <b>MANDATORY STOP — Development Handoff</b><br/>The design artifacts are committed and pushed on the Epic branch (automatic).<br/>The framework announces how many stories were created, which are ready to start,<br/>and which design stages ran or were skipped.<br/><br/><b>Developer: pull the Epic branch, then type dev-implement</b> (once per story).<br/><b>Verification Engineer: pull the Epic branch, then type /ve-implement &lt;story&gt;</b> (once per story).<br/>Both tracks run in parallel from here — the Verification Engineer never waits for code."]
 
     %% ═══════════════════════════════════════════════════
@@ -99,7 +100,7 @@ flowchart TD
     SBR --> BASE["<b>Baseline capture</b> (automatic, before any code is written)<br/>The framework runs the entire repository test suite on the story branch<br/>and records the current results in <b>baseline-regression.log</b>.<br/>Only new problems introduced by this story will count for self-repair."]
 
     BASE --> PLAN["<b>Code Generation — Part 1: Plan</b><br/>The framework analyzes the story and its acceptance criteria<br/>and lays out the implementation steps: structure, logic, API, tests, and docs."]
-    PLAN --> SPECB["<b>Behavior specification</b> — a single file,<br/><b>spec/behavior/story-N.M.feature</b>.<br/>One scenario per acceptance criterion, tagged @AC-n, written BEFORE the code<br/>because it is the contract."]
+    PLAN --> SPECB["<b>Behavior specification — read, not written</b><br/>The story's contract <b>spec/behavior/story-N.M.feature</b> was already written<br/>and approved before the Mandatory stop. The framework verifies it is present<br/>and covers every acceptance criterion, and backfills only a genuinely missing one.<br/><i>It never rewrites an approved scenario to match the code.</i>"]
     SPECB --> GEN["<b>Code Generation — Part 2: Generate</b><br/>The framework executes each plan step, writing all application code into <b>src/</b><br/>and all tests into <b>tests/</b> (nothing goes into spec/),<br/>and marks each step complete as it finishes."]
 
     GEN --> COV{"<b>Unit tests and coverage</b><br/>The framework generates the tests, runs them, and measures coverage<br/>on the new and changed code. The threshold is <b>at least 90%</b>.<br/>The run logs and a machine-readable coverage report are captured as evidence."}
@@ -159,7 +160,7 @@ flowchart TD
     %% does NOT wait for dev. Not an Implementation stage.
     %% ═══════════════════════════════════════════════════
 
-    STOP -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>The Verification Engineer types /ve-implement &lt;story&gt;</b> on the Epic branch.<br/>The framework cuts a branch <b>ve/&lt;story-TICKET-ID&gt;-&lt;story-title&gt;</b> from the latest Epic branch.<br/>Without reading application source code, it reads the story's acceptance criteria<br/>(tracker item, requirements, and design) and writes manual test steps into<br/>spec/test-plans/&lt;story&gt;/ — integration, e2e, API, contract, security, and performance —<br/>with every acceptance criterion covered. A test-plan summary is produced."]
+    STOP -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>Every story's manual test plan is already on the Epic branch</b>,<br/>written and approved at the Behaviour Specs and Test Plans stage,<br/>so the Verification Engineer can review it before any code exists.<br/><br/><b>The Verification Engineer types /ve-implement &lt;story&gt;</b> on the Epic branch<br/>only to refresh or extend a plan. The framework cuts a branch<br/><b>ve/&lt;story-TICKET-ID&gt;-&lt;story-title&gt;</b> from the latest Epic branch and, without reading<br/>application source code, reworks the manual test steps in spec/test-plans/&lt;story&gt;/<br/>from the story's acceptance criteria — integration, e2e, API, contract,<br/>security, and performance — with every acceptance criterion covered."]
     veBT --> VE_APPROVAL{"The User reviews the manual test plans.<br/>The framework continues only after the User confirms<br/>that the planned tests provide sufficient coverage."}
     VE_APPROVAL -->|"Changes requested"| veBT
     VE_APPROVAL -->|"Approved"| VE_PR["<b>The framework raises the test-plan pull request</b><br/>into the Epic branch, labeled 'ai-generated' and with the AIRE version label,<br/>and logs it in runtime-artifacts/audit.md."]
@@ -172,11 +173,13 @@ flowchart TD
     SYNC --> EPIC_PR["<b>The User runs pr-generator</b> on the Epic branch,<br/>once the Epic branch holds all the merged stories,<br/>to raise or update the Epic pull request into the base branch."]
     EPIC_PR --> GH_EPIC_FINAL[("GitHub: the Epic PR targets the base branch<br/>and includes all story code.")]
 
-    EPIC_PR --> ARCHIVE["<b>archive-epic runs (automatic) on the Epic branch</b><br/>The framework archives spec/, reports/, and runtime-artifacts/ into<br/>aire-archives/epics/&lt;EPIC-ID&gt;-name/ (no reverse-engineering delta, no stitch),<br/>then commits and pushes on the Epic branch of the open Epic PR."]
+    EPIC_PR --> ARCHIVE["<b>archive-epic runs (automatic) on the Epic branch</b><br/>The framework archives spec/, reports/, and runtime-artifacts/ into<br/>aire-archives/epics/&lt;EPIC-ID&gt;-name/ (the cycle's RE delta included),<br/>then REMOVES the live spec/, reports/ and runtime-artifacts/ trees,<br/>and commits + pushes on the Epic branch of the open Epic PR."]
 
     ARCHIVE --> MERGE_EPIC["<b>The User merges the Epic PR</b> into the base branch.<br/>This is a human decision."]
 
-    MERGE_EPIC --> DONE(["<b>EPIC COMPLETE</b>"])
+    MERGE_EPIC --> STITCH["<b>The User runs stitch-delta on the base branch</b><br/>Refreshes the WHOLE Atlas deep dive against the merged code —<br/>every section refreshed, kept or resolved — then appends one<br/>ledger row. Its own PR. It touches no spec/."]
+
+    STITCH --> DONE(["<b>EPIC COMPLETE</b>"])
 
     %% ═══════════════════════════════════════════════════
     %% STYLING
@@ -241,6 +244,7 @@ flowchart TD
     style STATIC fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
     style SPECB fill:#D1C4E9,stroke:#4527A0,stroke-width:3px
     style ARCHDOC fill:#B39DDB,stroke:#4527A0,stroke-width:3px
+    style SPECSET fill:#B39DDB,stroke:#4527A0,stroke-width:3px
     style SMOKE fill:#FFAB91,stroke:#BF360C,stroke-width:3px
     style REG fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
     style SCORECARD fill:#D8ECEA,stroke:#356C68,stroke-width:2px
@@ -358,7 +362,8 @@ flowchart TD
     NFR_D --> INFRA["<b>Infrastructure Design</b> (only when required)<br/>Where and how the solution runs — environments, hosting, storage,<br/>messaging, networking, monitoring — written to <b>infrastructure-design.md</b>."]
 
     INFRA --> ARCHDOC["<b>Architecture, rubrics, and CI pipeline</b><br/>The framework combines the approved design documents into one system design,<br/><b>spec/plans/architecture.md</b>, and from it derives the evaluation rubrics<br/>used to score the delivered code — the architecture rubric and an<br/>OWASP-based security rubric. It then generates the automated evaluation<br/>pipeline from this repo's own stack and quality thresholds.<br/>The framework presents the CI setup instructions and waits for the User<br/>to choose <b>proceed</b> or <b>skip</b>."]
-    ARCHDOC --> SMOKE["<b>Epic-level pre-handoff smoke test</b> (automatic)<br/>A zero-diff scratch pull request proves the CI environment is viable —<br/>not the delta-scoped gate logic. Its watch loop is unbounded and ends only<br/>when the self-repair agent itself stops producing a new run.<br/>On success the scratch PR is merged and deleted; on exhaustion it is left open<br/>and the Development Handoff does not happen."]
+    ARCHDOC --> SPECSET["<b>Behaviour Specs and Test Plans</b> (before any code — one approval)<br/>For <b>every</b> story in the Story Tracker the framework writes two artifacts:<br/><b>spec/behavior/story-N.M.feature</b> — one Gherkin scenario per acceptance criterion,<br/>tagged @AC-n, failure paths included — and the manual test plan in<br/><b>spec/test-plans/&lt;TICKET-ID&gt;-&lt;title&gt;/</b>, produced by the same ve-implement skill<br/>the Verification Engineer uses, run here in workflow mode.<br/>Every acceptance criterion must have at least one scenario and at least one test case.<br/>The framework then presents the whole set and waits for<br/><b>Request Changes</b> or <b>Continue to Next Stage</b>."]
+    SPECSET --> SMOKE["<b>Epic-level pre-handoff smoke test</b> (automatic)<br/>A zero-diff scratch pull request proves the CI environment is viable —<br/>not the delta-scoped gate logic. Its watch loop is unbounded and ends only<br/>when the self-repair agent itself stops producing a new run.<br/>On success the scratch PR is merged and deleted; on exhaustion it is left open<br/>and the Development Handoff does not happen."]
     SMOKE --> STOP[" <b>MANDATORY STOP — Development Handoff</b><br/>The design artifacts are committed and pushed on the Epic branch (automatic).<br/>The framework announces how many stories were created, which are ready to start,<br/>and which design stages ran or were skipped.<br/><br/><b>Developer: pull the Epic branch, then type dev-implement</b> (once per story).<br/><b>Verification Engineer: pull the Epic branch, then type /ve-implement &lt;story&gt;</b> (once per story).<br/>Both tracks run in parallel from here — the Verification Engineer never waits for code."]
 
     %% ═══════════════════════════════════════════════════
@@ -377,7 +382,7 @@ flowchart TD
     SBR --> BASE["<b>Baseline capture</b> (automatic, before any code is written)<br/>The framework runs the entire repository test suite on the story branch<br/>and records the current results in <b>baseline-regression.log</b>.<br/>Only new problems introduced by this story will count for self-repair."]
 
     BASE --> PLAN["<b>Code Generation — Part 1: Plan</b><br/>The framework analyzes the story and its acceptance criteria<br/>and lays out the implementation steps: structure, logic, API, tests, and docs."]
-    PLAN --> SPECB["<b>Behavior specification</b> — a single file,<br/><b>spec/behavior/story-N.M.feature</b>.<br/>One scenario per acceptance criterion, tagged @AC-n, written BEFORE the code<br/>because it is the contract."]
+    PLAN --> SPECB["<b>Behavior specification — read, not written</b><br/>The story's contract <b>spec/behavior/story-N.M.feature</b> was already written<br/>and approved before the Mandatory stop. The framework verifies it is present<br/>and covers every acceptance criterion, and backfills only a genuinely missing one.<br/><i>It never rewrites an approved scenario to match the code.</i>"]
     SPECB --> GEN["<b>Code Generation — Part 2: Generate</b><br/>The framework executes each plan step, writing all application code into <b>src/</b><br/>and all tests into <b>tests/</b> (nothing goes into spec/),<br/>and marks each step complete as it finishes."]
 
     GEN --> COV{"<b>Unit tests and coverage</b><br/>The framework generates the tests, runs them, and measures coverage<br/>on the new and changed code. The threshold is <b>at least 90%</b>.<br/>The run logs and a machine-readable coverage report are captured as evidence."}
@@ -437,7 +442,7 @@ flowchart TD
     %% does NOT wait for dev. Not an Implementation stage.
     %% ═══════════════════════════════════════════════════
 
-    STOP -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>The Verification Engineer types /ve-implement &lt;story&gt;</b> on the Epic branch.<br/>The framework cuts a branch <b>ve/&lt;story-TICKET-ID&gt;-&lt;story-title&gt;</b> from the latest Epic branch.<br/>Without reading application source code, it reads the story's acceptance criteria<br/>(tracker item, requirements, and design) and writes manual test steps into<br/>spec/test-plans/&lt;story&gt;/ — integration, e2e, API, contract, security, and performance —<br/>with every acceptance criterion covered. A test-plan summary is produced."]
+    STOP -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>Every story's manual test plan is already on the Epic branch</b>,<br/>written and approved at the Behaviour Specs and Test Plans stage,<br/>so the Verification Engineer can review it before any code exists.<br/><br/><b>The Verification Engineer types /ve-implement &lt;story&gt;</b> on the Epic branch<br/>only to refresh or extend a plan. The framework cuts a branch<br/><b>ve/&lt;story-TICKET-ID&gt;-&lt;story-title&gt;</b> from the latest Epic branch and, without reading<br/>application source code, reworks the manual test steps in spec/test-plans/&lt;story&gt;/<br/>from the story's acceptance criteria — integration, e2e, API, contract,<br/>security, and performance — with every acceptance criterion covered."]
     veBT --> VE_APPROVAL{"The User reviews the manual test plans.<br/>The framework continues only after the User confirms<br/>that the planned tests provide sufficient coverage."}
     VE_APPROVAL -->|"Changes requested"| veBT
     VE_APPROVAL -->|"Approved"| VE_PR["<b>The framework raises the test-plan pull request</b><br/>into the Epic branch, labeled 'ai-generated' and with the AIRE version label,<br/>and logs it in runtime-artifacts/audit.md."]
@@ -450,11 +455,13 @@ flowchart TD
     SYNC --> EPIC_PR["<b>The User runs pr-generator</b> on the Epic branch,<br/>once the Epic branch holds all the merged stories,<br/>to raise or update the Epic pull request into the base branch."]
     EPIC_PR --> GH_EPIC_FINAL[("GitHub: the Epic PR targets the base branch<br/>and includes all story code.")]
 
-    EPIC_PR --> ARCHIVE["<b>archive-epic runs (automatic)</b><br/>The framework archives spec/, reports/, and runtime-artifacts/ into<br/>aire-archives/epics/&lt;EPIC-ID&gt;-name/ (no reverse-engineering delta, no stitch),<br/>then commits and pushes on the Epic branch of the open Epic PR."]
+    EPIC_PR --> ARCHIVE["<b>archive-epic runs (automatic)</b><br/>The framework archives spec/, reports/, and runtime-artifacts/ into<br/>aire-archives/epics/&lt;EPIC-ID&gt;-name/ (the cycle's RE delta included),<br/>then REMOVES the live spec/, reports/ and runtime-artifacts/ trees,<br/>and commits + pushes on the Epic branch of the open Epic PR."]
 
     ARCHIVE --> MERGE_EPIC["<b>The User merges the Epic PR</b> into the base branch.<br/>This is a human decision."]
 
-    MERGE_EPIC --> DONE(["<b>RELEASE COMPLETE</b><br/>The next cycle pulls fresh current-system truth<br/>from Atlas through the Helix MCP."])
+    MERGE_EPIC --> STITCH["<b>The User runs stitch-delta on the base branch</b><br/>Refreshes the WHOLE Atlas deep dive against the merged code so it<br/>is the current face of the application, then appends one ledger<br/>row — its own PR, reviewed and merged by the user."]
+
+    STITCH --> DONE(["<b>RELEASE COMPLETE</b><br/>The next cycle pulls current-system truth from Atlas<br/>through the Helix MCP — already including this cycle."])
 
     %% ═══════════════════════════════════════════════════
     %% STYLING
@@ -527,6 +534,7 @@ flowchart TD
     style STATIC fill:#B3E5FC,stroke:#0277BD,stroke-width:2px
     style SPECB fill:#D1C4E9,stroke:#4527A0,stroke-width:3px
     style ARCHDOC fill:#B39DDB,stroke:#4527A0,stroke-width:3px
+    style SPECSET fill:#B39DDB,stroke:#4527A0,stroke-width:3px
     style SMOKE fill:#FFAB91,stroke:#BF360C,stroke-width:3px
     style REG fill:#A5D6A7,stroke:#2E7D32,stroke-width:2px
     style SCORECARD fill:#D8ECEA,stroke:#356C68,stroke-width:2px
@@ -571,7 +579,7 @@ flowchart TD
 
 # 3. Bug End-to-End Flow — From Defect Ticket to Merged Fix
 
-> Complete lifecycle. Entered via **`ticket-implement &lt;TICKET-ID&gt;`** (the unified router, Section 5): the router asks what the ticket is about, and on answer **A) Bug fix** it runs this flow exactly as written.
+> Complete lifecycle. Entered via **`ticket-implement &lt;TICKET-ID&gt;`** (the unified router): the router asks what the ticket is about, and on answer **A) Bug fix** it runs this flow exactly as written.
 
 
 ```mermaid
@@ -623,7 +631,8 @@ flowchart TD
     WP --> DESIGN["<b>Conditional design stages</b><br/>Functional, NFR, and infrastructure design —<br/>only the ones this fix needs."]
 
     DESIGN --> BOOTSTRAP["<b>Architecture, rubrics, and CI pipeline</b><br/>The framework writes or reuses the architecture and behavior specs,<br/>derives the evaluation rubrics that score the delivered code,<br/>and generates the automated evaluation pipeline —<br/>presenting the CI setup instructions and waiting for <b>proceed</b> or <b>skip</b>.<br/>It commits and pushes all of this on the bug branch, then runs a<br/>pre-handoff smoke test to confirm the CI environment is viable."]
-    BOOTSTRAP --> STOP["<b>Development handoff</b><br/>The analysis and design artifacts are committed and pushed<br/>on the bug branch (no [BUG] PR yet).<br/>The Verification Engineer can now pull the bug branch and type<br/><b>/ve-implement PROJ-123</b>, working in parallel with the Developer.<br/>The framework then asks the Developer: <b>Continue to the fix? (yes / no)</b>"]
+    BOOTSTRAP --> SPECSET_BUG["<b>Behaviour spec and manual test plan</b> (before any code — one approval)<br/>The framework writes <b>spec/behavior/bug-PROJ-123.feature</b> — one scenario per<br/>acceptance criterion plus the scenario that reproduces the defect — and the manual<br/>test plan in <b>spec/test-plans/PROJ-123-&lt;title&gt;/</b>, using the same ve-implement skill<br/>in workflow mode. Every acceptance criterion must have at least one scenario and<br/>at least one test case. The framework then waits for<br/><b>Request Changes</b> or <b>Continue to Next Stage</b>."]
+    SPECSET_BUG --> STOP["<b>Development handoff</b><br/>The analysis and design artifacts are committed and pushed<br/>on the bug branch (no [BUG] PR yet).<br/>The Verification Engineer can now pull the bug branch and type<br/><b>/ve-implement PROJ-123</b>, working in parallel with the Developer.<br/>The framework then asks the Developer: <b>Continue to the fix? (yes / no)</b>"]
 
     %% ═══════════════════════════════════════════════════
     %% BUG-FIX-IMPLEMENT — Code Fix on the Same Branch
@@ -638,7 +647,7 @@ flowchart TD
     INDEV --> BASELINE["<b>Baseline capture</b> (before any change)<br/>The framework runs the entire repository test suite<br/>and records the pre-existing failures, so only new problems<br/>introduced by this fix will count for self-repair."]
 
     BASELINE --> PLAN["<b>Bug Fix Plan</b><br/>The framework lays out how it will fix the defect."]
-    PLAN --> SPECB_BUG["<b>Behavior specification</b> (before any code)<br/>spec/behavior/bug-PROJ-123.feature<br/><i>Written BEFORE the fix — it is the contract.</i>"]
+    PLAN --> SPECB_BUG["<b>Behavior specification — read, not written</b><br/>spec/behavior/bug-PROJ-123.feature was written and approved<br/>at the development handoff, before any code.<br/><i>The framework verifies it; it never rewrites it to match the fix.</i>"]
     SPECB_BUG --> FIX["<b>The framework generates the fix</b><br/>with unit tests that validate it, and changed code must have<br/>at least 90% coverage. If this check fails, the framework<br/>self-heals and reruns, up to 3 times."]
 
     FIX --> APIGATE{"<b>API and contract tests</b> (when the fix touches an API endpoint)<br/>Changed interfaces must return correct results and status codes,<br/>enforce access, reject invalid requests,<br/>and preserve the agreed response structure."}
@@ -669,7 +678,7 @@ flowchart TD
 
     STAYS --> PR_REV["<b>Automatic PR review</b><br/>The framework posts its review on the pull request."]
 
-    STOP -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>The Verification Engineer types /ve-implement PROJ-123</b> on the bug branch.<br/>The framework cuts a branch <b>ve/PROJ-123-&lt;ticket-title&gt;</b> from the latest bug branch.<br/>Without reading application source code, it reads the ticket's acceptance criteria<br/>(tracker item, requirements, and design) and writes manual test steps into<br/>spec/test-plans/PROJ-123/ — integration, e2e, API, contract, security, and performance —<br/>with every acceptance criterion covered. It then commits and raises a pull request<br/>back to the bug branch."]
+    STOP -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>The ticket's manual test plan is already on the bug branch</b>,<br/>written and approved before the development handoff.<br/><br/><b>The Verification Engineer types /ve-implement PROJ-123</b> on the bug branch<br/>only to refresh or extend it. The framework cuts a branch<br/><b>ve/PROJ-123-&lt;ticket-title&gt;</b> from the latest bug branch and, without reading<br/>application source code, reworks the manual test steps in spec/test-plans/PROJ-123/<br/>from the ticket's acceptance criteria — integration, e2e, API, contract, security,<br/>and performance — with every criterion covered. It then commits and raises a pull<br/>request back to the bug branch."]
     veBT -.->|"Verification Engineer test-plan PR merges<br/>into the bug branch"| veLAND
 
     PR_REV --> veLAND["<b>Wait until all Verification Engineer work<br/>via /ve-implement has landed on the bug branch.</b>"]
@@ -718,6 +727,7 @@ flowchart TD
 
     %% STOP CHECKPOINT bootstrap (purple)
     style BOOTSTRAP fill:#B39DDB,stroke:#4527A0,stroke-width:3px
+    style SPECSET_BUG fill:#B39DDB,stroke:#4527A0,stroke-width:3px
 
     %% Analysis→Verification Engineer-handoff BREAK, then the yes/no into the fix (red = break)
     style STOP fill:#FFCDD2,stroke:#C62828,stroke-width:3px
@@ -754,7 +764,7 @@ flowchart TD
 
 # 4. Enhancement End-to-End Flow — From Enhancement Ticket to Merged Change
 
-> Complete lifecycle. Entered via **`ticket-implement &lt;TICKET-ID&gt;`** (the unified router, Section 5): the router asks what the ticket is about, and on answer **B) Enhancement** it runs this flow exactly as written.
+> Complete lifecycle. Entered via **`ticket-implement &lt;TICKET-ID&gt;`** (the unified router): the router asks what the ticket is about, and on answer **B) Enhancement** it runs this flow exactly as written.
 
 
 ```mermaid
@@ -782,7 +792,8 @@ flowchart TD
     STORY --> PLANNING["<b>Workflow Planning</b><br/>The framework decides which design stages this change needs."]
     PLANNING --> DESIGN["<b>Conditional design stages</b><br/>Functional, NFR, and infrastructure design —<br/>only the ones this change needs."]
     DESIGN --> BOOTSTRAP["<b>Architecture, rubrics, and CI pipeline</b><br/>The framework writes or reuses the architecture and behavior specs,<br/>derives the evaluation rubrics that score the delivered code,<br/>and generates the automated evaluation pipeline —<br/>presenting the CI setup instructions and waiting for <b>proceed</b> or <b>skip</b>.<br/>It commits and pushes all of this on the enhancement branch, then runs a<br/>pre-handoff smoke test to confirm the CI environment is viable."]
-    BOOTSTRAP --> GATE{"<b>Development handoff</b><br/>The analysis and design artifacts are committed and pushed<br/>on the enhancement branch (no [ENH] PR yet).<br/>The Verification Engineer can now pull the enhancement branch and type<br/><b>/ve-implement PROJ-456</b>, working in parallel with the Developer.<br/>The framework then asks the Developer: <b>Ready to implement? (yes / no)</b>"}
+    BOOTSTRAP --> SPECSET_ENH["<b>Behaviour spec and manual test plan</b> (before any code — one approval)<br/>The framework writes <b>spec/behavior/enh-PROJ-456.feature</b> — one Gherkin scenario<br/>per acceptance criterion, failure paths included — and the manual test plan in<br/><b>spec/test-plans/PROJ-456-&lt;title&gt;/</b>, using the same ve-implement skill in workflow mode.<br/>Every acceptance criterion must have at least one scenario and at least one test case.<br/>The framework then waits for <b>Request Changes</b> or <b>Continue to Next Stage</b>."]
+    SPECSET_ENH --> GATE{"<b>Development handoff</b><br/>The analysis and design artifacts are committed and pushed<br/>on the enhancement branch (no [ENH] PR yet).<br/>The Verification Engineer can now pull the enhancement branch and type<br/><b>/ve-implement PROJ-456</b>, working in parallel with the Developer.<br/>The framework then asks the Developer: <b>Ready to implement? (yes / no)</b>"}
 
     GATE -->|"<b>no</b> — state is saved;<br/>the Verification Engineer's work continues regardless"| HALT(["Resume later by typing <b>ticket-implement PROJ-456</b>.<br/>The router resumes this flow from the saved stage."])
 
@@ -825,7 +836,7 @@ flowchart TD
     CIATT -->|"Clean match, or a code failure left to self-repair"| STAYS["<b>The ticket stays In Development</b>"]
     STAYS --> PR_REV["<b>Automatic PR review</b><br/>The framework posts its review on the pull request."]
 
-    GATE -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>The Verification Engineer types /ve-implement PROJ-456</b> on the enhancement branch.<br/>The framework cuts a branch <b>ve/PROJ-456-&lt;ticket-title&gt;</b> from the latest enhancement branch.<br/>Without reading application source code, it reads the ticket's acceptance criteria<br/>(tracker item, requirements, and design) and writes manual test steps into<br/>spec/test-plans/PROJ-456/ — integration, e2e, API, contract, security, and performance —<br/>with every acceptance criterion covered. It then commits and raises a pull request<br/>back to the enhancement branch."]
+    GATE -.->|"The Verification Engineer works in parallel —<br/>never waiting for the Developer's code"| veBT["<b>The ticket's manual test plan is already on the enhancement branch</b>,<br/>written and approved at the Behaviour spec and test plan stage, before any code.<br/><br/><b>The Verification Engineer types /ve-implement PROJ-456</b> on the enhancement branch<br/>only to refresh or extend it. The framework cuts a branch<br/><b>ve/PROJ-456-&lt;ticket-title&gt;</b> from the latest enhancement branch and, without reading<br/>application source code, reworks the manual test steps in spec/test-plans/PROJ-456/<br/>from the ticket's acceptance criteria — integration, e2e, API, contract, security,<br/>and performance — with every criterion covered. It then commits and raises a pull<br/>request back to the enhancement branch."]
     veBT -.->|"Verification Engineer test-plan PR merges<br/>into the enhancement branch"| veLAND
 
     PR_REV --> veLAND["<b>Wait until all Verification Engineer work<br/>via /ve-implement has landed on the enhancement branch.</b>"]
@@ -850,6 +861,7 @@ flowchart TD
     style PLANNING fill:#BBDEFB,stroke:#1565C0
     style DESIGN fill:#BBDEFB,stroke:#1565C0
     style BOOTSTRAP fill:#B39DDB,stroke:#4527A0,stroke-width:3px
+    style SPECSET_ENH fill:#B39DDB,stroke:#4527A0,stroke-width:3px
     style GATE fill:#FFF59D,stroke:#F57F17,stroke-width:3px
     style HALT fill:#FFE0B2,stroke:#E65100
 
@@ -907,8 +919,8 @@ flowchart TD
 
         FETCH --> ASK{"<b>What is this ticket about?</b><br/>exactly TWO options, inline:<br/>A) Bug fix<br/>B) Enhancement<br/>(recommendation shown — user decides)"}
 
-        ASK -->|"A"| BUG["<b>Run the existing BUG workflow</b><br/>workflows/bug-fix.md<br/>(breaks once for the Verification Engineer handoff, then<br/>continues into bug-fix-implement on 'yes')<br/>— followed exactly, see Section 3"]
-        ASK -->|"B"| ENH["<b>Run the existing ENHANCEMENT workflow</b><br/>workflows/enhancement-implement.md<br/>— followed exactly, see Section 4"]
+        ASK -->|"A"| BUG["<b>Run the existing BUG workflow</b><br/>workflows/bug-fix.md<br/>(breaks once for the Verification Engineer handoff, then<br/>continues into bug-fix-implement on 'yes')<br/>— followed exactly"]
+        ASK -->|"B"| ENH["<b>Run the existing ENHANCEMENT workflow</b><br/>workflows/enhancement-implement.md<br/>— followed exactly"]
     end
 
     %% ═══════════════════════════════════════════════════
@@ -964,11 +976,12 @@ flowchart TD
     %% PHASE 1: DEV TEAM FIXES — EXISTING BUG FLOW
     %% ═══════════════════════════════════════════════════
 
-    JIRA_BUG --> DEV_TRIGGER(["Dev enters:<br/><b>ticket-implement &lt;TICKET-ID&gt;</b><br/>Router asks, Dev selects → <b>A) Bug fix</b><br/>(Section 5)"])
+    JIRA_BUG --> DEV_TRIGGER(["Dev enters:<br/><b>ticket-implement &lt;TICKET-ID&gt;</b><br/>Router asks, Dev selects → <b>A) Bug fix</b>"])
 
-    DEV_TRIGGER --> BREAKPT["<b>bug-fix — analysis + design</b> (Section 3)<br/>ticket capture → bug branch → RE reuse →<br/>requirements → impact analysis + AI-origin detection →<br/>single story → design stages<br/><br/><b>Mandatory Stop:</b><br/>docs committed + PUSHED on the bug branch,<br/>then: continue to the fix? (yes / no)"]
 
-    BREAKPT --> BUGFLOW["<b>bug-fix-implement — the fix</b> (Section 3)<br/>ticket → In Development →<br/>baseline regression → fix plan (announced) → fix +<br/>unit tests ≥90% → full regression →<br/>auto code review, findings auto-remediated<br/>and re-reviewed until clean → commit →<br/>[BUG] PR → base + auto pr-review<br/>"]
+    DEV_TRIGGER --> BREAKPT["<b>bug-fix — analysis + design</b><br/>ticket capture → bug branch → RE reuse →<br/>requirements → impact analysis + AI-origin detection →<br/>single story → design stages<br/><br/><b>Mandatory Stop:</b><br/>docs committed + PUSHED on the bug branch,<br/>then: continue to the fix? (yes / no)"]
+
+    BREAKPT --> BUGFLOW["<b>bug-fix-implement — the fix</b><br/>ticket → In Development →<br/>baseline regression → fix plan (announced) → fix +<br/>unit tests ≥90% → full regression →<br/>auto code review, findings auto-remediated<br/>and re-reviewed until clean → commit →<br/>[BUG] PR → base + auto pr-review<br/>"]
 
     %% ═══════════════════════════════════════════════════
     %% PARALLEL Verification Engineer TRACK — /ve-implement, from the BREAK
@@ -1129,7 +1142,7 @@ Once every check passes, it orchestrates Playwright's **own** official Planner, 
 
 ### `/raise-defect` — log a finding as a tracked bug in the configured tracker
 
-Used the moment testing finds a bug. It collects five fixed fields — Title, Description, Severity, Environment Found, and Discovery Activity — then, after the Verification Engineer approves the drafted ticket, creates a Bug in the configured tracker (JIRA/ADO/GITHUB/LOCAL) labelled `bug`, `defect`, `ai-generated`, `aire` and `aire-v[N]`. The developer picks that ticket up through `ticket-implement` (Sections 3), which starts the cycle again.
+Used the moment testing finds a bug. It collects five fixed fields — Title, Description, Severity, Environment Found, and Discovery Activity — then, after the Verification Engineer approves the drafted ticket, creates a Bug in the configured tracker (JIRA/ADO/GITHUB/LOCAL) labelled `bug`, `defect`, `ai-generated`, `aire` and `aire-v[N]`. The developer picks that ticket up through `ticket-implement`, which starts the cycle again.
 
 ## Order of work for one story
 
@@ -1147,7 +1160,7 @@ Used the moment testing finds a bug. It collects five fixed fields — Title, De
 
 # 8. Reverse Engineering Docs Lifecycle — How the Docs Always Stay Fresh
 
-> Current-system truth is the single source of truth about the codebase. It is refreshed **fresh from Atlas via the Helix MCP** at the start of every development cycle (`spec/plans/atlas-deep-dive.md` plus the flat RE docs under `spec/plans/`) — there is no per-cycle delta and no stitching. A cycle never diffs itself against a prior cycle: after the cycle's PR merges, the next cycle simply pulls the current truth from Atlas again.
+> Current-system truth is the single source of truth about the codebase. It is refreshed **fresh from Atlas via the Helix MCP** at the start of every development cycle (`spec/plans/atlas-deep-dive.md` plus the flat RE docs under `spec/plans/`), and it is **kept current at the other end by the per-cycle delta**: `archive-epic` writes what the cycle shipped to `spec/plans/delta/<CYCLE-ID>-<slug>/`, archives it, and removes the live `spec/` tree; after the cycle's PR merges, `stitch-delta` reads that delta **out of the archive** and refreshes the **whole** Atlas deep dive against the merged code, so the document is the current face of the application rather than the last cycle's. A cycle never diffs itself against a prior cycle's local documents — it builds against pulled Atlas truth and folds its own changes back into that same shared source, so the next cycle's pull already contains them.
 
 
 ## Scenarios
@@ -1178,11 +1191,13 @@ flowchart TD
 
     DEV --> PRGEN["<b>Run pr-generator skill</b> on the epic branch Manually (automatic for bug or enhancement branch )<br/>Raises the Epic → Base or [BUG/ENH] → Base PR<br/><b>Epic PR</b> → auto-triggers archive-epic<br/><b>[BUG]/[ENH] PR</b> → archive is MANUAL"]
 
-    PRGEN --> ARCHIVE["<b>archive-epic</b><br/><b>AUTOMATIC</b> for epic cycles · <b>MANUAL</b> for bug/enhancement cycles<br/><i></i><br/>full spec/ + reports/ + runtime-artifacts/ snapshot →<br/>aire-archives/epics|bugs|enhancements/&lt;ID&gt;-&lt;name&gt;/<br/>(no RE delta, no stitch — the archive resides in the PR)"]
+    PRGEN --> ARCHIVE["<b>archive-epic</b><br/><b>AUTOMATIC</b> for epic cycles · <b>MANUAL</b> for bug/enhancement cycles<br/><i></i><br/>full spec/ + reports/ + runtime-artifacts/ snapshot →<br/>aire-archives/epics|bugs|enhancements/&lt;ID&gt;-&lt;name&gt;/<br/>+ RE delta → spec/plans/delta/&lt;ID&gt;-&lt;name&gt;/, archived with it<br/>then spec/ + reports/ + runtime-artifacts/ REMOVED (no stitch here)"]
 
     ARCHIVE --> MERGE["<b>PR is merged manually by the user</b><br/>into the base branch"]
 
-    MERGE --> FRESH(["<b>Cycle complete</b><br/>Next cycle re-pulls current-system truth<br/>fresh from Atlas via the Helix MCP"])
+    MERGE --> STITCH["<b>stitch-delta</b> — on the BASE branch, post-merge<br/>delta read from the cycle archive → <b>WHOLE deep dive refreshed against the merged code</b><br/>every section refreshed / kept / resolved · one ledger row appended · no spec/ touched<br/>(its own stitch-delta/&lt;id&gt; PR, merged by the user)"]
+
+    STITCH --> FRESH(["<b>Cycle complete</b><br/>Next cycle pulls current-system truth from Atlas<br/>via the Helix MCP — already including this cycle"])
 
     FRESH -->|"next cycle starts —<br/> Atlas truth re-pulled (Scenario 1)"| START
 
@@ -1253,7 +1268,7 @@ flowchart TD
 
 # 10. AI Defect Ratio Detection — Line-Level Provenance Flow
 
-> **What it is**: When a bug is worked through the Bug flow (Section 3), the framework determines whether the code that CAUSED the defect was AI-generated — and, on positive evidence, labels the tracker ticket `ai-generated-defect`. The tracing is done by the **Defect Provenance Analyst** agent (`agents/defect-provenance-analyst.md`).
+> **What it is**: When a bug is worked through the Bug flow, the framework determines whether the code that CAUSED the defect was AI-generated — and, on positive evidence, labels the tracker ticket `ai-generated-defect`. The tracing is done by the **Defect Provenance Analyst** agent (`agents/defect-provenance-analyst.md`).
 >
 > **The core principle — attribution is per defective LINE, not per file**: a file's *last* change is the wrong attribution unit. The defect may live on a line written by a human long before an unrelated AI PR last touched the file — and vice versa. Every defective `file:line-range` from the Impact Analysis is traced **independently** to the commit that **introduced** its defective logic, producing one verdict row per range.
 
@@ -1269,7 +1284,7 @@ Think of it as asking one question for every bug: **"Who really wrote the broken
 ```mermaid
 flowchart TD
     %% ═══════════════════════════════════════════════════
-    %% MAIN FLOW — runs inside bug-fix (Section 3)
+    %% MAIN FLOW — runs inside bug-fix
     %% ═══════════════════════════════════════════════════
 
 
@@ -1317,7 +1332,7 @@ flowchart TD
    
     style IMPACT fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
 
-    %% Provenance tracing (teal — matches Section 3's AI-origin nodes)
+    %% Provenance tracing (teal — matches the bug flow's AI-origin nodes)
     style AGENT fill:#B2DFDB,stroke:#00695C,stroke-width:3px
     style DIG fill:#B2DFDB,stroke:#00695C,stroke-width:2px
     style FP fill:#B2DFDB,stroke:#00695C,stroke-width:2px
@@ -1355,63 +1370,63 @@ flowchart TD
 flowchart TD
     START(["A developer starts a story via dev-implement<br/>(architecture.md, rubrics and the CI pipeline<br/>already exist — written ONCE at the epic's<br/>STOP CHECKPOINT, before any story branch)"])
 
-    START --> SETUP["<b>1. EVAL TOOLING BOOTSTRAP</b> — Step 1.5 Item 4.6<br/>Detect configured tools + read tests/.evals/config.json.<br/>Missing config is CREATED here<br/><br/>Existing config used AS-IS, never overridden."]
+    START --> SETUP["<b>1. EVAL TOOLING BOOTSTRAP</b><br/>Detect configured tools + read tests/.evals/config.json.<br/>Missing config is CREATED here<br/><br/>Existing config used AS-IS, never overridden."]
 
-    SETUP --> BEFORE["<b>2. BASELINE CAPTURE</b> — Step 1.5, before any code<br/>Run the full test suite + all 7 static evals<br/>on the untouched branch.<br/><i>Pre-existing findings are recorded here,<br/>then excluded from this story's result.</i>"]
+    SETUP --> BEFORE["<b>2. BASELINE CAPTURE</b> — before any code<br/>Run the full test suite + all 7 static evals<br/>on the untouched branch.<br/><i>Pre-existing findings are recorded here,<br/>then excluded from this story's result.</i>"]
 
-    BEFORE --> SPEC["<b>3. BEHAVIOUR SPEC</b> — Step 4.5, one file per story<br/>spec/behavior/<br/>story-N.M.feature<br/><i>One scenario per acceptance criterion.<br/>Written BEFORE the code — the story's ONLY spec file.</i>"]
+    BEFORE --> SPEC["<b>3. BEHAVIOUR SPEC</b> — one file per story<br/>spec/behavior/<br/>story-N.M.feature<br/><i>One scenario per acceptance criterion.<br/>Written for EVERY story at the design handoff,<br/>before ANY code exists — and it is the<br/>story's ONLY spec file. dev-implement reads it;<br/>it never rewrites it.</i>"]
 
-    SPEC --> WRITE["<b>4. CODE GENERATION</b> — Step 5<br/>Implements the plan. All application code → src/ folder<br/>"]
+    SPEC --> WRITE["<b>4. CODE GENERATION</b><br/>Implements the plan. All application code → src/ folder<br/>"]
 
-    WRITE --> TESTS{"<b>5. UNIT TESTS + COVERAGE</b> — Step 6<br/>Generate unit tests, RUN them, measure<br/>coverage on new/changed code.<br/><b>Threshold: 90% minimum</b>"}
+    WRITE --> TESTS{"<b>5. UNIT TESTS + COVERAGE</b><br/>Generate unit tests, RUN them, measure<br/>coverage on new/changed code.<br/><b>Threshold: 90% minimum</b>"}
     TESTS -->|"test fails, or coverage &lt; 90%"| FIXCODE["<b>FIX THE CODE (Self-heal)</b><br/>Diagnose the root cause first, then fix<br/>the implementation. Add tests only for<br/>genuinely uncovered paths.<br/>"]
     FIXCODE --> RERUN["<b>RE-RUN THE UNIT TESTS</b><br/>Re-measure coverage on changed code"]
     RERUN --> TESTS
 
-    TESTS -->|"test passes + coverage ≥ 90%"| BEH{"<b>6. BEHAVIOURAL TESTS</b> — Step 6.1, in Podman<br/><b>B1</b> tests this story's .feature file<br/><b>B2</b> tests every other story feature file in the repo<br/><b>B3</b> tests whole epic + cross-story journeys<br/><i>(B3 runs only on the LAST story)</i><br/>"}
+    TESTS -->|"test passes + coverage ≥ 90%"| BEH{"<b>6. BEHAVIOURAL TESTS</b> — in Podman<br/><b>B1</b> tests this story's .feature file<br/><b>B2</b> tests every other story feature file in the repo<br/><b>B3</b> tests whole epic + cross-story journeys<br/><i>(B3 runs only on the LAST story)</i><br/>"}
     BEH -->|"a scenario fails"| FIX2["<b>Fix the CODE (Self-heal)</b><br/> so the behaviour matches.<br/><b>3 attempts each — separate budgets</b><br/><b>for B1/B2 and B3.</b><br/><i>Never edit or skip a scenario to pass.</i>"]
     FIX2 --> BEH
 
-    BEH -->|"all green"| API{"<b>7. API + CONTRACT TESTING</b> — Step 6.2<br/><i>Applies only if this story touches an API.</i><br/>Automated tests against the REAL endpoint,<br/>6 checks each: happy path, status codes,<br/>auth 401 vs 403, error-response shape,<br/>request validation, response schema."}
+    BEH -->|"all green"| API{"<b>7. API + CONTRACT TESTING</b><br/><i>Applies only if this story touches an API.</i><br/>Automated tests against the REAL endpoint,<br/>6 checks each: happy path, status codes,<br/>auth 401 vs 403, error-response shape,<br/>request validation, response schema."}
     API -->|"any check fails"| FIX3["<b>(Self-heal)</b><br/>Fix the endpoint or the test. Re-run.<br/><b>Max 3 attempts.</b>"]
     FIX3 --> API
 
-    API -->|"6/6 pass, or N/A"| OLD{"<b>8. FULL Test-suite run</b> — Step 6.5<br/>Re-run the ENTIRE repo test suite<br/>and diff against the step-2 baseline."}
+    API -->|"6/6 pass, or N/A"| OLD{"<b>8. FULL Test-suite run</b><br/>Re-run the ENTIRE repo test suite<br/>and diff against the step-2 baseline."}
     OLD -->|"NEW failure<br/>(green at baseline, red now)"| FIX4["<b>(Self-heal)</b><br/>Fix what this story broke.<br/><b>Max 3 attempts.</b><br/><i>NEVER by deleting, skipping or<br/>weakening the failing test.</i>"]
     FIX4 --> OLD
 
-    OLD -->|"0 new failures"| EVAL{"<b>9. STATIC EVAL</b> — Step 6.6, 7 checks<br/>lint · types · security scan<br/>· dependency vulnerabilities · licences<br/>· complexity · secrets<br/>Diffed against the step-2 baseline —<br/><b>only NEW findings on changed files count</b>"}
+    OLD -->|"0 new failures"| EVAL{"<b>9. STATIC EVAL</b> — 7 checks<br/>lint · types · security scan<br/>· dependency vulnerabilities · licences<br/>· complexity · secrets<br/>Diffed against the step-2 baseline —<br/><b>only NEW findings on changed files count</b>"}
     EVAL -->|"new findings<br/>above threshold"| FIX5["<b>(Self-heal)</b><br/>Fix the code — never suppress.<br/><b>Max 3 attempts.</b>"]
     FIX5 --> EVAL
 
-    EVAL -->|"diff clean"| REVIEW["<b>10. AUTOMATED CODE REVIEW</b> — Section A<br/>Read-only — never edits code.<br/>Report → reports/reviews/<br/>Produces three independent outputs"]
+    EVAL -->|"diff clean"| REVIEW["<b>10. AUTOMATED CODE REVIEW</b><br/>Read-only — never edits code.<br/>Report → reports/reviews/<br/>Produces three independent outputs"]
 
     REVIEW --> R1["<b>Acceptance Criteria</b><br/>Every criterion and requirement<br/>gets a verdict — Met / Partially Met / Not Met<br/>with the file:line that proves it."]
     REVIEW --> R2["<b>Security Baseline</b><br/>All 16 security rules, scoped to the diff"]
-    REVIEW --> R3["<b>LLM-as-a-Judge</b><br/>J1 Architecture vs the rubric derived<br/>from architecture.md Section 10<br/>J2 Security (OWASP Top 10:2025)<br/><b>Both BLOCKING — N/A passes</b>"]
+    REVIEW --> R3["<b>LLM-as-a-Judge</b><br/>J1 Architecture vs the rubric derived<br/>from architecture.md<br/>J2 Security (OWASP Top 10:2025)<br/><b>Both BLOCKING — N/A passes</b>"]
 
-    R1 --> JUDGE{"<b>Verdict Routing</b> — Section B<br/>Any Blocker / High finding<br/>or J1/J2 below minimum?"}
+    R1 --> JUDGE{"<b>Verdict Routing</b><br/>Any Blocker / High finding<br/>or J1/J2 below minimum?"}
     R2 --> JUDGE
     R3 --> JUDGE
 
-    JUDGE -->|"yes"| REDO["<b>(Self-heal) — auto-remediate</b> — Section C<br/>Fix every finding, re-test, re-review.<br/><b>Max 3 rounds.</b>"]
+    JUDGE -->|"yes"| REDO["<b>(Self-heal) — auto-remediate</b><br/>Fix every finding, re-test, re-review.<br/><b>Max 3 rounds.</b>"]
     REDO --> REVIEW
 
     JUDGE -->|"clean verdict"| RESULT["<b>11. SCORECARD WRITTEN</b><br/>reports/eval-evidence/&lt;key&gt;/<br/>eval.json + eval-summary.md<br/>"]
 
-    RESULT --> COMMIT["<b>12. COMMIT</b> — Section D Step 1<br/>git add + commit on story branch<br/>with an AIRE-Version trailer"]
+    RESULT --> COMMIT["<b>12. COMMIT</b><br/>git add + commit on story branch<br/>with an AIRE-Version trailer"]
 
-    COMMIT --> MANIFEST["<b>13. MANIFEST RECONCILIATION</b> — Section D Step 1.5<br/>Write tests/.evals/ci-manifest.d/story-N.M.json<br/>from what Steps 6/6.2/6.6 actually established/proved<br/><i>Append-only — never edits another unit's fragment<br/>or the shared config.json</i>"]
+    COMMIT --> MANIFEST["<b>13. MANIFEST RECONCILIATION</b><br/>Write tests/.evals/ci-manifest.d/story-N.M.json<br/>from what earlier steps actually established/proved<br/><i>Append-only — never edits another unit's fragment<br/>or the shared config.json</i>"]
 
-    MANIFEST --> PREFLIGHT{"<b>14. CI PREFLIGHT GATE</b> — Section D Step 2.5<br/><b>SH-LOOP-9</b><br/>Clean-room run of CI's OWN entrypoints<br/>(ci-manifest-runner install→build→coverage,<br/>run-static-evals) against the COMMITTED diff<br/>— proves CI CAN run this, before the PR exists"}
+    MANIFEST --> PREFLIGHT{"<b>14. CI PREFLIGHT GATE</b><br/><b>SH-LOOP-9</b><br/>Clean-room run of CI's OWN entrypoints<br/>(ci-manifest-runner install→build→coverage,<br/>run-static-evals) against the COMMITTED diff<br/>— proves CI CAN run this, before the PR exists"}
     PREFLIGHT -->|"missing tool / undeclared dep /<br/>Manifest defect / N/A on a touched root —<br/>fix the DECLARATION, never the gate<br/>(max 3 attempts)"| PREFLIGHT
     PREFLIGHT -->|"clean"| HUMAN(["<b>15. PR RAISED</b><br/>The scorecard travels in the PR body."])
 
     HUMAN --> CI["<b>16. CI RE-VERIFIES</b><br/>.github/workflows/agentic-eval-pipeline.yml<br/><i>generated for this project from its tech stack</i><br/>Stage 1 deterministic eval → Stage 2 behavioural eval<br/>→ Stage 3 LLM as a judge → Stage 4 scorecard"]
-    CI -->|"Code-class failure<br/>(real finding / failing test)"| SELFREPAIR["<b>CI SELF-REPAIR</b><br/>Claude Code<br/>reads the failure, fixes the code, pushes a commit, CI re-verifies again.<br/><b>Max retry limit for Self Repair is 3</b><br/><i>Never touches Manifest/CI config —<br/>that class belongs to Step 17 below</i>"]
+    CI -->|"Code-class failure<br/>(real finding / failing test)"| SELFREPAIR["<b>CI SELF-REPAIR</b><br/>Claude Code<br/>reads the failure, fixes the code, pushes a commit, CI re-verifies again.<br/><b>Max retry limit for Self Repair is 3</b><br/><i>Never touches Manifest/CI config —<br/>that class belongs to the CI Attestation Gate below</i>"]
     SELFREPAIR --> CI
-    CI --> ATTEST{"<b>17. CI ATTESTATION GATE</b> — Section D Step 8<br/>Watch this PR's CI run to conclusion, cross-check<br/>its gates block vs the local results from Steps 5–9<br/><i>Scope: CI CONFIGURATION only</i>"}
-    ATTEST -->|"Manifest/provisioning mismatch<br/>(gate absent/N/A/errored in CI<br/>that passed locally) — extend the<br/>fragment, re-run Step 14, re-verify<br/>(max 3 attempts)"| MANIFEST
+    CI --> ATTEST{"<b>17. CI ATTESTATION GATE</b><br/>Watch this PR's CI run to conclusion, cross-check<br/>its gates block vs the local results from earlier steps<br/><i>Scope: CI CONFIGURATION only</i>"}
+    ATTEST -->|"Manifest/provisioning mismatch<br/>(gate absent/N/A/errored in CI<br/>that passed locally) — extend the<br/>fragment, re-run the CI Preflight Gate, re-verify<br/>(max 3 attempts)"| MANIFEST
     ATTEST -->|"clean match, or a Code-class<br/>failure (left to Self-Repair above)"| MERGE(["<b>18. HUMAN GATEKEEPER approves and merges the PR</b>"])
 
     style START fill:#CE93D8,stroke:#6A1B9A,stroke-width:2px
@@ -1483,19 +1498,19 @@ gate and still fail its own PR's CI run on `tool 'ruff' is not installed on this
 declaration gap, not a code problem, but one that burns a full CI run and a self-repair triage before
 anyone notices it was never about the code.
 
-- **Step 13 — Manifest Reconciliation** writes down, in one small append-only file per story
-  (`tests/.evals/ci-manifest.d/story-N.M.json`), exactly what steps 5–9 already proved: which install
+- **Manifest Reconciliation** writes down, in one small append-only file per story
+  (`tests/.evals/ci-manifest.d/story-N.M.json`), exactly what the earlier gates already proved: which install
   commands ran, what the coverage command and report path are, which tools were used. It never edits
   the shared `config.json` — two stories building in parallel would conflict on the file that defines
   the gates themselves — so it always adds a new file instead.
-- **Step 14 — CI Preflight** then proves that declaration is enough, in a clean room, before the PR
+- **CI Preflight** then proves that declaration is enough, in a clean room, before the PR
   ever exists: a fresh venv or an empty `node_modules`, never this agent's ambient shell. If CI's own
   install/build/coverage commands fail here, the fix is always to the **declaration** — the story's
   manifest fragment, or the repo's own dependency file — never to the gate itself.
-- **Step 17 — CI Attestation** closes the loop after the PR is raised: it watches the real CI run and
+- **CI Attestation** closes the loop after the PR is raised: it watches the real CI run and
   checks that CI actually saw and scored this story's code the same way the local gates did. It asks
-  exactly one question — *did CI measure this, and agree?* — never *is the code correct?*, which steps
-  5–11 already answered. A **Manifest** mismatch (a gate silently `N/A` in CI) loops back to Manifest
+  exactly one question — *did CI measure this, and agree?* — never *is the code correct?*, which the
+  earlier gates already answered. A **Manifest** mismatch (a gate silently `N/A` in CI) loops back to Manifest
   Reconciliation; a **Code** failure (a real finding, a failing test) is left entirely to CI
   self-repair, which owns application code the moment the PR exists.
 

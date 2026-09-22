@@ -42,12 +42,13 @@
   │ Captures the idea as a lightweight intent (outcome,     │
   │ KPI, success signal, out-of-scope, constraints) and     │
   │ pushes it to your tracker: Jira, Azure DevOps,          │
-  │ GitHub, or keeps it local.                              │
+  │ GitHub, or writes spec/plans/epic.md when local.        │
   └─────────────────────────────────────────────────────────┘
                                    │
                                    ▼
        OUTPUT: an Epic on your tracker (baseline). Example:
-         a Jira key, an ADO work item, or a GitHub issue.
+    a Jira key, an ADO work item, a GitHub issue, or a local
+                spec/plans/epic.md.
                                    │
                                    ▼
   ┌─────────────────────────────────────────────────────────┐
@@ -59,8 +60,9 @@
   └─────────────────────────────────────────────────────────┘
                                    │
                                    ▼
-          OUTPUT: the same Epic, updated on your tracker,
-                now fully detailed and verifiable.
+        OUTPUT: the same Epic, updated on your tracker (or
+      spec/plans/epic.md, when local), now fully detailed and
+                          verifiable.
                                    │
                                    ▼
   ┌─────────────────────────────────────────────────────────┐
@@ -83,7 +85,7 @@
   │ SUPPORTING SKILLS                                       │
   │ story-audit, ve-implement, code-security-review,        │
   │ raise-defect, pr-generator, pr-review, ve-list-work,    │
-  │ reverse-engineering-root, archive-epic                  │
+  │ reverse-engineering-root, archive-epic, stitch-delta    │
   └─────────────────────────────────────────────────────────┘
                                    │
                                    ▼
@@ -251,15 +253,26 @@ Verify: `podman info` should return without error.
 
 `dev-implement`, `bug-fix-implement` and `enhancement-implement` run the **Playwright UI Automation** automatically before the automated code review  for every story whose plan touches the UI. It does not write browser tests itself: it orchestrates **Playwright's own official Test Agents** (Planner, Generator, Healer), which are subagents backed by the `playwright-test` MCP server. They must exist in the repo before.
 
-🔴 **Run both commands from the true workspace root** — the same directory `spec/` lives in, **never** a monorepo subdirectory like `frontend/`. Claude Code only scans `.claude/agents/` and `.mcp.json` at the project root it was launched from.
+**Run all three commands from the true workspace root** — the same directory `spec/` lives in, **never** a monorepo subdirectory like `frontend/`. Claude Code only scans `.claude/agents/` and `.mcp.json` at the project root it was launched from.
 
 ```bash
-# 1. Base Playwright + browser binaries (non-interactive)
-npm i -D @playwright/test && npx playwright install
+# 1. Base Playwright test package
+npm i -D @playwright/test
+```
 
-# 2. Playwright's own Planner / Generator / Healer subagents + the playwright-test MCP server
+```bash
+# 2. Browser binaries
+npx playwright install
+```
+
+```bash
+# 3. Playwright's own Planner / Generator / Healer subagents + the playwright-test MCP server
 npx playwright init-agents --loop=claude
 ```
+
+**4. Restart the Claude Code session.**
+
+Claude Code loads MCP servers **at session start**, so the `playwright-test` server that step 3 just registered in `.mcp.json` is **not connected** in your current session — the Planner, Generator and Healer subagents cannot run until you restart. Close and reopen the session (or reload the window in the IDE extension), then verify with `/mcp`.
 
 > If this is missing when the gate runs, the framework installs it for you automatically (workflow mode treats a missing dependency as an **error to fix**, never a gap to skip) — and then **pauses the run and asks you to restart the session**, exactly as the standalone `/playwright-implement` does, because a newly registered MCP server only connects at session start. Nothing is lost: nothing is committed, pushed or transitioned, and on restart you re-invoke the same keyword with the same work unit and it resumes **at the Playwright gate**, skipping every gate already passed. **Installing it up front avoids that interruption entirely.** Projects with no UI at all never reach this gate.
 
@@ -401,8 +414,11 @@ From there:
      subfolders — `plans/` (all planning + design docs as flat files: `architecture.md`, `atlas-deep-dive.md`
      + the flat RE docs, `requirements.md`, `stories.md`, `personas.md`, `epic-brief.md`,
      `dependency-graph.yml`, `functional-design.md`, `nfr.md`, `infrastructure-design.md`,
-     `application-design.md`), `spec-generation/` (the `*-generation.md` files), `behavior/`
-     (`.feature` contracts), `test-plans/` (ve manual test plans), and `context-project/` (human input)
+     `application-design.md`, plus `delta/<CYCLE-ID>-<slug>/` written at cycle close), `spec-generation/`
+     (the `*-generation.md` files), `behavior/` (`.feature` contracts) and `test-plans/` (ve manual test
+     plans) — both written for every work unit at the design handoff, before any code — and
+     `context-project/` (human input). 🔴 The whole tree is deleted by `stitch-delta` once
+     the cycle's delta has been published to Atlas — every cycle rebuilds it from Atlas truth
    - `reports/` — generated **outputs** (evidence + review reports + code summaries):
      `unit-test-evidence/`, `behavior-test-evidence/`, `api-contract-test-evidence/`, `eval-evidence/`,
      `reviews/`, `code-security-reviews/`, `ticket-summary/`
@@ -462,6 +478,8 @@ The answer is recorded in `runtime-artifacts/aire-state.md`, so a resumed sessio
 
 **Where it's consumed.** Requirements Analysis, User Stories, Application Design, Functional Design, Workflow Planning, and Code Generation all read the registered references. UI/wireframe references are also auto-registered as Design References, so the Design Reference Grounding rules (DR-1 through DR-8) enforce that the generated code actually matches the reference.
 
+> 🔴 **Both folders are cleared at the end of every cycle.** `archive-epic` removes the entire `spec/` tree — `context-project/` included — right after mirroring it into the cycle archive. Nothing in the framework can regenerate human-authored content, so the only copy is the one at `aire-archives/<type>/<ID>-<name>/spec/context-project/`, and the next cycle's Workspace Detection recreates the two folders empty. **Re-copy whatever you still need from the archive at the start of the next cycle** (archive-epic's completion message prints the exact path).
+
 ---
 
 ## Resumable Sessions
@@ -487,13 +505,13 @@ A first-time user's complete path, from idea to merged PR:
 
 ### Step 1 (optional) — Capture the idea: `intent-intake` (skill)
 
-You have a raw idea and no Atlas-backed Epic yet. Invoke the skill `intent-intake` via **`/intent-intake`**. The skill asks whether you have a document (PRD, research notes, Confluence page) or will explain in plain English, gathers exactly **six baseline fields** (outcome, KPI, success signal, out-of-scope, constraints, confidence + unknowns), and — after your confirmation — **pushes an Epic to your configured tracker** (a Jira Epic, an ADO Epic work item, or a GitHub Milestone/tracking issue) labeled `intent-intake`. Fast and deliberately light: no deep elaboration here.
+You have a raw idea and no Atlas-backed Epic yet. Invoke the skill `intent-intake` via **`/intent-intake`**. The skill asks whether you have a document (PRD, research notes, Confluence page) or will explain in plain English, gathers exactly **six baseline fields** (outcome, KPI, success signal, out-of-scope, constraints, confidence + unknowns), and — after your confirmation — **pushes an Epic to your configured tracker** (a Jira Epic, an ADO Epic work item, or a GitHub Milestone/tracking issue) labeled `intent-intake`, or writes `spec/plans/epic.md` when your tracker is Local. Fast and deliberately light: no deep elaboration here.
 
-**Output: an Epic on your configured tracker**
+**Output: an Epic on your configured tracker (or `spec/plans/epic.md`, for Local)**
 
 ### Step 2 (optional) — Deepen it: `intent-refinement` (skill)
 
-Invoke the skill `intent-refinement` via **`/intent-refinement`** and give the Epic reference. The skill fetches the Epic, assesses gaps, runs focused elaboration question batches (measurable success criteria with thresholds, explicit scope/out-of-scope, constraints, domain model, NFRs, risks), and — confirm-first — **updates the Epic on your tracker** to full, verifiable detail with label `intent-refined`.
+Invoke the skill `intent-refinement` via **`/intent-refinement`** and give the Epic reference (for Local, it reads `spec/plans/epic.md` automatically if it exists). The skill fetches the Epic, assesses gaps, runs focused elaboration question batches (measurable success criteria with thresholds, explicit scope/out-of-scope, constraints, domain model, NFRs, risks), and — confirm-first — **updates the Epic on your tracker** to full, verifiable detail with label `intent-refined` (or overwrites `spec/plans/epic.md` in place, for Local).
 
 **Output: the same Epic, now fully detailed.**
 
@@ -516,7 +534,7 @@ The very first thing AIRE asks (once, per project) is **which tracker to use** �
 GitHub, or Local only. It never infers this from the link you paste; it always asks explicitly.
 
 When your Epic already lives in Atlas (reachable through a connected Helix MCP server — see
-Prerequisite #7), you do not need a tracker link at all. AIRE resolves the Helix MCP provider, pulls
+Prerequisite #8), you do not need a tracker link at all. AIRE resolves the Helix MCP provider, pulls
 the epic-level intent and existing-system context from Atlas, and proceeds exactly as it would from a
 tracker Epic link — you still pick a tracker (or Local) for the stories the workflow generates from it.
 
@@ -529,8 +547,9 @@ The **Implementation phase** runs the conditional system-level design stages (Fu
 - Consolidates the approved design into **`spec/plans/architecture.md`** — the system design plus a set of **verifiable constraints** (Section 10) that a diff can be checked against.
 - Mechanically derives two rubrics from it into `tests/.evals/rubrics/`: the **architecture rubric** (1:1 from those constraints) and an **OWASP-based security rubric** — these are what the blocking J1/J2 judge gates score every story against in Step 5.
 - Generates **this project's own CI pipeline** — `.github/workflows/agentic-eval-pipeline.yml` — built from *your* repo's real stack, real scripts, and the real thresholds in `tests/.evals/config.json`. This is the exact same pipeline that later re-runs every gate on each Pull Request; it is never a generic template.
+- Writes, for **every** work unit of the cycle and **before a single line of code exists**, its **Gherkin contract** (`spec/behavior/story-N.M.feature` — one `@AC-n`-tagged scenario per acceptance criterion, failure paths included) **and** its **manual test plan** (`spec/test-plans/<TICKET-ID>-<title>/`, produced by the same `ve-implement` skill ve uses, run here in workflow mode). A blocking coverage check requires every acceptance criterion to have at least one scenario **and** at least one test case, and then the whole set is presented for **one approval** — `Request Changes` or `Continue to Next Stage` — exactly like every other design artifact. From here on the implement workflows **read** these files and never author or rewrite them.
 
-Then the workflow **commits and pushes the design artifacts (and the new `tests/.evals/`/CI files) on the epic branch** (that push is what unblocks ve) and **hard-stops** at the Development Handoff — code generation never starts automatically. The handoff names both next moves: DEV pulls the epic branch and types `dev-implement` (once per story); ve pulls the same branch and types `/ve-implement <story>` (once per story, in parallel, never waiting for dev code).
+Then the workflow **commits and pushes the design artifacts (and the new `spec/behavior/`, `spec/test-plans/`, `tests/.evals/`/CI files) on the epic branch** (that push is what unblocks ve) and **hard-stops** at the Development Handoff — code generation never starts automatically. The handoff names both next moves: DEV pulls the epic branch and types `dev-implement` (once per story); ve pulls the same branch and finds **every story's test plan already there**, ready to review now and to execute as each story PR merges — `/ve-implement <story>` is then only needed to refresh or extend a plan.
 
 ### Step 5 — Build story by story: `dev-implement`
 
@@ -542,9 +561,9 @@ Type **`dev-implement`** in the Claude Code chat. It shows the **current ready s
 2. **Story → In Development** — automatic: the Story Tracker **and** your configured tracker (Jira/ADO/GitHub — or nothing, for Local) are both updated, and the item is assigned to you.
 3. **Story Branch Checkpoint** — all prerequisite story PRs must already be **merged into the Epic branch**; then the story branch (`story/N.M-<title>`) is cut **from the Epic branch, never base**.
 4. **Baseline capture** — automatic, before any code is written: the *entire* repo test suite runs (`baseline-regression.log`), and the **Static Eval Gate (D1–D7)** — lint, type check, SAST/semgrep, dependency vulnerabilities, licences, cyclomatic complexity, secret scan — runs once to record what's *already* broken, so this story is never blamed for pre-existing debt.
-5. **Plan → behaviour spec → code generation** — the implementation plan is announced and executed; a Gherkin `.feature` file (one scenario per acceptance criterion) is written *before* the code, as its contract, then the code is generated. You are not asked to approve any of this.
+5. **Plan → behaviour spec *verified* → code generation** — the implementation plan is announced and executed. The story's Gherkin `.feature` contract and its manual test plan were **already written and approved in Step 4**, before any code existed, so this run only **checks they are present and cover every acceptance criterion**, backfilling (and announcing) a genuinely missing one. 🔴 It never rewrites an approved scenario to match the code — code that cannot satisfy the contract is the thing that changes. Then the code is generated. You are not asked to approve any of this.
 6. **Unit Test + Coverage** — tests are generated and run, iterating until **≥ 90% coverage** on new code. **Proof artifacts are captured** to `reports/unit-test-evidence/story-N.M/` — the raw runner output (`unit-test-run.log`), the coverage tool's **mandatory machine-readable report** (`coverage-report.*` — lcov/xml/json/HTML), and an `evidence-manifest.md`.
-7. **Behavioural (Gherkin) gate, in Podman** — the story's own scenarios (B1), then every *other* feature file in the repo (B2) so nothing else broke, run inside a container for local/CI parity — never natively unless Podman is genuinely unavailable.
+7. **Behavioural (Gherkin) gate, in Podman** — the story's own scenarios (B1), then every *other* **started** feature file in the repo (B2) so nothing else broke, run inside a container for local/CI parity — never natively unless Podman is genuinely unavailable. Because every story's contract exists from Step 4, B2/B3 skip the units nobody has begun yet (and name them in the output) rather than failing work that was never claimed to be done.
 8. **API & Contract Testing Gate** — *only when the story adds/changes an API endpoint*: automated tests against the real endpoint(s) covering the happy path, every documented response code, role-based authorization (401 vs. 403), error-response format, request validation, and response schema/contract compliance.
 9. **Full regression** — the entire suite runs again and is diffed against the Step 4 baseline. **Any NEW failure was broken by this story, so this story fixes it** in the same run.
 10. **Static Eval Gate (D1–D7), re-run** — diffed against the Step 4 baseline; any **new** finding on changed files is fixed in the same run — nothing is ever suppressed to pass it.
@@ -569,7 +588,21 @@ Merge the story PR into the Epic branch, then type `dev-implement` again for the
 
 ### Step 7 — Close the EPIC release cycle: `archive-epic`
 
-When the epic is done (all story PRs merged and ve has approved every story to Ready for testing via `/ve-list-work`, local **Option B**), invoke **`/pr-generator`** on the epic branch: it raises/updates the Epic → Base PR and **auto-triggers `archive-epic`**, which archives the complete `spec/` + `reports/` + `runtime-artifacts/` into `aire-archives/epics/<EPIC-ID>-<epic-name>/`. It generates no reverse-engineering delta and stitches nothing. Merging the Epic PR completes the cycle; the next cycle pulls fresh current-system truth (`spec/plans/atlas-deep-dive.md` and the flat RE docs) from Atlas via the Helix MCP.
+When the epic is done (all story PRs merged and ve has approved every story to Ready for testing via `/ve-list-work`, local **Option B**), invoke **`/pr-generator`** on the epic branch: it raises/updates the Epic → Base PR and **auto-triggers `archive-epic`**, which archives the complete `spec/` + `reports/` + `runtime-artifacts/` into `aire-archives/epics/<EPIC-ID>-<epic-name>/`, writes this cycle's **reverse-engineering delta** to `spec/plans/delta/<EPIC-ID>-<epic-name>/` (archived along with everything else), and then **removes the live `spec/`, `reports/` and `runtime-artifacts/` trees in full** — `context-project/` included. It never stitches.
+
+Then merge the Epic PR, and on the base branch run **`/stitch-delta`** (Step 8) — the cycle is not closed until that lands.
+
+### Step 8 — Publish to Atlas and clear `spec/`: `stitch-delta`
+
+On the **base branch, after the Epic PR has merged**, invoke **`/stitch-delta`**. It finds pending deltas by globbing the archives (`aire-archives/*/*/spec/plans/delta/*/`) and dropping any already in `aire-archives/stitch-ledger.md`, then performs a **full-document refresh of the Atlas deep dive**: it reads the live document's outline, and decides **every section** against the **merged code on base** — refreshed, kept only on positive re-verification, or resolved/removed — before writing the complete body back via the Helix MCP and appending one ledger row per delta.
+
+> 🔴 **Why the whole document, not just what the delta names.** A deep dive is a full system analysis — directory structure, statistics, entry points, component catalog, flows, dependency graph, database, test coverage, file inventory — and one real epic invalidates most of it at once. Scoping the refresh to a delta's own list is how `### Directory Structure` ends up describing a codebase that no longer exists. The delta supplies the narrative and the traceability; **the merged tree is the ground truth**, which is exactly why this runs post-merge on base.
+
+**There is no live `spec/` to touch: `archive-epic` already removed it at cycle close.** The repo diff is the ledger row plus archived audit entries, raised as a `stitch-delta/<ID>` PR; it never commits to base directly.
+
+The next cycle then pulls current-system truth from Atlas that already includes this one, and Workspace Detection recreates `spec/context-project/` empty — re-add anything you still need from `aire-archives/epics/<EPIC-ID>-<epic-name>/spec/context-project/`.
+
+> **Run it when no cycle branch is open.** Deleting `spec/` on base conflicts with any open cycle branch that modified those files (a delete/modify conflict per file); the skill checks for open `epic/`/`bug/`/`enhancement/`/`story/`/`ve/` branches and warns before proceeding. A cycle branched *after* this PR merges is unaffected — every cycle regenerates `spec/` from Atlas anyway.
 
 ---
 
@@ -628,7 +661,7 @@ Runs right after the Step 1 mandatory stop on the dev's **yes**, on the same bug
 5. **AUTO code review** → any finding is **auto-remediated and re-reviewed until clean** (no approval asked).
 6. Once the verdict is clean: **`[BUG]` PR straight to the base branch** (via `pr-generator`), followed by an **AUTO `pr-review`** pass. Meanwhile ve has been running **`/ve-implement <TICKET-ID>`** on the bug branch since the design stages finished — its `ve/…` PR merges into the bug branch, so the test docs reside in this same `[BUG]` PR into base branch.
 7. **The ticket stays In Development** — it is never moved forward by this workflow. After the `[BUG]` PR merges into the base branch, ve **invokes `/ve-list-work`** and picks local **Option B** on the base branch, tests the merged fix by executing manual test steps generated by `/ve-implement`, and answers one prompt — `<tracker key> approve` or `<tracker key> reject`. Approve → comment `ve approved the story` + `ve-approved` label, ticket → Ready for Testing; reject → comment `ve rejected the story` + `ve-rejected` label, ticket stays In Development (ve manually log the bug via `/raise-defect`). 
-8. **MANUAL archive (bug mode)** — 🔴 **not automatic**. Once the ve's `/ve-implement` test-plan PR have **merged into the bug branch** and all ve work is done and commited to bug branch, pull that branch and invoke **`/archive-epic`** yourself — it archives `spec/` + `reports/` + `runtime-artifacts/` into `aire-archives/bugs/<BUG-ID>-<name>/`. It generates no reverse-engineering delta and stitches nothing. It must run **before** the `[BUG]` PR merges (its commit resides in the open PR).
+8. **MANUAL archive (bug mode)** — 🔴 **not automatic**. Once the ve's `/ve-implement` test-plan PR have **merged into the bug branch** and all ve work is done and commited to bug branch, pull that branch and invoke **`/archive-epic`** yourself — it archives `spec/` + `reports/` + `runtime-artifacts/` into `aire-archives/bugs/<BUG-ID>-<name>/`, writes the cycle's RE delta to `spec/plans/delta/<BUG-ID>-<name>/`, and then removes the live `spec/`, `reports/` and `runtime-artifacts/` trees in full. It never stitches. It must run **before** the `[BUG]` PR merges (its commit resides in the open PR). **After that PR merges, run `/stitch-delta` on the base branch** — it reads the delta from the archive and publishes it to Atlas. The cycle is not closed until it does.
    🔴 **ve sign-off comes first, on the bug branch**: before the archive, ve runs **`/ve-list-work`** on `bug/<TICKET-ID>-…` — Option C to amend a test plan (commit + push it), Option B to approve and promote the ticket to 🧪 Ready for Testing. Exactly like epic cycles, and for the same reason: the sign-off + test-plan edits get captured in the archive. **`/ve-list-work` never runs on the base branch.**
    Merging the `[BUG]` PR completes the cycle; the next cycle pulls fresh current-system truth from Atlas via the Helix MCP.
 
@@ -666,7 +699,7 @@ An Planning runs on **one branch** — `enhancement/<TICKET-ID>-<title>`, automa
 5. **AUTO code review** → any finding is **auto-remediated and re-reviewed until clean** (same automatic behaviour as `dev-implement`).
 6. Once the verdict is clean: **`[ENH]` PR straight to the base branch** (via `pr-generator`), followed by an **AUTO `pr-review`** pass. Meanwhile ve has been running **`/ve-implement <TICKET-ID>`** on the enhancement branch since the design stages finished — its `ve/…` PR merges into the enhancement branch, so the test docs reside in this same `[ENH]` PR into base.
 7. **The ticket stays In Development** — after the `[ENH]` PR merges, ve **invokes `/ve-list-work`** and picks local **Option B** on the base branch, tests the merged changes by executing manual test steps generated by `/ve-implement`, and answers one prompt — `<tracker key> approve` or `<tracker key> reject`. Approve → comment `ve approved the story` + `ve-approved` label and Ticket → Ready for Testing; reject → comment `ve rejected the story` + `ve-rejected` label, ticket stays In Development (ve manually log the bug via `/raise-defect`).
-8. **MANUAL archive (enhancement mode)** — 🔴 **not automatic**. Once the ve's `/ve-implement` test-plan PR have **merged into the enhancement branch** and  all ve work is done and commited into the enhancement branch, pull that branch and invoke **`/archive-epic`** yourself — it archives `spec/` + `reports/` + `runtime-artifacts/` into `aire-archives/enhancements/<ENH-ID>-<name>/`. It generates no reverse-engineering delta and stitches nothing. It must run **before** the `[ENH]` PR merges (its commit resides in the open PR).
+8. **MANUAL archive (enhancement mode)** — 🔴 **not automatic**. Once the ve's `/ve-implement` test-plan PR have **merged into the enhancement branch** and  all ve work is done and commited into the enhancement branch, pull that branch and invoke **`/archive-epic`** yourself — it archives `spec/` + `reports/` + `runtime-artifacts/` into `aire-archives/enhancements/<ENH-ID>-<name>/`, writes the cycle's RE delta to `spec/plans/delta/<ENH-ID>-<name>/`, and then removes the live `spec/`, `reports/` and `runtime-artifacts/` trees in full. It never stitches. It must run **before** the `[ENH]` PR merges (its commit resides in the open PR). **After that PR merges, run `/stitch-delta` on the base branch** — it reads the delta from the archive and publishes it to Atlas. The cycle is not closed until it does.
    🔴 **ve sign-off comes first, on the enhancement branch**: before the archive, ve runs **`/ve-list-work`** on `enhancement/<TICKET-ID>-…` — Option C to amend a test plan (commit + push it), Option B to approve and promote the ticket to 🧪 Ready for Testing. Exactly like epic cycles, and for the same reason: the Story Tracker still exists there, and the sign-off + test-plan edits get captured in the archive. **`/ve-list-work` never runs on the base branch.**
    Merging the `[ENH]` PR completes the cycle; the next cycle pulls fresh current-system truth from Atlas via the Helix MCP.
 
@@ -680,7 +713,7 @@ This section is written for the Verification Engineer (VE). It states what you a
 
 | Skill | Purpose | When you run it |
 |-------|---------|------------------|
-| **`/ve-implement`** | Author the manual Test Plan for one story/ticket — as manual test steps derived from its acceptance criteria. Never reads application code. | As soon as the design stages finish, in parallel with development. |
+| **`/ve-implement`** | Author — or refresh — the manual Test Plan for one story/ticket, as manual test steps derived from its acceptance criteria. Never reads application code. | The framework already generated and approved every unit's plan at the design handoff, so run this when you want to rework or extend one. |
 | **`/ve-list-work`** | List merged/testable work (Option A), record your Approve/Reject sign-off (Option B), or amend a test plan (Option C). | Once the dev's PR for that story/ticket has merged. |
 | **`/raise-defect`** | Log a bug you found while testing as a well-formed tracker ticket. | Whenever you reject a story, or find an issue during testing. |
 | **`/playwright-implement`** | Turn an already-**Approved** manual UI test plan into real, executable Playwright automation — using Playwright's own Planner/Generator/Healer agents. | Once **both** the dev's PR and your own `/ve-implement` test-plan PR have merged for same story — see Step 3 below. |
@@ -700,7 +733,7 @@ Both skills operate on the cycle's **integration branch**. Which branch that is 
 | Bug | The base branch, for example `Staging` | The single `[BUG]` pull request merges into the base branch |
 | Enhancement | The base branch | The single `[ENH]` pull request merges into the base branch |
 
-All of your generated documentation lives under `spec/test-plans/<STORY-ID>-<title>/`, one folder per story.
+All of your test documentation lives under `spec/test-plans/<STORY-ID>-<title>/`, one folder per story — present on the integration branch from the design handoff onward, before any code is written.
 
 ### Step 1 — Author the test plan: `/ve-implement`
 
@@ -724,11 +757,13 @@ All of your generated documentation lives under `spec/test-plans/<STORY-ID>-<tit
 
    A story number also works on an epic cycle, for example `/ve-implement 1.2`. Invoking it with no argument makes the skill ask which story you mean
 
+**Note — the plan usually already exists.** At the design handoff the framework generates every work unit's `spec/test-plans/<TICKET-ID>-<title>/` by invoking this same skill in workflow mode, and it is approved and committed there, before any code. So on a normal cycle you **review and execute** those plans rather than generating them; run `/ve-implement` yourself when you want to rework or extend one. The steps below describe that standalone run — the only path that carries a ve sign-off.
+
 **What the skill does.** It cuts its own branch, `ve/<TICKET-ID>-<title>`, from the integration branch. It reads the story's acceptance criteria from the configured tracker, together with the requirements and the implementation design artifacts, and decides which test plans apply — integration, end-to-end, API, contract, security, performance, and accessibility. It writes each applicable plan as numbered **manual test steps** into `spec/test-plans/<STORY-ID>-<title>/`, with an index file summarising the plans and the coverage. Every test case names the acceptance criterion it covers, and every acceptance criterion must be covered; that coverage check is a blocking gate.
 
 **What you are asked.** Before any file is written, the skill confirms which test plans it considers applicable. When the plans are complete, it presents a summary and asks you to approve them or request changes. If you request changes, it revises and asks again. Once approved, it asks permission before pushing the branch and opening its pull request.
 
-**What you get.** A pull request titled `[TEST][<TICKET-ID>] Test Plan — <story title>`, raised from `ve/<TICKET-ID>-<title>` back into the integration branch, labelled `ai-generated` and `aire-v<version>`. On a bug or enhancement cycle this means your test documentation travels into the base branch on the same `[BUG]` or `[ENH]` pull request as the fix. Parallel runs by different VE and Developer do not conflict, because these files are configured to merge by appending, .gitattributes.
+**What you get.** A pull request titled `[TEST][<TICKET-ID>] Test Plan — <story title>`, raised from `ve/<TICKET-ID>-<title>` back into the integration branch, labelled `ai-generated` and `aire-v<version>`. On a bug or enhancement cycle this means your test documentation travels into the base branch on the same `[BUG]` or `[ENH]` pull request as the fix. Parallel runs by different VEs do not conflict, because each story gets its own `spec/test-plans/<TICKET-ID>-<title>/` folder; the shared `runtime-artifacts/audit.md` and `runtime-artifacts/aire-state.md` are union-merged via `.gitattributes`.
 
 **What this skill deliberately does not do.** It writes no automated test scripts, executes no tests, changes no application code, and never changes a story's status in the tracker.
 
@@ -868,10 +903,10 @@ Located in `.claude/skills/` — invoked by natural language or `/skill-name`.
 
 | Skill | What it does |
 |-------|--------------|
-| **`intent-intake`** | The light front-door: turns a raw idea in natural language (or a PRD/doc/link) into a six-field baseline intent and **pushes it to your configured tracker as an Epic** (Jira, ADO, GitHub, or local-only).  |
-| **`intent-refinement`** | Fetches an existing Epic from your configured tracker, runs structured elaboration batches until the intent is **verifiable** (measurable criteria + thresholds, scope, constraints, domain model, risks), and updates the Epic on the tracker with the refined detail. |
+| **`intent-intake`** | The light front-door: turns a raw idea in natural language (or a PRD/doc/link) into a six-field baseline intent and **pushes it to your configured tracker as an Epic** (Jira, ADO, GitHub), or writes it to `spec/plans/epic.md` for Local.  |
+| **`intent-refinement`** | Fetches an existing Epic from your configured tracker (or reads `spec/plans/epic.md` for Local), runs structured elaboration batches until the intent is **verifiable** (measurable criteria + thresholds, scope, constraints, domain model, risks), and updates the Epic on the tracker (or overwrites `spec/plans/epic.md`) with the refined detail. |
 | **`story-audit`** | Audits an existing Story or Epic — in whichever tracker is configured (Jira, Azure DevOps, GitHub) or directly from stories.md for Local — against the AIRE quality bar. Fetches the issue, assesses what's present vs missing, scores it, and offers to fill gaps through targeted questions — then updates the issue in the tracker with the improvements (or the local story file, for Local). Works for any issue type (Story, Epic, Task) but applies the appropriate checklist for each. |
-| **`ve-implement`** | ve Test Plan (black-box), **per story, in parallel with development** — the dev's code does not need to exist, be built, or be merged, so ve can start the moment the design stages finish. Run it as `/ve-implement <story-ID>` on the **epic branch** (epic cycles) or the **bug/enhancement branch** (ticket cycles), **as soon as the design stages of implementation phase finish**: it cuts an **`ve/<ID>-<title>`** branch from that latest branch, reads the story's acceptance criteria from the configured tracker, requirements and design artifacts — **never application source code** — decides which test plans apply (integration, E2E, API, contract, security, performance, accessibility) and writes them as **manual test steps** into `spec/test-plans/<STORY-ID>-<title>/`, one folder per story, every test case traced to an acceptance criterion and every criterion covered. It then **commits and raises a PR back to that same branch** — labeled `ai-generated` + `aire-v[N]` — logged in `runtime-artifacts/audit.md`; `.gitattributes` merges these files by append so parallel ve runs never conflict. One story per run. |
+| **`ve-implement`** | ve Test Plan (black-box), **per story, in parallel with development** — the dev's code does not need to exist, be built, or be merged, so ve can start the moment the design stages finish. Run it as `/ve-implement <story-ID>` on the **epic branch** (epic cycles) or the **bug/enhancement branch** (ticket cycles), **as soon as the design stages of implementation phase finish**: it cuts an **`ve/<ID>-<title>`** branch from that latest branch, reads the story's acceptance criteria from the configured tracker, requirements and design artifacts — **never application source code** — decides which test plans apply (integration, E2E, API, contract, security, performance, accessibility) and writes them as **manual test steps** into `spec/test-plans/<STORY-ID>-<title>/`, one folder per story, every test case traced to an acceptance criterion and every criterion covered. It then **commits and raises a PR back to that same branch** — labeled `ai-generated` + `aire-v[N]` — logged in `runtime-artifacts/audit.md`; parallel ve runs never conflict because each story writes its own folder, and `.gitattributes` union-merges the shared `runtime-artifacts/` state files. One story per run. |
 | **`code-security-review`** | Full-codebase audit against the 16 Security Baseline rules (SECURITY-01…16: encryption, headers, input validation, SSRF, uploads, access control, CSRF, JWT, credentials, sessions, supply chain, XXE, alerting, error handling, crypto standards). Findings by severity, dated report in `reports/code-security-reviews/`. |
 | **`raise-defect`** | Interviews the ve through a fixed field set — Title, Description, Severity, Environment Found, Discovery Activity (Components always `Default`, Associated Org always `All`) — then, after the ve approves the drafted ticket, creates the bug in your configured tracker (Jira, ADO, GitHub, or local) labeled `bug`, `defect`, `ai-generated`, `aire`, `aire-v[N]`. The developer picks it up via `ticket-implement <TICKET-ID>`. |
 | **`pr-generator`** | Raises a GitHub PR from the current branch into a target branch, tagged with `ai-generated` and `aire-N` labels and an `AIRE Framework: vN` line in the body. In automatic workflow mode it grounds the summary in the **Story Tracker** and **audit trail** (never just the raw diff) and titles the PR with an **`[EPIC]`, `[STORY]`, `[BUG]` or `[ENH]`** prefix. **Can also be invoked standalone** (e.g. "/pr-generator") to open a PR from **any branch into any target branch** (N → M): it asks only which branch to target, then raises it with both labels.|
@@ -879,7 +914,8 @@ Located in `.claude/skills/` — invoked by natural language or `/skill-name`.
 | **`pr-review`** | Senior-reviewer pass over a PR: reads diff + description, cross-checks stories and audit context, drafts inline comments tagged 🔴 Blocker / 🟠 Issue / 🟡 Nit /  Question / 🟢 Praise plus a verdict and a "Suggested for human review" section.|
 | **`playwright-implement`** | Orchestrates Playwright's **own** official Test Agents (Planner, Generator, Healer — installed once via `npx playwright init-agents --loop=claude`) to turn a story's already-Approved manual UI test steps into executable Playwright automation. Runs only after both the dev's story PR and ve's own `/ve-implement` test-plan PR have merged into the integration branch; gated by a Prerequisite Gate (Playwright + agents installed, local server up, fixtures seeded), a Seed Test Gate, a mandatory approval on the Planner's plan, and a push gate before pushing directly to the integration branch (no PR). UI/browser automation only — backend/API cases stay manual. |
 | **`reverse-engineering-root`** | Generates the **root** reverse engineering artifacts once at the workspace root — a single artifact set covering **all monorepo modules**, which every module then reuses for development. Run upfront before an epic cycle (or let each cycle refresh current-system truth fresh from Atlas via the Helix MCP) |
-| **`archive-epic`** | Closes an **epic, bug, or enhancement** release cycle: archives the complete `spec/` + `reports/` + `runtime-artifacts/` (runtime-artifacts/audit.md, runtime-artifacts/aire-state.md, RE docs, etc..) into `aire-archives/epics/<EPIC-ID>-<name>/`, `aire-archives/bugs/<BUG-ID>-<name>/`, or `aire-archives/enhancements/<ENH-ID>-<name>/` per the `Workflow Type` in state. It generates **no** reverse-engineering delta and stitches nothing — current-system truth (`spec/plans/atlas-deep-dive.md` and the flat RE docs) is refreshed fresh from Atlas via the Helix MCP at the start of each new cycle. **Auto-triggered only for epic cycles** (pr-generator, Epic → Base PR); **bug and enhancement cycles are archived manually** by the operator once the ve's work is completed and all the artifacts are merged into the cycle branch. |
+| **`archive-epic`** | Closes an **epic, bug, or enhancement** release cycle: archives the complete `spec/` + `reports/` + `runtime-artifacts/` (runtime-artifacts/audit.md, runtime-artifacts/aire-state.md, RE docs, etc..) into `aire-archives/epics/<EPIC-ID>-<name>/`, `aire-archives/bugs/<BUG-ID>-<name>/`, or `aire-archives/enhancements/<ENH-ID>-<name>/` per the `Workflow Type` in state. It also writes the cycle's **reverse-engineering delta** to `spec/plans/delta/<CYCLE-ID>-<name>/` (a change record: Summary, a path-level Changed Surfaces evidence table, a non-exhaustive Impacted Areas hint, and a Resolved table — no anchors, no patch payloads), which is archived with the rest of `spec/`, and then **removes the live `spec/`, `reports/` and `runtime-artifacts/` trees in full** — `context-project/` included. 🔴 It **never stitches** and **never writes the stitch ledger** — both are `stitch-delta`'s job, post-merge, reading the delta out of the archive. **Auto-triggered only for epic cycles** (pr-generator, Epic → Base PR); **bug and enhancement cycles are archived manually** by the operator once the ve's work is completed and all the artifacts are merged into the cycle branch. |
+| **`stitch-delta`** | Closes the loop back to Atlas, on the **base branch, after the cycle PR has merged**. Reads each pending delta **out of its cycle archive** (`aire-archives/*/*/spec/plans/delta/*/`, minus anything already in `aire-archives/stitch-ledger.md`), then performs a **full-document refresh** of the Atlas deep dive: every section is decided against the **merged code** — refreshed, kept only on positive re-verification, or resolved/removed — and the complete body is written back via the Helix MCP. 🔴 It is never limited to the sections a delta names; "not in the delta" is not a reason to leave a section stale. `version` is re-checked so a concurrent Atlas edit is never overwritten, and the write is verified by re-reading before any ledger row is appended. A double stitch is impossible: the ledger row and a `> **Stitched**: <CYCLE-ID>` marker in the Atlas document are two independent guards. **It never touches `spec/`** (there is none by then), so its whole repo diff is the ledger row + archived audit entries, raised as a `stitch-delta/<ID>` PR (labels `ai-generated` + `aire-v[N]`); it never commits to base directly. Refuses to start while another stitch PR is open, and HALTs without writing anything if Helix/Atlas is unreachable. |
 
 ---
 
@@ -956,6 +992,7 @@ When updating the framework, please ensure the version is also updated in these 
 |-------|-----------|----------------|
 | **`code-security-review-agent`** | `/code-security-review` skill | A senior application-security engineer persona. Maps the codebase's attack surface (entry points, data stores, auth boundaries), audits every file against all 16 Security Baseline rules (SECURITY-01…16), classifies findings on a four-level severity scale, and produces a dated report with evidence, remediation, and an OWASP-mapped compliance matrix. | 
 | **`ve-implement-agent`** | `/ve-implement` skill | A senior ve persona that owns **Test Plan**, per story, in parallel with development. Reads the story's acceptance criteria, requirements, epic brief, design and reverse-engineering artifacts — **never application source code**, because the code may not exist yet. Executes `implementation/test-plan.md`: decides which test plans apply, then writes them as **manual test steps** (`TC-…` cases with preconditions, steps, expected result, pass/fail criteria, cleanup) into `spec/test-plans/<Story-ID>-<title>/`, gated on every acceptance criterion being covered.|
-| **`archive-epic-agent`** | `/archive-epic` skill (auto-triggered by `pr-generator` on **Epic→Base PRs only**; **bug and enhancement cycles are invoked manually** by the operator after the ve test-plan PR merges into the cycle branch) | A release-manager persona that closes an epic, bug, or enhancement cycle: archives the complete `spec/` + `reports/` + `runtime-artifacts/` into `aire-archives/epics\|bugs\|enhancements/` and commits so the archive resides the open PR. It generates no reverse-engineering delta and stitches nothing — current-system truth is refreshed fresh from Atlas via the Helix MCP at the start of each new cycle. |
+| **`archive-epic-agent`** | `/archive-epic` skill (auto-triggered by `pr-generator` on **Epic→Base PRs only**; **bug and enhancement cycles are invoked manually** by the operator after the ve test-plan PR merges into the cycle branch) | A release-manager persona that closes an epic, bug, or enhancement cycle: archives the complete `spec/` + `reports/` + `runtime-artifacts/` into `aire-archives/epics\|bugs\|enhancements/`, writes the cycle's RE delta to `spec/plans/delta/<CYCLE-ID>-<slug>/` (Step 3 defines the delta schema for the whole framework), registers it pending in the stitch ledger, and commits so all of it resides in the open PR. It keeps `atlas-deep-dive.md` and never stitches. |
+| **`stitch-delta-agent`** | `/stitch-delta` skill (manual, post-merge) | A release-librarian persona that runs on the **base branch after the cycle PR merged**: reads each pending delta from its cycle archive, then refreshes the **entire** Atlas deep dive against the merged tree — every section refreshed, kept (only on re-verification) or resolved — grounded in real repo facts rather than the delta's prose, with `version` re-checked so a newer Atlas edit is never overwritten and the write verified by re-reading. Writes the stitch marker, appends one ledger row per delta, and raises a `stitch-delta/<ID>` PR into base. Touches no `spec/`, `src/` or `tests/` path. HALTs without writing anything if Atlas is unreachable. |
 | **`defect-provenance-analyst`** | `bug-fix` workflow | A read-only code archaeologist for **line-level AI-origin detection**: traces each defective line past cosmetic commits to the commit that *introduced* the logic (`git blame -w -M -C` / `git log -L`), resolves its PR, and issues an AI-generated / human verdict on **positive evidence only** (AI-Generated PR label, Claude co-author trailer, or `AIRE-Version` trailer). Also resolves the **originating tracker ticket** that shipped the line — story, bug fix or enhancement, read from the PR title or commit subject or branch name — which the bug flow links automatically. |
 | **`playwright-implement-agent`** | `/playwright-implement` skill | An orchestrator persona that never re-implements Playwright's own agents — it invokes the real, installed `playwright-test-{planner,generator,healer}` subagents by name, gates the human checkpoints (Seed Test Gate, Planner-plan approval, push gate) this framework requires around them, and runs the Generator/Healer strictly one scenario at a time to avoid the confirmed zombie-process failure mode of parallel invocations. |

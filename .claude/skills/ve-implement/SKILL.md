@@ -9,7 +9,7 @@ description: >
   no build-verification artifact, each plan opens with a System Under Test precondition block instead)
   into spec/test-plans/<TICKET-ID>-<title>/, with every test case traced to an acceptance criterion.
   Needs no DEV code, branch, PR or merge, so ve can run it the moment a story exists — it never
-  depends on or waits for the dev's branch/PR. It DOES cut its own `ve/<TICKET-ID>-<title>` branch
+  depends on or waits for the dev's branch/PR. IN STANDALONE MODE ONLY it cuts its own `ve/<TICKET-ID>-<title>` branch
   from the resolved integration branch (Epic Branch for epic cycles, Bug/Enhancement Branch for
   those cycles), commit the generated docs, and (confirm-first) push and raise its own PR back into
   that branch, labeled `ai-generated` + `aire-v<version>` (the framework version read live from
@@ -17,11 +17,14 @@ description: >
   changes — and never changes story or tracker status (that remains `ve-list-work`'s job).
   TWO MODES: STANDALONE (ve types /ve-implement — everything above applies as written, including the
   story-picker, the ve/... branch, the Approve/Request-Changes checkpoint and the PR), and WORKFLOW
-  (invoked as a step by dev-implement / bug-fix-implement / enhancement-implement with mode: workflow
-  and the story passed in, purely to derive the UI test scope for their Playwright gate — the
-  story-picker, the ve/... branch, the approval checkpoint and the push/PR are all SKIPPED; the
-  generated spec/test-plans/ files stay in the working tree and ride the caller's own commit). Content
-  and rigour are identical in both modes; WORKFLOW MODE output is NOT ve sign-off.
+  (mode: workflow with the story passed in — the story-picker, the ve/... branch, the approval
+  checkpoint and the push/PR are all SKIPPED; the generated spec/test-plans/ files stay in the working
+  tree and ride the caller's own commit). WORKFLOW MODE has two callers: the STOP CHECKPOINT
+  (CLAUDE.md Step 1.7 / implementation/specs-and-test-plans.md), which invokes it once per work unit
+  of the cycle BEFORE any code is generated and approves the whole set at its own gate — the primary
+  path now — and dev-implement / bug-fix-implement / enhancement-implement, which invoke it only to
+  backfill a genuinely absent plan. Content and rigour are identical in both modes; WORKFLOW MODE
+  output is NOT ve sign-off.
 when_to_use: >
   Trigger when the user says: "/ve-implement 1.2", "/ve-implement PROJ-123", "/ve-implement",
   "Test Plan for story 1.2", "generate test steps for story 1.2",
@@ -41,7 +44,9 @@ aire-workflow/agents/ve-implement-agent.md
 Read that file completely and follow every step defined in it.
 
 🔴 **FIRST resolve the mode** (`ve-implement-agent.md` → **Mode Detection**): **STANDALONE** (ve typed
-the trigger) runs every step as written; **WORKFLOW** (`mode: workflow`, invoked by `dev-implement` /
-`bug-fix-implement` / `enhancement-implement` with the story passed in) skips the story-picker, the
+the trigger) runs every step as written; **WORKFLOW** (`mode: workflow`, with the story passed in —
+by the STOP CHECKPOINT for every work unit of the cycle, or by `dev-implement` /
+`bug-fix-implement` / `enhancement-implement` to backfill a missing plan) skips the story-picker, the
 `ve/…` branch, the Approve/Request-Changes checkpoint and the push/PR — and touches git not at all.
+🔴 In either mode, never overwrite a test plan that was approved at the STOP CHECKPOINT.
 

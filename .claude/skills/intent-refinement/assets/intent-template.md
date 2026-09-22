@@ -6,7 +6,7 @@ fill_level:       baseline  # baseline (thin/as-fetched) | full (after refinemen
 kpi:              # the business outcome / metric this moves
 confidence:       # low | med | high — how sure are we this is worth doing
 context_link:     # URL/path to the research, prototype, deck, or notes this came from
-tracker_id:       # the Epic's ID in the configured tracker (JIRA/ADO/GITHUB), or LOCAL
+tracker_id:       # the Epic's ID in the configured tracker (JIRA/ADO/GITHUB)
 owner:            # the PO accountable
 created:
 updated:
@@ -16,8 +16,8 @@ updated:
 
 > One document, two fill levels. **Baseline** captures what's already in the Epic — just enough
 > to orient. **Full** adds the depth driven by refinement: measurable criteria, domain model,
-> constraints, NFRs, risks. The configured tracker is the system of record (or this document itself, for Local); this doc is the workspace artifact.
-> On any drift, **the tracker wins** (or this document, for Local).
+> constraints, NFRs, risks. The configured tracker is the system of record; this doc is the workspace artifact.
+> On any drift, **the tracker wins**.
 
 ---
 

@@ -68,7 +68,9 @@ newer template introduced. The repo's own file wins.
     "startCommand": null,
     "readinessUrl": null,
     "testCommand": "npx playwright test tests/e2e/",
-    "_comment": "Set true, with startCommand/readinessUrl resolved and testCommand adjusted if needed, the first time a work unit's manifest fragment (implementation/code-generation.md Step 11d) runs the Playwright UI Automation Gate for real. 🔴 testCommand is stored WITHOUT a display flag: the local gate appends --headed (developer's own machine), and CI deliberately appends nothing because a runner has no display. CI's own Playwright step re-executes THIS SAME command set as a trust gate — never the first execution. N/A (not false) when the project genuinely has no UI at all."
+    "backendStartCommand": null,
+    "backendReadinessUrl": null,
+    "_comment": "Set true, with startCommand/readinessUrl resolved and testCommand adjusted if needed, the first time a work unit's manifest fragment (implementation/code-generation.md Step 11d) runs the Playwright UI Automation Gate for real. 🔴 testCommand is stored WITHOUT a display flag: the local gate appends --headed (developer's own machine), and CI deliberately appends nothing because a runner has no display. CI's own Playwright step re-executes THIS SAME command set as a trust gate — never the first execution. N/A (not false) when the project genuinely has no UI at all. 🔴 backendStartCommand/backendReadinessUrl stay null when startCommand alone already brings up everything the tests need (a monolith, docker-compose, a monorepo dev task) — set them ONLY when the local gate needed frontend and backend as two genuinely separate processes, resolved the same never-invented way as every other command here."
   },
   "judge": { "model": "<resolved session model id>", "rubricVersion": "<architecture.md version>" },
   "ci": {

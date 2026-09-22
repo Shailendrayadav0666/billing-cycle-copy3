@@ -50,6 +50,8 @@ HelixAI-AIRE is a structured yet flexible software development process that adap
         |   - NFR Requirements Assess (COND)    |
         |   - NFR Design (COND)                 |
         |   - Infrastructure Design (COND)      |
+        | * Behaviour Specs + Test Plans        |
+        |   (every work unit, 1 approval)       |
         | * >> STOP << (before code gen)        |
         | * Code Generation (per-story, via     |
         |   `dev-implement`; + unit tests to threshold) |
@@ -84,15 +86,15 @@ HelixAI-AIRE is a structured yet flexible software development process that adap
 
 **IMPLEMENTATION PHASE** - *Detailed Design & Implementation*
 - **Purpose**: Determines HOW to build it
-- **Activities**: System-level detailed design (when needed), then — after a mandatory **STOP** — per-story code generation that you trigger with the **`dev-implement`** keyword (on a story branch cut from the Epic branch, with unit tests generated and run to the `unitTestCoverageMin` threshold, plus — when the story adds/changes an API endpoint — an automated **API & Contract Testing Gate**: functional behavior, response-code validation, role-based authorization 401/403, error-response validation, request validation, and response contract/schema validation), and optional code review
-- **Output**: Working code, unit tests, API & Contract test evidence (when applicable)
+- **Activities**: System-level detailed design (when needed); then **every** work unit's Gherkin contract (`spec/behavior/<unit>.feature`) and manual test plan (`spec/test-plans/<TICKET-ID>-<title>/`) are written and approved in ONE pass — before any code exists; then — after a mandatory **STOP** — per-story code generation that you trigger with the **`dev-implement`** keyword (on a story branch cut from the Epic branch, with unit tests generated and run to the `unitTestCoverageMin` threshold, plus — when the story adds/changes an API endpoint — an automated **API & Contract Testing Gate**: functional behavior, response-code validation, role-based authorization 401/403, error-response validation, request validation, and response contract/schema validation), and optional code review
+- **Output**: Approved behaviour contracts and manual test plans for every work unit, then working code, unit tests and API & Contract test evidence (when applicable)
 - **Your Role**: Review designs, type `dev-implement` to build each story, approve implementation plans, validate results
 
 **ve TRACK** - *Test Plan, in parallel with development*
 - **Purpose**: Proves each story meets its acceptance criteria
-- **Not a Implementation stage** — neither at epic level nor at story level. ve drives it independently and can start immediately, without waiting for any code
+- **Sign-off is not a Implementation stage** — neither at epic level nor at story level. ve drives it independently and can start immediately, without waiting for any code. The plans themselves are already written and approved at the STOP checkpoint, so ve can review them before a line of code exists
 - **Activities**: **`/ve-implement`** generates one story's Test Plan artifacts — manual test steps for every applicable test plan (integration, E2E, API, contract, security, performance, accessibility — whichever apply; there is no build-verification artifact), derived from the story's acceptance criteria, never from source code — into `spec/test-plans/<JIRA-ID>-<jira-title>/`. The mandatory Playwright Test Automation extension means `/playwright-implement` always turns the UI-relevant steps into executable browser automation once both the dev's and ve's PRs have merged. **`ve-list-work`** (on the cycle's integration branch — epic, bug, or enhancement) reports which stories/tickets dev has merged and moves the ones ve has tested to Ready for Testing
-- **Your Role (as ve)**: type `/ve-implement` per story, execute the test steps, then `ve-list-work` to sign off
+- **Your Role (as ve)**: review the plans already on the branch (type `/ve-implement` per story only to refresh or extend one), execute the test steps, then `ve-list-work` to sign off
 
 ## Key Principles:
 

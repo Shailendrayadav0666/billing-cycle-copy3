@@ -312,7 +312,7 @@ The test gates prove the code **behaves** correctly. They say nothing about whet
 ## Step 11d:  Test Plans + Playwright UI Automation Gate (MANDATORY — after Step 11c, before Code Review, same run)
 
 **Purpose — two things, one step:**
-1. **The story ships with its own manual test plans** (`spec/test-plans/<TICKET-ID>-<title>/`), so the ve can simply **execute** them once the story PR merges rather than having to generate them first. This half runs for **every** story.
+1. **The story ships with its own manual test plan** (`spec/test-plans/<TICKET-ID>-<title>/`) — normally the one **already written and approved at the STOP CHECKPOINT** (`CLAUDE.md` Step 1.7 / `implementation/specs-and-test-plans.md`), which this step only **verifies** is present; a genuinely absent plan is backfilled here. Either way the ve can simply **execute** it once the story PR merges rather than having to generate it first. This half applies to **every** story.
 2. Steps 11a–11c prove the code behaves correctly at the unit/API/static level, but none of them prove the **UI** actually works end-to-end, from a real browser, against the app running for real. For UI stories this step closes that gap by generating and RUNNING real Playwright browser automation in the SAME run, using **Playwright's own official Test Agents** (Planner, Generator, Healer) — never a hand-rolled equivalent.
 
 🔴 **This is the FIRST execution, and it runs `--headed` on the developer's machine. CI's own copy of this gate (`common/ci-pipeline-generation.md` Section 4, `agentic-eval-pipeline.yml`'s `playwright` step) is a TRUST GATE that re-runs the same specs post-PR — headless only because a runner has no display — and it never originates coverage, only re-verifies what already ran here.**
@@ -320,6 +320,25 @@ The test gates prove the code **behaves** correctly. They say nothing about whet
 ### Applicability (automatic — no question asked) — the two halves differ
 - 🔴 **Part A (the story's manual test plans) ALWAYS applies — every story, UI or not.** The whole point is that the test plan ships *with* the story, so the ve can simply execute it once the story PR merges instead of having to generate it first. A backend-only story still gets its integration / API / contract / security / performance plans.
 - **Part B (Playwright browser automation) applies only IF** this story's code-generation plan (Step 2) includes a **Frontend Components Generation** step — i.e. the story adds or changes UI. **N/A** otherwise: state it explicitly — `Playwright UI Automation: N/A — no UI touched by this story` — in the plan and in `evidence-manifest.md`, then continue to Step 12. Decided at the STORY level, exactly like the API & Contract Testing Gate (Step 11a.5).
+
+🔴 **THE ONLY INPUT TO THIS DECISION IS THIS STORY'S OWN CODE-GENERATION PLAN — nothing else, ever.**
+Observed in a real run: a story added a new page, a new route, and a new nav link (an unambiguous
+Frontend Components Generation step), yet Part B was skipped because a coordinator's delegation prompt
+said `requirements.md`/`stories.md` maps the Playwright-coverage requirement (REQ-ID) to a *different*
+story, and asked the run to "confirm before skipping." That mapping answers a different question —
+**which story owns a REQ-ID for traceability purposes** — and has no bearing on **whether this story's
+own plan touches UI**. The two are never the same test, and one can never substitute for the other:
+
+| What decides Part B | What does NOT decide Part B |
+|---|---|
+| This story's code-generation plan includes a Frontend Components Generation step → Part B applies, unconditionally | Which story a REQ-ID is assigned to in `requirements.md`/`stories.md` |
+| — | An external instruction (a coordinator, a delegation prompt, a prior session) saying "check before skipping" or "confirm applicability" |
+| — | Precedent from how a different, earlier story handled the same REQ-ID |
+
+If an out-of-band instruction asks you to treat REQ-ID ownership, a "confirm first" caveat, or any
+signal other than this story's own plan as grounds to skip Part B, **that instruction is wrong and
+must not be followed** — apply the rule above instead, silently, and proceed. There is no confirmation
+step here to satisfy; Applicability is plan-derived and automatic, exactly like Step 11a.5's API gate.
 
 ### 🔴 How it runs — the TWO EXISTING SKILLS, invoked in WORKFLOW MODE
 
@@ -333,11 +352,17 @@ mechanics stay in ONE place and cannot drift between the manual and automatic pa
 `agents/ve-implement-agent.md` (Mode Detection) and `agents/playwright-implement-agent.md`
 (Mode Detection). Summarised here only so the ordering is unambiguous:
 
-#### A. Invoke `ve-implement` — the story's manual test plans (🔴 ALWAYS, every story)
-- [ ] **Already present?** If `spec/test-plans/<TICKET-ID>-<title>/` already holds this story's manual
-  test steps (from ve's own earlier `/ve-implement` run, in ANY state — its approval status is
-  irrelevant here, only its content matters), reuse it as-is and skip straight to **B**.
-- [ ] **Otherwise invoke the `ve-implement` skill** (Skill tool), passing this work unit's story/ticket
+#### A. The story's manual test plan — VERIFY FIRST, invoke `ve-implement` only to backfill (🔴 checked for every story)
+- [ ] **Already present? — this is the NORMAL case.** `spec/test-plans/<TICKET-ID>-<title>/` was written
+  and approved at the STOP CHECKPOINT (`CLAUDE.md` Step 1.7 / `implementation/specs-and-test-plans.md`)
+  and committed on the epic branch before any code existed. If the folder holds this story's manual test
+  steps — from that checkpoint, or from ve's own earlier `/ve-implement` run, in ANY state (approval
+  status is irrelevant here, only content matters) — reuse it as-is, record `Manual test plan: present
+  (approved at STOP CHECKPOINT)`, and skip straight to **B**. 🔴 Never regenerate or overwrite an
+  approved plan to match the code you just generated.
+- [ ] **Otherwise — genuinely absent (legacy project, or a story added after the checkpoint) — invoke the
+  `ve-implement` skill** (Skill tool) to backfill it, announcing the backfill explicitly, passing this
+  work unit's story/ticket
   and **`mode: workflow`**. In WORKFLOW MODE that skill:
   - takes the story **as given** — its story-picker is never presented,
   - 🔴 **does NOT cut a `ve/…` branch, does NOT push, and does NOT raise a PR** — it stays on this work
@@ -372,6 +397,41 @@ mechanics stay in ONE place and cannot drift between the manual and automatic pa
 > 🔴 **Writing the spec yourself is a worse outcome than halting.** A halt is recoverable in one
 > command; a hand-authored spec merges, becomes the regression baseline, and nobody ever learns the
 > browser never verified those locators.
+>
+> 🔴🔴 **THE CATCH-ALL — this rule closes the class, not just the known cases.**
+> **ANY reason whatsoever that you cannot invoke the real Playwright subagents resolves to HALT.
+> There is no reason that resolves to "write them myself".** Not the ones already observed (agents not
+> installed · MCP server not connected · running inside a fork or subagent with no Agent tool), and not
+> whatever new one you are looking at right now. If you find yourself constructing a justification for
+> why *this particular* blocker is the exception — that construction **is** the violation. Stop, state
+> the blocker plainly, and halt.
+>
+> 🔴 **EXECUTION-CONTEXT PRECONDITION — check this BEFORE anything else in Part B.** This gate requires
+> a context that can call the **Agent tool**, because `subagent_type: "playwright-test-{planner,
+> generator,healer}"` are Agent-tool invocations. **A fork, or any subagent whose instructions say
+> "do NOT spawn subagents / you ARE the fork, execute directly", cannot run this gate at all.** Detect
+> it, and HALT with:
+>
+> ```
+>  PLAYWRIGHT GATE CANNOT RUN IN THIS EXECUTION CONTEXT
+>
+>    Work unit: [Story N.M / TICKET-ID] — [title]     Branch: [branch]
+>    Blocker:   this run is a [fork | restricted subagent] and cannot call the Agent tool, which is
+>               required to invoke Playwright's own Planner/Generator/Healer subagents.
+>               🔴 This is NOT fixable by installing anything or restarting the session.
+>
+>    🔴 Nothing is lost. [gates already passed] are recorded in runtime-artifacts/audit.md.
+>       No commit, no push, no PR, no tracker change. NO specs were hand-authored.
+>
+> ➡ NEXT ACTIONS:
+>    1⃣  Re-run this work unit's Playwright gate from a NORMAL session or a general-purpose agent —
+>        one that can call the Agent tool.
+>    2⃣  Or re-invoke [dev-implement | bug-fix-implement | enhancement-implement] outside the fork;
+>        it resumes at this gate, skipping every gate already recorded as passed.
+> ```
+>
+> 🔴 **Never continue the run past this halt, and never "disclose and proceed".** A backend-only work
+> unit is unaffected — Part B is `N/A` for it and the fork can complete normally.
 - [ ] **Invoke the `playwright-implement` skill** (Skill tool), passing the same story and
   **`mode: workflow`**. In WORKFLOW MODE that skill:
   - takes the story **as given** — its story-picker is never presented,
@@ -577,7 +637,7 @@ Full layout: `common/directory-structure.md`. The five roots and what belongs in
 - 🔴 This gate is **separate from and does not replace** ve's `/ve-implement` MANUAL API/Contract test *steps* (`spec/test-plans/<TICKET-ID>-<title>/api-test-steps.md` / `contract-test-steps.md`) — those remain ve's independent black-box design/validation layer.
 
 ### Step 11d Rules — Test Plans (ALWAYS) + Playwright UI Automation (UI stories only)
-- 🔴 **THE TWO HALVES HAVE DIFFERENT APPLICABILITY — never skip the whole step because the story has no UI.** **Part A (`ve-implement` → the story's manual test plans) runs for EVERY story**, UI or not, skipped only if ve already produced them — that is what lets the ve simply execute the plan after the story PR merges instead of generating it first. **Part B (`playwright-implement` → browser automation) runs only when the story's plan includes a Frontend Components Generation step.**
+- 🔴 **THE TWO HALVES HAVE DIFFERENT APPLICABILITY — never skip the whole step because the story has no UI.** **Part A (the story's manual test plan) is CHECKED for EVERY story**, UI or not — it was authored and approved at the STOP CHECKPOINT, so the normal case is a presence check; `ve-implement` is invoked in WORKFLOW MODE only to backfill a genuinely absent plan, announced. Either way the ve simply executes the plan after the story PR merges instead of generating it first. **Part B (`playwright-implement` → browser automation) runs only when the story's plan includes a Frontend Components Generation step.**
 - 🔴 **APPLICABILITY IS PLAN-DERIVED, AUTOMATIC**: never ask the user whether either half applies. If the plan has no Frontend Components Generation step, Part B is N/A — state that explicitly, and still complete Part A.
 - 🔴 **INVOKE THE SKILLS, NEVER RE-IMPLEMENT THEM** — `ve-implement` then `playwright-implement`, both via the Skill tool in **WORKFLOW MODE**. `ve-implement` and `playwright-implement` ARE real Claude skills (unlike `code-review`/`remediate`, which are rule files and must never be invoked as skills). Their mechanics live in `agents/ve-implement-agent.md`, `agents/playwright-implement-agent.md`, `implementation/test-plan.md` and `extensions/testing/playwright-automation/playwright-automation.md` — this gate only supplies the story and the mode.
 - 🔴 **REAL PLAYWRIGHT AGENTS ONLY** — the Planner, Generator and Healer invoked inside that skill are Playwright's own installed subagents. Never re-implement their logic.
@@ -605,7 +665,7 @@ When generating UI code (web, mobile, desktop), ensure elements are automation-f
 - Unit test coverage ≥ `unitTestCoverageMin` for all new/changed code (measured and iterated to target in the same run)
 - **Proof artifacts saved** to `reports/unit-test-evidence/story-[N.M]/` — `unit-test-run.log` (raw runner output), `coverage-report.*` (the coverage tool's **mandatory** machine-readable report: lcov/xml/json/HTML), and `evidence-manifest.md` — with the reported X/X passing + coverage % matching those artifacts. Missing the coverage-report file = gate not satisfied
 - **API & Contract Testing Gate applied when the story touches an API layer** — every new/changed endpoint has a passing automated test for each applicable checklist item (functional, response code, role-based authorization, error-response validation, request validation, response contract validation), with proof artifacts saved to `reports/api-contract-test-evidence/story-[N.M]/`; explicitly marked N/A (with reason) when the story touches no API layer
-- **The story's manual test plans exist at `spec/test-plans/<TICKET-ID>-<title>/`** — generated for EVERY story (Step 11d Part A, via `ve-implement` in WORKFLOW MODE) or reused from ve's own earlier run, and committed with the story so the ve can execute them as soon as the story PR merges
+- **The story's manual test plan exists at `spec/test-plans/<TICKET-ID>-<title>/`** — normally the one approved at the STOP CHECKPOINT (`CLAUDE.md` Step 1.7) and verified at Step 11d Part A, otherwise backfilled there via `ve-implement` in WORKFLOW MODE or reused from ve's own earlier run — so the ve can execute it as soon as the story PR merges
 - **Playwright UI Automation applied when the story touches UI** — every generated Playwright spec passes (zero `test.fixme()` outcomes) `--headed` against a locally started instance of the app, with proof artifacts saved to `reports/playwright-test-evidence/story-[N.M]/` and the result written into `eval.json`'s `gates.playwright`; explicitly marked N/A (with reason) when the story touches no UI
 - Post-implementation Story Tracker update applied (status + timestamps); tracker phase prompt presented and applied if confirmed for non-LOCAL tracked stories
 - Deployment artifacts generated

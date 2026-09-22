@@ -6,12 +6,25 @@
 # own PR without ever touching the committed workflow file (common/ci-pipeline-generation.md Section 4.0d/4.0g).
 #
 # Contract:
-#   arg1  MODE      — "install" | "build" | "coverage"
+#   arg1  MODE      — "install" | "build" | "coverage" | "toolchain" | "eval-tools"
 #   arg2  BASE_SHA  — required for install/build (diff-scoping); coverage runs unconditionally per root
 #                     that has changed files, same as install/build, but always produces its report
-#                     (the report is what run-static-evals.sh's coverage_delta() later reads)
+#                     (the report is what run-static-evals.sh's coverage_delta() later reads).
+#                     eval-tools ignores it — the eval tools (semgrep, gitleaks, …) install
+#                     unconditionally, regardless of diff scope (Section 3.2, they gate stack-agnostic
+#                     checks that always run).
 #   Exits non-zero if ANY root's command fails. A root the PR never touched is skipped (diff-scoped,
 #   Section 4.0g) and reported N/A on stdout — never silently absent.
+#
+# 🔴 eval-tools is a STANDALONE mode, not just a step of "install" — the split-job CI pipeline
+#    (common/ci-pipeline-generation.md Section 4) runs each gate in its own job on its own runner.
+#    `setup`'s own "Install dependencies" step installs eval tools onto ITS runner only; a gate job
+#    that actually invokes one of them (today: `static-evals`, for D1-D7) must call
+#    `ci-manifest-runner.sh eval-tools` itself before its gate step — the tarball `setup` packages
+#    carries repo FILES, never a global/CLI tool install (`pip install semgrep`, `curl | tar xz -C
+#    /usr/local/bin gitleaks`) made on a DIFFERENT runner. `install` mode also calls this same
+#    function, unchanged, so a repo generated once and now regenerated behaves identically for the
+#    single-job case; only the split-job pipeline needs the standalone mode.
 set -uo pipefail
 
 MODE="${1:-}"
@@ -27,8 +40,8 @@ source "${LIB_DIR}/lib-manifest.sh"
 fail() { echo "ci-manifest-runner: ERROR: $*" >&2; }
 
 case "$MODE" in
-  install|build|coverage|toolchain) ;;
-  *) fail "usage: ci-manifest-runner.sh <install|build|coverage|toolchain> [base-sha]"; exit 2 ;;
+  install|build|coverage|toolchain|eval-tools) ;;
+  *) fail "usage: ci-manifest-runner.sh <install|build|coverage|toolchain|eval-tools> [base-sha]"; exit 2 ;;
 esac
 if [ ! -f "$CONFIG" ]; then
   fail "$CONFIG missing — cannot resolve the manifest"
@@ -112,6 +125,35 @@ run_root() {
   overall_fail=1
 }
 
+# 🔴 Eval tools (semgrep, gitleaks, pip-audit, …) — deduped by NAME across every root's
+#    toolInstallCommands, run from the repo root (these are global/CLI installs, not root-scoped
+#    project dependencies, so no cd here). This is what removes the separately-generated "Install
+#    eval tools" YAML block: a work unit that brings the repo's first stack of a given kind brings
+#    that stack's eval tools with it, on its own PR, with nothing here to hand-edit (#7a). A tool
+#    named in `tools` with no matching `toolInstallCommands` entry anywhere in the merged manifest is
+#    a Manifest defect (V30-class — untraceable value), not silently skipped. Extracted as its own
+#    function — called from `install` mode (unchanged) AND from the standalone `eval-tools` mode
+#    (Section 4, split-job pipeline: a gate job on its own runner needs ONLY this, never the full
+#    project-dependency install `install` mode also does).
+install_eval_tools() {
+  while IFS=$'\t' read -r tool cmd; do
+    [ -z "$tool" ] && continue
+    if [ -z "$cmd" ] || [ "$cmd" = "null" ]; then
+      lib_manifest_defect "MANIFEST DEFECT — tool '${tool}' is listed in ci.roots[].tools but no root's toolInstallCommands names it. Fix the owning work unit's fragment, not this script."
+      overall_fail=1
+      continue
+    fi
+    echo "ci-manifest-runner (${MODE}): eval tool '${tool}': ${cmd}"
+    if ! eval "$cmd"; then
+      fail "eval tool '${tool}' install failed: ${cmd}"
+      overall_fail=1
+    fi
+  done < <(jq -r '
+    ([.[].tools[]?] | unique) as $names
+    | ($names[] as $n | [$n, ([.[] | .toolInstallCommands[$n]? // empty] | first // "")]) | @tsv
+  ' "$MERGED_MANIFEST" | tr -d '\r')
+}
+
 case "$MODE" in
   install)
     while IFS=$'\t' read -r root stack marker; do
@@ -141,29 +183,10 @@ case "$MODE" in
       done <<< "$cmds"
     done < <(jq -r '.[] | [.root, (.stack // "unknown"), (.markerFile // "")] | @tsv' "$MERGED_MANIFEST" | tr -d '\r')
 
-    # 🔴 Eval tools (semgrep, gitleaks, pip-audit, …) — deduped by NAME across every root's
-    #    toolInstallCommands, run from the repo root (these are global/CLI installs, not root-scoped
-    #    project dependencies, so no cd here). This is what removes the separately-generated "Install
-    #    eval tools" YAML block: a work unit that brings the repo's first stack of a given kind brings
-    #    that stack's eval tools with it, on its own PR, with nothing here to hand-edit (#7a). A tool
-    #    named in `tools` with no matching `toolInstallCommands` entry anywhere in the merged manifest is
-    #    a Manifest defect (V30-class — untraceable value), not silently skipped.
-    while IFS=$'\t' read -r tool cmd; do
-      [ -z "$tool" ] && continue
-      if [ -z "$cmd" ] || [ "$cmd" = "null" ]; then
-        lib_manifest_defect "MANIFEST DEFECT — tool '${tool}' is listed in ci.roots[].tools but no root's toolInstallCommands names it. Fix the owning work unit's fragment, not this script."
-        overall_fail=1
-        continue
-      fi
-      echo "ci-manifest-runner (install): eval tool '${tool}': ${cmd}"
-      if ! eval "$cmd"; then
-        fail "eval tool '${tool}' install failed: ${cmd}"
-        overall_fail=1
-      fi
-    done < <(jq -r '
-      ([.[].tools[]?] | unique) as $names
-      | ($names[] as $n | [$n, ([.[] | .toolInstallCommands[$n]? // empty] | first // "")]) | @tsv
-    ' "$MERGED_MANIFEST" | tr -d '\r')
+    install_eval_tools
+    ;;
+  eval-tools)
+    install_eval_tools
     ;;
   build)
     while IFS=$'\t' read -r root stack marker cmd; do

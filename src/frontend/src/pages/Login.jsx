@@ -26,13 +26,12 @@ export default function Login() {
       <div className="login-left">
         <div>
           <h1>
-            Autonomous <br />
-            <span>Billing & Task</span> <br />
-            Platform
+            Unlimited movies, <br />
+            <span>TV shows</span> and more <br />
+            on one plan.
           </h1>
           <p>
-            Manage subscriptions, track usage, and stay on top of your work in
-            one clean workspace.
+            Watch anywhere. Cancel anytime. Sign in to manage your account.
           </p>
         </div>
         <ul className="feature-list">
@@ -52,29 +51,8 @@ export default function Login() {
               </svg>
             </div>
             <div>
-              <h3>Automated Billing Cycles</h3>
-              <p>Track renewal dates and usage with real-time insights.</p>
-            </div>
-          </li>
-          <li className="feature-item">
-            <div className="feature-icon">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 6v6l4 2" />
-              </svg>
-            </div>
-            <div>
-              <h3>Smart Task Tracking</h3>
-              <p>Organize priorities and monitor progress in one place.</p>
+              <h3>Watch on any device</h3>
+              <p>Stream on your phone, tablet, laptop and TV.</p>
             </div>
           </li>
           <li className="feature-item">
@@ -94,12 +72,12 @@ export default function Login() {
               </svg>
             </div>
             <div>
-              <h3>Always-on Reliability</h3>
-              <p>Secure, mock-first architecture ready for production.</p>
+              <h3>No commitments</h3>
+              <p>Change or cancel your plan online anytime.</p>
             </div>
           </li>
         </ul>
-        <div className="login-footer">© 2024 BillingCycle. All rights reserved.</div>
+        <div className="login-footer">© 2024 StreamPlex. All rights reserved.</div>
       </div>
       <div className="login-right">
         <form className="login-box" onSubmit={handleSubmit}>

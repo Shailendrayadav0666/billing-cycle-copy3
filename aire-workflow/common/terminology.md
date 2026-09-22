@@ -55,7 +55,9 @@
 
 **Outputs**: Design artifacts, NFR implementations, code, unit tests
 
-**Not in this phase**: **Test Plan** — it belongs to the ve track below, not to Implementation (neither at epic nor at story level).
+**In this phase, at the STOP CHECKPOINT**: **Behaviour Specs & Test Plans** — every work unit's `spec/behavior/<unit>.feature` contract AND its `spec/test-plans/<TICKET-ID>-<title>/` manual test plan are written and approved in ONE pass, before any code is generated (`implementation/specs-and-test-plans.md`).
+
+**Not in this phase**: **test-plan SIGN-OFF** — that belongs to the ve track below, not to Implementation (neither at epic nor at story level).
 
 ### ve TRACK (parallel — not a phase)
 **Purpose**: Prove each story meets its acceptance criteria
@@ -63,7 +65,7 @@
 **Location**: `spec/test-plans/<TICKET-ID>-<title>/` (one folder per story)
 
 **Stages** (both ve-initiated, never auto-run):
-- Test Plan (per **story**, via **`/ve-implement`**) — manual test steps for every applicable test plan, derived from the story's acceptance criteria; runs in parallel with development and never reads application source code
+- Test Plan (per **story**, via **`/ve-implement`**) — manual test steps for every applicable test plan, derived from the story's acceptance criteria; never reads application source code. 🔴 The framework already generated and approved every unit's plan at the STOP CHECKPOINT, by invoking this same skill in WORKFLOW MODE, so a standalone run refreshes or extends an existing plan
 - ve Sign-off (via **`ve-list-work`**, on the epic branch) — reports merged vs in-development stories and moves ve-tested merged stories to 🧪 Ready for Testing
 
 **Outputs**: Per-story manual test plans and AC→test-case coverage matrices
@@ -78,10 +80,11 @@
 - **User Stories**: Creating user stories and personas in a single pass; populates the Story Tracker; the generated story set is gated by GATE 1 (mandatory human approval) before it pushes to the configured tracker
 - **Dependency Graph**: Mapping each story's `requires` dependencies so independent stories can run in parallel; writes `dependency-graph.yml`
 - **Workflow Planning**: Creating execution plan for which phases to run
+- **Behaviour Specs & Test Plans**: At the STOP CHECKPOINT, for every work unit and under ONE approval gate — `spec/behavior/<unit>.feature` + `spec/test-plans/<TICKET-ID>-<title>/`, written before any code and thereafter read, never rewritten
 - **Code Generation**: Per-story, triggered by `dev-implement` — Story Selection → story branch → Part 1 (Planning) → Part 2 (Generation) → unit tests to `unitTestCoverageMin` coverage
 
 ### ve-Initiated Stages (parallel track — never auto-run)
-- **Test Plan**: Per story, via `/ve-implement` — manual test steps generated from the story's acceptance criteria into `spec/test-plans/<TICKET-ID>-<title>/`; runs alongside development, reads no application code
+- **Test Plan**: authored for every story at the STOP CHECKPOINT and, standalone, per story via `/ve-implement` — manual test steps generated from the story's acceptance criteria into `spec/test-plans/<TICKET-ID>-<title>/`; reads no application code
 - **ve Sign-off**: Via `ve-list-work` on the epic branch — merged, ve-tested stories → 🧪 Ready for Testing
 
 ### Conditional Stages

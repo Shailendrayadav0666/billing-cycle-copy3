@@ -1,6 +1,7 @@
 # ci-manifest-runner.ps1 — PowerShell variant of ci-manifest-runner.sh. See that file for the full
 # contract and rationale (#7a: reads the merged manifest at RUN TIME and executes install/build/coverage
-# per root, diff-scoped).
+# per root, diff-scoped). "eval-tools" is a standalone mode (Section 4, split-job pipeline): a gate job
+# on its own runner that needs an eval tool calls this alone, never the full "install" mode.
 param([string]$Mode = "", [string]$BaseSha = "")
 $ErrorActionPreference = "Continue"
 
@@ -13,8 +14,8 @@ $libDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 function Fail($m) { Write-Error "ci-manifest-runner: ERROR: $m" }
 
-if ($Mode -notin @("install", "build", "coverage")) {
-  Fail "usage: ci-manifest-runner.ps1 -Mode <install|build|coverage> [-BaseSha <sha>]"
+if ($Mode -notin @("install", "build", "coverage", "eval-tools")) {
+  Fail "usage: ci-manifest-runner.ps1 -Mode <install|build|coverage|eval-tools> [-BaseSha <sha>]"
   exit 2
 }
 if (-not (Test-Path $config)) { Fail "$config missing - cannot resolve the manifest"; exit 2 }
@@ -80,6 +81,36 @@ function Invoke-RootCommand {
   }
 }
 
+# Eval tools (semgrep, gitleaks, ...) deduped by name across every root's toolInstallCommands - see
+# ci-manifest-runner.sh's matching function for the full rationale. Extracted so the standalone
+# "eval-tools" mode (split-job pipeline: a gate job on its own runner needs ONLY this) can call it
+# without also running the full project-dependency install "install" mode also does.
+function Install-EvalTools {
+  $allTools = @($merged | ForEach-Object { $_.tools } | Where-Object { $_ } | ForEach-Object { $_ } | Select-Object -Unique)
+  foreach ($tool in $allTools) {
+    $cmd = $null
+    foreach ($e in $merged) {
+      if ($e.toolInstallCommands -and $e.toolInstallCommands.PSObject.Properties.Name -contains $tool) {
+        $cmd = $e.toolInstallCommands.$tool
+        break
+      }
+    }
+    if (-not $cmd) {
+      Write-ManifestDefect "MANIFEST DEFECT - tool '$tool' is listed in ci.roots[].tools but no root's toolInstallCommands names it. Fix the owning work unit's fragment, not this script."
+      $script:overallFail = 1
+      continue
+    }
+    Write-Output "ci-manifest-runner ($Mode): eval tool '${tool}': $cmd"
+    try {
+      Invoke-Expression $cmd
+      if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne $null) { Fail "eval tool '$tool' install failed: $cmd"; $script:overallFail = 1 }
+    } catch {
+      Fail "eval tool '$tool' install failed: $cmd"
+      $script:overallFail = 1
+    }
+  }
+}
+
 switch ($Mode) {
   "install" {
     foreach ($e in $merged) {
@@ -119,31 +150,10 @@ switch ($Mode) {
       }
     }
 
-    # Eval tools (semgrep, gitleaks, ...) deduped by name across every root's toolInstallCommands - see
-    # ci-manifest-runner.sh's matching block for the full rationale.
-    $allTools = @($merged | ForEach-Object { $_.tools } | Where-Object { $_ } | ForEach-Object { $_ } | Select-Object -Unique)
-    foreach ($tool in $allTools) {
-      $cmd = $null
-      foreach ($e in $merged) {
-        if ($e.toolInstallCommands -and $e.toolInstallCommands.PSObject.Properties.Name -contains $tool) {
-          $cmd = $e.toolInstallCommands.$tool
-          break
-        }
-      }
-      if (-not $cmd) {
-        Write-ManifestDefect "MANIFEST DEFECT - tool '$tool' is listed in ci.roots[].tools but no root's toolInstallCommands names it. Fix the owning work unit's fragment, not this script."
-        $overallFail = 1
-        continue
-      }
-      Write-Output "ci-manifest-runner (install): eval tool '${tool}': $cmd"
-      try {
-        Invoke-Expression $cmd
-        if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne $null) { Fail "eval tool '$tool' install failed: $cmd"; $overallFail = 1 }
-      } catch {
-        Fail "eval tool '$tool' install failed: $cmd"
-        $overallFail = 1
-      }
-    }
+    Install-EvalTools
+  }
+  "eval-tools" {
+    Install-EvalTools
   }
   "build" {
     foreach ($e in $merged) {

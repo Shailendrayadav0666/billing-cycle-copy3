@@ -250,6 +250,7 @@ flowchart TD
         NFRA["NFR Requirements<br/><b>STATUS</b>"]
         NFRD["NFR Design<br/><b>STATUS</b>"]
         ID["Infrastructure Design<br/><b>STATUS</b>"]
+        SPECS["Behaviour Specs & Test Plans<br/>(every work unit, before code)<br/><b>ALWAYS</b>"]
         CG["Code Generation<br/>(Planning + Generation)<br/><b>EXECUTE</b>"]
     end
     
@@ -261,8 +262,9 @@ flowchart TD
     Start --> WD
     WD --> RA
     RA --> WP
-    WP --> CG
-    WP -.->|ve in parallel| BT
+    WP --> SPECS
+    SPECS --> CG
+    SPECS -.->|plans already approved| BT
     BT --> QS
     CG --> QS
     QS --> End(["Complete"])
@@ -293,13 +295,18 @@ flowchart TD
   - **Rationale**: [Why executing or skipping]
 - [ ] Infrastructure Design - [EXECUTE/SKIP]
   - **Rationale**: [Why executing or skipping]
+- [ ] Behaviour Specs & Test Plans - EXECUTE (ALWAYS, at the STOP CHECKPOINT, ONE approval)
+  - **Rationale**: every work unit's `.feature` contract and manual test plan are written and approved
+    before any code is generated (`implementation/specs-and-test-plans.md`)
 - [ ] Code Generation - EXECUTE (ALWAYS)
   - **Rationale**: Implementation planning and code generation needed
 
 ### 🧪 ve TRACK (parallel — ve-initiated, NOT planned or executed by this workflow)
-- Test Plan — run per story by ve with **`/ve-implement`**, in parallel with development
+- Test Plan — authored for every work unit at the STOP CHECKPOINT (above); ve runs **`/ve-implement`**
+  standalone to refresh or extend one, in parallel with development
 - ve Sign-off — run by ve with **`ve-list-work`** on the epic branch once story PRs merge
-  - **Rationale**: Test Plan is not a Implementation stage at epic or story level; it is not scheduled here and is never auto-run
+  - **Rationale**: test-plan SIGN-OFF is not a Implementation stage at epic or story level; it is not
+    scheduled here and is never auto-run
 
 ## Package Change Sequence (Brownfield Only)
 [If applicable, list package update sequence with dependencies]
@@ -350,6 +357,7 @@ Update `runtime-artifacts/aire-state.md`:
 - [ ] NFR Requirements - [EXECUTE/SKIP]
 - [ ] NFR Design - [EXECUTE/SKIP]
 - [ ] Infrastructure Design - [EXECUTE/SKIP]
+- [ ] Behaviour Specs & Test Plans - EXECUTE (ALWAYS)
 - [ ] Code Generation - EXECUTE
 
 ### 🧪 ve TRACK (parallel, ve-initiated — not scheduled here)
