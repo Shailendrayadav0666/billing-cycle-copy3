@@ -1,0 +1,95 @@
+{
+  "evalFrameworkVersion": "1.0.0",
+  "scope": "changed-files",
+  "retryLimitForSelfRepair": 3,
+  "thresholds": {
+    "lintErrorsAllowedDelta": 0,
+    "typeErrorsAllowed": 0,
+    "semgrepFindingsAllowed": { "critical": 0, "high": 0, "medium": 5 },
+    "dependencyVulnerabilitiesAllowed": { "critical": 0, "high": 0 },
+    "disallowedLicenses": ["GPL-2.0", "GPL-3.0", "AGPL-3.0", "SSPL-1.0"],
+    "maxCyclomaticComplexity": 12,
+    "secretFindingsAllowed": 0,
+    "unitTestCoverageMin": 90.0,
+    "behaviorScenarioPassRateMin": 100.0,
+    "llmJudgeArchitectureScoreMin": 0.85,
+    "llmJudgeSecurityScoreMin": 0.85,
+    "securityVulnerabilitiesAllowed": 0
+  },
+  "behavior": {
+    "containerRuntime": "podman",
+    "image": "aire-behavior:local",
+    "containerfile": "tests/.evals/behavior/Containerfile",
+    "entrypoint": "tests/.evals/behavior/run.sh",
+    "_comment": "Same image + command locally and in CI. A missing runtime degrades to native execution, recorded, never blocking."
+  },
+  "sonarqube": {
+    "enabled": false,
+    "_comment": "Set true when CI generation creates sonar-project.properties and the user answers proceed at the setup gate. Additive to semgrep, never a replacement."
+  },
+  "playwright": {
+    "enabled": false,
+    "startCommand": null,
+    "readinessUrl": null,
+    "testCommand": "npx playwright test tests/e2e/",
+    "backendStartCommand": null,
+    "backendReadinessUrl": null,
+    "_comment": "Set true, with startCommand/readinessUrl resolved and testCommand adjusted if needed, the first time a work unit's manifest fragment runs the Playwright UI Automation Gate for real."
+  },
+  "judge": { "model": "<resolved session model id>", "rubricVersion": "1.0.0" },
+  "ci": {
+    "baseBranch": "main",
+    "integrationBranchPrefixes": ["epic", "bug", "enh", "ci", "story", "ve"],
+    "manifestState": "resolved",
+    "roots": [
+      {
+        "root": "src/backend",
+        "stack": "python",
+        "runtimeVersion": "3.11",
+        "markerFile": "requirements.txt",
+        "installCommands": ["pip install -r requirements.txt"],
+        "buildCommand": null,
+        "coverageCommand": "pytest --cov=. --cov-report=xml",
+        "noTestsExitCode": 5,
+        "dependsOn": [],
+        "toolchainSetup": [],
+        "coverageReportPath": "coverage.xml",
+        "coverageFormat": "cobertura",
+        "sourcePaths": ["src/backend"],
+        "testPaths": ["tests/unit"],
+        "tools": ["semgrep", "pip-audit", "gitleaks"],
+        "toolInstallCommands": {
+          "semgrep": "pip install \"semgrep==1.127.0\"",
+          "pip-audit": "pip install \"pip-audit==2.9.0\"",
+          "gitleaks": "gitleaks_version=8.21.2; curl -sSfL \"https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz\" | tar xz -C /usr/local/bin gitleaks"
+        }
+      },
+      {
+        "root": "src/frontend",
+        "stack": "node",
+        "runtimeVersion": "20",
+        "markerFile": "package.json",
+        "installCommands": ["npm ci"],
+        "buildCommand": "npm run build",
+        "coverageCommand": null,
+        "noTestsExitCode": 1,
+        "dependsOn": [],
+        "toolchainSetup": [],
+        "coverageReportPath": null,
+        "coverageFormat": "lcov",
+        "sourcePaths": ["src/frontend/src"],
+        "testPaths": ["tests/unit"],
+        "tools": ["oxlint", "semgrep", "gitleaks"],
+        "toolInstallCommands": {
+          "semgrep": "pip install \"semgrep==1.127.0\"",
+          "gitleaks": "gitleaks_version=8.21.2; curl -sSfL \"https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz\" | tar xz -C /usr/local/bin gitleaks"
+        }
+      }
+    ],
+    "gates": ["D1_lint", "D2_types", "D3_sast", "D4_deps", "D5_licenses", "D6_complexity", "D7_secrets",
+              "unitCoverage", "behaviorB1", "behaviorB2", "behaviorB3", "J1_architecture", "J2_security"],
+    "_gatesComment": "'playwright' is appended here at generation time only once playwright.enabled is true.",
+    "_rootsComment": "noTestsExitCode is the exit status this root's test runner returns when it collects ZERO tests (pytest 5; a JS runner without --passWithNoTests typically 1). ci-manifest-runner records that exit as N/A rather than FAIL for a repo with no tests yet. D2 type check is N/A for src/frontend: the project is plain JS/JSX (oxlint, no tsconfig.json, no TypeScript build step) — no type checker applies to this root.",
+    "_comment": "CI SINGLE SOURCE OF TRUTH. No CI pipeline was generated this cycle (## CI/CD Configuration: Enabled: No) -- this manifest still backs the LOCAL gates run inside dev-implement."
+  }
+}

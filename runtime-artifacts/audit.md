@@ -197,3 +197,70 @@
 **Context**: Dependency Graph Steps 1-8
 
 ---
+
+## Dependency Graph — Epic Branch Commit & Push
+**Timestamp**: 2026-09-22T11:52:29Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: N/A (automatic step)
+**AI Response**: "Confirmed active branch is epic/self-serve-premium-upgrade. Staged and committed exactly: spec/plans/stories.md, spec/plans/personas.md, spec/plans/dependency-graph.yml, spec/spec-generation/story-generation.md, runtime-artifacts/aire-state.md, runtime-artifacts/audit.md (verified via git status before commit -- only these 6 files). Committed 2a06da8aba4baa000bf433abf7042e83c530227f with AIRE-Version: 1.0 trailer. Pushed via `git push origin epic/self-serve-premium-upgrade` -- confirmed d3601a8..2a06da8 landed on origin. No PR raised."
+**Context**: Dependency Graph Step 9 / common/branching-strategy.md Section 2
+
+---
+
+## Workflow Planning - Plan Finalized (auto-approved, no gate)
+**Timestamp**: 2026-09-22T11:54:05Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**AI Response**: "Created spec/plans/executions.md: risk level Low (isolated 2-file change, in-memory only, no infra); Application Design and all 4 system-level Implementation design stages (Functional Design, NFR Requirements, NFR Design, Infrastructure Design) marked SKIP with rationale (no new component/service boundary, no new complex business logic beyond what requirements.md/stories.md already specify, no new NFR beyond what Requirements Analysis resolved, no infrastructure exists). Behaviour Specs & Test Plans and Code Generation remain EXECUTE (always). Proceeded automatically to the Implementation Phase (architecture.md assembly at the STOP CHECKPOINT) without an approval gate."
+**Status**: Auto-approved
+**Context**: 7 stages executing, 5 skipped (Reverse Engineering + 4 Implementation design stages)
+
+---
+
+## STOP CHECKPOINT — CI/CD Setup Opt-In
+**Timestamp**: 2026-09-22T11:59:13Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "no"
+**AI Response**: "Recorded ## CI/CD Configuration: Enabled: No, Source: user opt-out. Per CLAUDE.md Step 1.2, skipping Steps 1.6 (CI pipeline generation) and 4 (epic-level smoke test) entirely -- never loading common/ci-pipeline-generation.md this cycle. Proceeding to Step 1.3 (spec/behavior.feature)."
+**Context**: MANDATORY STOP CHECKPOINT Step 1.2
+
+---
+
+## STOP CHECKPOINT — behavior.feature, architecture.md, Rubrics
+**Timestamp**: 2026-09-22T11:59:45Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: N/A (automatic steps)
+**AI Response**: "Step 1.3: wrote spec/behavior.feature -- explicitly records NO cross-story journeys (single-work-unit cycle), per common/behavior-spec.md Section 3's 'record explicitly that the requirement has none.' Step 1.4: wrote spec/plans/architecture.md v1.0.0, assembled from Atlas truth + requirements.md + stories.md + the registered design reference (no system-level design stage ran -- every section says so explicitly rather than inventing a decision). Included C4Context (Section 1), component flowchart (Section 2, all nodes annotated existing/new/modified), and an erDiagram (Section 4, since billing_data/users values change). Section 10: 6 Verifiable Constraints (ARCH-01..06), weights sum to 1.00, validated against common/content-validation.md. Step 1.5: derived tests/.evals/rubrics/architecture-rubric.json v1.0.0 (1:1 from Section 10, rubricVersion matches), tests/.evals/rubrics/security-rubric.json v1.0.0 (6 OWASP Top 10:2025 criteria -- A01/A02/A03/A06/A07/A10 -- weights sum 1.00; A04/A05/A08/A09 excluded as genuinely inapplicable to this diff: no DB/injection surface, no new crypto/secrets, no deserialization risk beyond a single validated string field, no logging exists anywhere in the app to create a NEW gap), and tests/.evals/config.json (created fresh, two ci.roots detected: src/backend python and src/frontend node, D2 typecheck marked inapplicable for the frontend root since it's plain JS/JSX with oxlint and no tsconfig). Step 1.6 (CI pipeline generation) and the epic-level smoke test (Step 4) SKIPPED per the CI/CD opt-out recorded above."
+**Context**: MANDATORY STOP CHECKPOINT Steps 1.3-1.5
+
+---
+
+## Test Plan (ve-implement skill)
+**Timestamp**: 2026-09-22T12:04:27Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "mode: workflow, story: 1.1 ... (full invocation args as passed to the Skill tool -- see the STOP CHECKPOINT behavior-specs entry above for context)"
+**Story**: "Story 1.1 -- Self-Serve Premium Upgrade -- End-to-End Mid-Cycle Upgrade Flow -- local Story ID (LOCAL tracker)"
+**Output folder**: `spec/test-plans/story-1.1-self-serve-premium-upgrade/`
+**ve branch / PR**: "none -- workflow mode, files written on epic/self-serve-premium-upgrade and carried by the caller's commit"
+**Test plans generated**: "API (6 cases), E2E (5 cases), Security (3 cases), Accessibility (3 cases) -- N/A plans: Integration (no separate service/datastore boundary), Contract (no microservices), Performance (no NFR Requirements stage ran, no target exists)"
+**Coverage**: "11/11 acceptance criteria covered"
+**Approve / Request Changes checkpoint**: "Approved (automatic -- workflow mode, no ve review)"
+**AI Response**: "Generated 4 test-plan artifact files + test-plan-summary.md for Story 1.1, black-box from acceptance criteria only -- no application source code was read. Skipped the story-picker (Step 2), the ve/... branch (Step 3), and the push/PR (Step 5) per WORKFLOW MODE. One open TO CONFIRM item: the merged PR URL for the System Under Test block, unresolvable until dev-implement raises Story 1.1's PR."
+**Context**: `/ve-implement` skill (WORKFLOW MODE) -- Test Plan (`test-plan.md`), invoked by CLAUDE.md STOP CHECKPOINT Step 1.7 / `implementation/specs-and-test-plans.md`
+
+---
+
+## STOP CHECKPOINT — Behaviour Specs & Test Plans: Coverage Check + Approval Prompt
+**Timestamp**: 2026-09-22T12:04:27Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: N/A (prompt being presented)
+**AI Response**: "Blocking coverage check (implementation/specs-and-test-plans.md Section 4.1): all 11 ACs of Story 1.1 have >=1 @AC-tagged scenario in spec/behavior/story-1.1.feature (17 scenarios total) AND >=1 manual test case in spec/test-plans/story-1.1-self-serve-premium-upgrade/ (17 cases total) -- PASS, no gaps. Presenting the Behaviour Specs & Test Plans Complete message and awaiting Request Changes / Continue to Next Stage."
+**Context**: implementation/specs-and-test-plans.md Section 4
+
+---
+
+## STOP CHECKPOINT — Behaviour Specs & Test Plans: Approved
+**Timestamp**: 2026-09-22T12:18:05Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "Continue to Next Stage"
+**AI Response**: "Approval recorded. Updating runtime-artifacts/aire-state.md: 'Approved: 2026-09-22T12:18:05Z' under ## Behaviour Specs & Test Plans, and Current Stage: Design complete -- awaiting dev-implement. Proceeding to Step 2 (state mark), Step 3 (design commit + push), Step 4 (SKIPPED -- CI disabled, no smoke test), Step 5 (Development Handoff), Step 6 (HALT)."
+**Context**: implementation/specs-and-test-plans.md Section 4 -- GATE passed

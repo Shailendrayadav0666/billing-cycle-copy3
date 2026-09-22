@@ -1,0 +1,49 @@
+{
+  "rubricName": "Architectural Alignment — Billing-Cycle (StreamPlex)",
+  "rubricVersion": "1.0.0",
+  "derivedFrom": ["spec/plans/architecture.md#10-verifiable-constraints"],
+  "evalCriteria": [
+    {
+      "id": "ARCH-01",
+      "metric": "No new external payment dependency",
+      "weight": 0.15,
+      "prompt": "src/backend/requirements.txt and src/frontend/package.json show no new payment-related dependency (e.g. stripe, braintree, paypal-*) in the diff. Score 0 if any such dependency is added.",
+      "source": "spec/plans/requirements.md (REQ-NF-01)"
+    },
+    {
+      "id": "ARCH-02",
+      "metric": "In-memory persistence only",
+      "weight": 0.20,
+      "prompt": "No new database client, ORM import, or persistent-storage call appears in the diff for POST /api/billing/upgrade. Score 0 if any such import/call is introduced.",
+      "source": "spec/plans/requirements.md (REQ-NF-02)"
+    },
+    {
+      "id": "ARCH-03",
+      "metric": "Existing auth pattern preserved, not extended",
+      "weight": 0.15,
+      "prompt": "The endpoint's signature/body model matches the email-as-identifier pattern of GET /api/billing / GET /api/users/me — no new auth decorator, middleware, header check, or token validation is added. Score 0 if a new auth mechanism appears only on this endpoint (inconsistent with the rest of the app) or if an existing endpoint's auth model is silently changed.",
+      "source": "spec/plans/requirements.md (REQ-NF-03), spec/plans/stories.md (AC-5/6/7)"
+    },
+    {
+      "id": "ARCH-04",
+      "metric": "Proration computed server-side, single source of truth",
+      "weight": 0.20,
+      "prompt": "prorated_charge in the success response is computed inside the POST /api/billing/upgrade handler using round((40 - 20) * (days_remaining / 30), 2). The frontend may compute its own preview for display in the confirmation modal, but never sends a client-computed charge value that the backend trusts. Score 0 if the backend accepts and applies a charge value supplied by the client.",
+      "source": "spec/plans/stories.md (AC-3, AC-5)"
+    },
+    {
+      "id": "ARCH-05",
+      "metric": "Upgrade response shape matches the existing billing contract",
+      "weight": 0.15,
+      "prompt": "The response includes plan_name, price, renew_at, usages, included_usage, and prorated_charge. Score 0 if any of the five GET /api/billing fields is missing from the success response.",
+      "source": "spec/plans/requirements.md (REQ-F-05), spec/plans/stories.md (AC-5)"
+    },
+    {
+      "id": "ARCH-06",
+      "metric": "No new architectural layer or module",
+      "weight": 0.15,
+      "prompt": "The diff's new/modified application files are limited to src/backend/main.py, src/frontend/src/pages/Billing.jsx, and src/frontend/src/App.css (test files under tests/ are exempt). Score 0 if a new source file under src/ outside these three is added for this feature.",
+      "source": "spec/plans/executions.md (Application Design SKIP rationale)"
+    }
+  ]
+}

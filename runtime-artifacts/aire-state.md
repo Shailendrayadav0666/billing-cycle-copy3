@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-09-22T10:35:04Z
-- **Current Stage**: PLANNING - Dependency Graph
+- **Current Stage**: Design complete — awaiting dev-implement
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -71,6 +71,15 @@
 - **story_creation_mode**: all-at-once (fixed default, not asked)
 - **target_story_count**: 1 — USER OVERRIDE, confirmed after warning (see runtime-artifacts/audit.md "User Stories — Ambiguous Answer" and "User Stories — Single-Story Override Confirmed"). Deliberately breaks the team_size=2 parallelism rule (only one story exists, so no parallel work is possible) and exceeds the Step 1.5 hard sizing ceilings (>5 ACs, multiple newly-touched architectural layers in one story). This is a knowing, confirmed exception, not an unnoticed violation.
 
+## Execution Plan Summary
+- **Total Stages**: 12 (5 Planning always-run + Dependency Graph + Workflow Planning + 4 Implementation design stages [all skip] + Behaviour Specs & Test Plans + Code Generation)
+- **Stages to Execute**: Workspace Detection, Requirements Analysis, User Stories, Dependency Graph, Workflow Planning, Behaviour Specs & Test Plans, Code Generation (dev-implement)
+- **Stages to Skip**: Reverse Engineering (Atlas deep dive reused instead), Application Design, Functional Design, NFR Requirements, NFR Design, Infrastructure Design — see spec/plans/executions.md for rationale per stage
+
+## CI/CD Configuration
+- Enabled: No
+- Source: user opt-out
+
 ## Extension Configuration
 | Extension | Enabled | Decided At |
 |---|---|---|
@@ -83,6 +92,13 @@
 | Story ID | Title | Requires | Tracker ID | Status | PR | Merged | Start | End | Recorded |
 |---|---|---|---|---|---|---|---|---|---|
 | 1.1 | Self-Serve Premium Upgrade — End-to-End Mid-Cycle Upgrade Flow | none | LOCAL | 🟢 Ready for Development | — | — | — | — | 2026-09-22T11:52:29Z |
+
+## Behaviour Specs & Test Plans
+- **Work units covered**: 1 (Story 1.1)
+- **Behaviour contracts**: spec/behavior/ — 1 file (story-1.1.feature), 17 scenarios across 11 ACs. Plus spec/behavior.feature (cycle-level) recording NO cross-story journeys (single-unit cycle).
+- **Manual test plans**: spec/test-plans/ — 1 folder (story-1.1-self-serve-premium-upgrade/), 17 test cases (6 API, 5 E2E, 3 Security, 3 Accessibility)
+- **AC coverage**: 11/11 (scenarios) · 11/11 (test cases)
+- **Approved**: 2026-09-22T12:18:05Z
 
 ## Dependency Graph
 
@@ -101,8 +117,8 @@ graph TD
 - [x] Epic Branch Creation — epic/self-serve-premium-upgrade cut from main
 - [x] Context Project Folder + Context Opt-In — folders created, both answered No
 - [x] Reverse Engineering — SKIPPED (Atlas deep dive found and pulled; see common/helix-atlas-integration.md Section 6)
-- [x] Requirements Analysis — spec/plans/requirements.md generated, 15 REQ-F + 6 REQ-NF (revised after design reference grounding), awaiting approval
-- [ ] User Stories
-- [ ] Dependency Graph
-- [ ] Workflow Planning
-- [ ] Application Design
+- [x] Requirements Analysis — spec/plans/requirements.md generated and approved, 15 REQ-F + 6 REQ-NF
+- [x] User Stories — 1 story (confirmed override), GATE 1 approved, LOCAL tracker (no push)
+- [x] Dependency Graph — spec/plans/dependency-graph.yml generated, requires: none (only story)
+- [x] Workflow Planning — spec/plans/executions.md generated; Application Design + all 4 system-level Implementation design stages SKIPPED (rationale in executions.md)
+- [x] Application Design — SKIP (see executions.md)

@@ -1,0 +1,49 @@
+{
+  "rubricName": "Security — OWASP Top 10:2025 — Billing-Cycle (StreamPlex)",
+  "rubricVersion": "1.0.0",
+  "derivedFrom": ["OWASP Top 10:2025", "spec/plans/architecture.md"],
+  "evalCriteria": [
+    {
+      "id": "SEC-01", "owasp": "A01:2025",
+      "metric": "Broken access control",
+      "weight": 0.25,
+      "prompt": "Review the new POST /api/billing/upgrade endpoint and every changed billing-related code path. The app already has no ownership verification on email-keyed data (documented, pre-existing, out of scope). Score 0 if the NEW endpoint introduces a WORSE access-control gap than the existing GET /api/billing pattern it deliberately mirrors — e.g. it accepts a second identifier that bypasses the email lookup, exposes another user's billing data in the response, or omits the already-Premium/unknown-user guard checks entirely. Do not score down for the pre-existing, already-accepted lack of ownership verification itself — only for the new endpoint making it worse. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/"
+    },
+    {
+      "id": "SEC-02", "owasp": "A02:2025",
+      "metric": "Security misconfiguration",
+      "weight": 0.10,
+      "prompt": "Check the diff for any new configuration change (CORS, headers, debug mode, environment defaults). Score 0 if the diff widens the existing wildcard CORS policy further, disables any existing safeguard, or introduces a new endpoint without the same CORS/middleware treatment as existing endpoints in the same file. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+    },
+    {
+      "id": "SEC-03", "owasp": "A03:2025",
+      "metric": "Software supply chain failures",
+      "weight": 0.10,
+      "prompt": "Check src/backend/requirements.txt and src/frontend/package.json in the diff. Score 0 if any new dependency is added for this feature (REQ-NF-01 requires zero new external dependencies) or if an existing dependency's version is downgraded without stated reason. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A03_2025-Software_Supply_Chain_Failures/"
+    },
+    {
+      "id": "SEC-04", "owasp": "A06:2025",
+      "metric": "Insecure design",
+      "weight": 0.20,
+      "prompt": "Review the proration and plan-mutation business logic. Score 0 if: the already-Premium guard (400) is missing or bypassable; the unknown-user guard (401) is missing; days_remaining is not clamped to [0, 30] before use in the proration formula; or the plan mutation and the returned response can disagree (e.g. the dict is updated but the response reflects stale values, or vice versa). Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A06_2025-Insecure_Design/"
+    },
+    {
+      "id": "SEC-05", "owasp": "A07:2025",
+      "metric": "Authentication failures",
+      "weight": 0.20,
+      "prompt": "The app's existing authentication model (email as an unvalidated identifier, no session/token verification) is a documented, pre-existing, deliberately-unremediated risk (REQ-NF-03) — do not score it down on its own. Score 0 only if the NEW endpoint introduces an authentication weakness the existing endpoints do not already have — e.g. accepting a plaintext password or hardcoded credential in this new endpoint, or logging the email/any credential-like value in a way the existing endpoints do not. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/"
+    },
+    {
+      "id": "SEC-06", "owasp": "A10:2025",
+      "metric": "Mishandling of exceptional conditions",
+      "weight": 0.15,
+      "prompt": "Review every error path the new endpoint and the confirmation modal introduce. Score 0 if an error response leaks internal detail (stack trace, exception message, internal object dump) beyond the documented {\"detail\": \"...\"} shape already used by GET /api/billing / GET /api/users/me, or if the frontend's new failure-handling path (AC-10) silently swallows an error without surfacing it to the user. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/"
+    }
+  ]
+}
