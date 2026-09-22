@@ -1,0 +1,27 @@
+[
+  {
+    "License": "MIT",
+    "Name": "fastapi",
+    "Version": "0.141.1"
+  },
+  {
+    "License": "MIT",
+    "Name": "pydantic",
+    "Version": "2.12.5"
+  },
+  {
+    "License": "Apache-2.0",
+    "Name": "python-multipart",
+    "Version": "0.0.32"
+  },
+  {
+    "License": "BSD-3-Clause",
+    "Name": "starlette",
+    "Version": "1.6.0"
+  },
+  {
+    "License": "BSD-3-Clause",
+    "Name": "uvicorn",
+    "Version": "0.52.4"
+  }
+]

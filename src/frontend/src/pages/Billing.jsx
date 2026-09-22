@@ -73,9 +73,137 @@ function IncludedUsageCard({ data }) {
   )
 }
 
+const PREMIUM_PRICE = 40
+const STANDARD_PRICE = 20
+const DAYS_IN_CYCLE = 30
+
+function parseRenewAt(renewAt) {
+  return new Date(renewAt)
+}
+
+function calculateDaysRemaining(renewAt) {
+  const renewDate = parseRenewAt(renewAt)
+  const today = new Date()
+  const diffDays = Math.ceil((renewDate - today) / (1000 * 60 * 60 * 24))
+  return Math.max(0, Math.min(DAYS_IN_CYCLE, diffDays))
+}
+
+function calculateProratedCharge(daysRemaining) {
+  return Number(
+    (((PREMIUM_PRICE - STANDARD_PRICE) * daysRemaining) / DAYS_IN_CYCLE).toFixed(2)
+  )
+}
+
+function UpgradeModal({ data, onClose, onUpgraded }) {
+  const { token } = useAuth()
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
+
+  const daysRemaining = calculateDaysRemaining(data.renew_at)
+  const prorated = calculateProratedCharge(daysRemaining)
+
+  const handleConfirm = () => {
+    setSubmitting(true)
+    setError(null)
+    fetch('/api/billing/upgrade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: token }),
+    })
+      .then(async (r) => {
+        if (!r.ok) {
+          const body = await r.json().catch(() => ({}))
+          throw new Error(body.detail || 'Upgrade failed. Please try again.')
+        }
+        return r.json()
+      })
+      .then((response) => {
+        setSubmitting(false)
+        onUpgraded(response)
+      })
+      .catch((err) => {
+        setSubmitting(false)
+        setError(err.message || 'Upgrade failed. Please try again.')
+      })
+  }
+
+  return (
+    <div className="upgrade-modal-overlay" role="presentation">
+      <div className="upgrade-modal" role="dialog" aria-modal="true" aria-labelledby="upgrade-modal-title">
+        <h3 id="upgrade-modal-title" className="upgrade-modal-title">
+          Upgrade to Premium
+        </h3>
+        <p className="upgrade-modal-subtitle">
+          Premium is ${PREMIUM_PRICE}/month. You&apos;ll be charged a prorated amount for the rest of
+          this cycle.
+        </p>
+
+        <div className="upgrade-modal-stats">
+          <div className="upgrade-modal-stat-row">
+            <span>Remaining days</span>
+            <span className="upgrade-modal-stat-value">{daysRemaining} days</span>
+          </div>
+          <div className="upgrade-modal-stat-row">
+            <span>Charge today</span>
+            <span className="upgrade-modal-stat-value upgrade-modal-charge">
+              ${prorated.toFixed(2)}
+            </span>
+          </div>
+        </div>
+
+        <ul className="upgrade-modal-highlights">
+          <li>4K Ultra HD</li>
+          <li>4 simultaneous streams</li>
+          <li>6 download devices</li>
+          <li>Dolby Vision</li>
+        </ul>
+
+        {error && (
+          <div className="upgrade-modal-error" role="alert">
+            {error}
+          </div>
+        )}
+
+        <div className="upgrade-modal-actions">
+          <button
+            type="button"
+            className="upgrade-modal-confirm"
+            onClick={handleConfirm}
+            disabled={submitting}
+          >
+            {submitting ? 'Processing…' : `Confirm & pay $${prorated.toFixed(2)}`}
+          </button>
+          <button
+            type="button"
+            className="upgrade-modal-cancel"
+            onClick={onClose}
+            disabled={submitting}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function UpgradeSuccessBanner({ prorated, daysRemaining, renewAt }) {
+  return (
+    <div className="upgrade-success-banner">
+      <p className="upgrade-success-text">
+        <strong className="upgrade-success-title">Upgraded to Premium</strong> — Charged $
+        {prorated.toFixed(2)} for the remaining {daysRemaining} days of this billing cycle. From{' '}
+        {renewAt} you will be billed ${PREMIUM_PRICE}/month.
+      </p>
+    </div>
+  )
+}
+
 export default function Billing() {
   const { token } = useAuth()
   const [data, setData] = useState(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [justUpgraded, setJustUpgraded] = useState(null)
 
   useEffect(() => {
     fetch(`/api/billing?email=${encodeURIComponent(token)}`)
@@ -91,6 +219,18 @@ export default function Billing() {
     )
   }
 
+  const isPremium = data.plan_name === 'Premium'
+
+  const handleUpgraded = (response) => {
+    setJustUpgraded({
+      prorated: response.prorated_charge,
+      daysRemaining: calculateDaysRemaining(response.renew_at),
+      renewAt: response.renew_at,
+    })
+    setData(response)
+    setModalOpen(false)
+  }
+
   return (
     <div className="page-card">
       <div className="billing-header">
@@ -98,10 +238,19 @@ export default function Billing() {
           <h2>Plan & Billing</h2>
           <p>Manage your plan and payments</p>
         </div>
+        {!isPremium && (
+          <button
+            type="button"
+            className="upgrade-cta"
+            onClick={() => setModalOpen(true)}
+          >
+            Upgrade to Premium
+          </button>
+        )}
       </div>
 
       <p className="current-label">
-        Current plan: <span className="standard-badge">Standard</span>
+        Current plan: <span className="plan-badge">{data.plan_name}</span>
       </p>
       <p className="section-sub">Unlimited movies, TV shows and more. Watch anywhere. Cancel anytime.</p>
 
@@ -123,7 +272,15 @@ export default function Billing() {
         </div>
       </div>
 
-      <div className="section-title">What's included with Standard</div>
+      {justUpgraded && isPremium && (
+        <UpgradeSuccessBanner
+          prorated={justUpgraded.prorated}
+          daysRemaining={justUpgraded.daysRemaining}
+          renewAt={justUpgraded.renewAt}
+        />
+      )}
+
+      <div className="section-title">What&apos;s included with {data.plan_name}</div>
       <p className="section-sub">Your plan's streaming features</p>
 
       <div className="usage-grid">
@@ -158,6 +315,14 @@ export default function Billing() {
       <div className="usage-extras usage-extras-single">
         <IncludedUsageCard data={data.included_usage} />
       </div>
+
+      {modalOpen && (
+        <UpgradeModal
+          data={data}
+          onClose={() => setModalOpen(false)}
+          onUpgraded={handleUpgraded}
+        />
+      )}
     </div>
   )
 }

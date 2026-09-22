@@ -1,0 +1,16 @@
+{
+  "storyId": "1.1",
+  "rubricVersion": "1.0.0",
+  "judgeModel": "claude-sonnet-5",
+  "scoredAt": "2026-09-22T15:52:00Z",
+  "criteria": [
+    { "id": "ARCH-01", "metric": "No new external payment dependency", "weight": 0.15, "score": 1.0, "evidence": "src/backend/requirements.txt: no diff (git diff epic/self-serve-premium-upgrade -- src/backend/requirements.txt returns empty). src/frontend/package.json diff adds only test-tooling devDependencies (vitest, @testing-library/*, jsdom, @vitest/coverage-v8) — no payment-related package." },
+    { "id": "ARCH-02", "metric": "In-memory persistence only", "weight": 0.20, "score": 1.0, "evidence": "src/backend/main.py:209-232 (upgrade_plan) mutates only the existing module-level `users`/`billing_data` dicts — no db import, no ORM, no persistent-storage call anywhere in the diff." },
+    { "id": "ARCH-03", "metric": "Existing auth pattern preserved, not extended", "weight": 0.15, "score": 1.0, "evidence": "src/backend/main.py:210-213 uses `users.get(payload.email)` identically to GET /api/billing (main.py:203-205) and GET /api/users/me (main.py:195-197) — no new decorator, middleware, header check, or token validation added anywhere in the diff." },
+    { "id": "ARCH-04", "metric": "Proration computed server-side, single source of truth", "weight": 0.20, "score": 1.0, "evidence": "src/backend/main.py:219-221 computes `prorated_charge = round((PREMIUM_PRICE - STANDARD_PRICE) * (days_remaining / DAYS_IN_CYCLE), 2)` inside the handler from server-held `record[\"renew_at\"]`. The POST body (UpgradeRequest, main.py:85-86) carries only `email` — no client-supplied charge value is read or trusted anywhere in upgrade_plan. Billing.jsx's calculateProratedCharge (frontend, lines 84-88) is display-only for the modal preview and is never sent to the backend." },
+    { "id": "ARCH-05", "metric": "Upgrade response shape matches the existing billing contract", "weight": 0.15, "score": 1.0, "evidence": "src/backend/main.py:232 `return {**record, \"prorated_charge\": prorated_charge}` — record contains plan_name, price, renew_at, usages, included_usage (same shape as GET /api/billing's billing_data entries, main.py:32-68) plus the new prorated_charge field." },
+    { "id": "ARCH-06", "metric": "No new architectural layer or module", "weight": 0.15, "score": 1.0, "evidence": "`git diff epic/self-serve-premium-upgrade --stat` shows changes confined to src/backend/main.py, src/frontend/src/pages/Billing.jsx, src/frontend/src/App.css, plus build/test config (vite.config.js, package.json) and test files under tests/ (exempt) — no new src/ file added." }
+  ],
+  "weightedScore": 1.0,
+  "gate": { "threshold": 0.85, "result": "PASS" }
+}

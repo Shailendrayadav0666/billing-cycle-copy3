@@ -1,0 +1,33 @@
+# Behaviour test runner — Story 1.1 and onward.
+# Base image already ships Python + Playwright + Chromium (pinned), so no separate browser
+# download/install step is needed and the image builds fast and deterministically.
+# 🔴 This tag MUST match the `playwright==` pin in requirements-dev.txt exactly — the Python
+# client and the preinstalled browser build are versioned together upstream; a mismatch fails at
+# browser-launch time, not at pip-install time (only Chromium is imaged here, but the tag pins the
+# whole Playwright release, so any pinned browser stays in lockstep the same way).
+FROM mcr.microsoft.com/playwright/python:v1.56.0-noble
+
+WORKDIR /work
+
+# Backend runtime + test dependencies
+COPY src/backend/requirements.txt src/backend/requirements-dev.txt /work/src/backend/
+RUN pip install --no-cache-dir -r /work/src/backend/requirements-dev.txt
+
+# Application code
+COPY src/backend/main.py /work/src/backend/main.py
+
+# Pre-built frontend (built on the host via `npm run build` — this project has no Node.js
+# toolchain baked into this image; the FastAPI app already mounts src/frontend/dist as static
+# files when present, so serving the pre-built bundle from the same backend process avoids
+# needing a second Node-based server inside the container just to prove behaviour).
+COPY src/frontend/dist /work/src/frontend/dist
+
+# Feature files + step definitions + the entry point script itself
+COPY spec/behavior /work/spec/behavior
+COPY spec/behavior.feature /work/spec/behavior.feature
+COPY tests/behavior /work/tests/behavior
+COPY tests/.evals/behavior/run.sh /work/tests/.evals/behavior/run.sh
+
+ENV PYTHONPATH=/work/src/backend:/work
+
+ENTRYPOINT ["/bin/sh", "-c"]

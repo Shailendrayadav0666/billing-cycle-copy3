@@ -82,6 +82,55 @@ class TokenRequest(BaseModel):
     token: str
 
 
+class UpgradeRequest(BaseModel):
+    email: str
+
+
+PREMIUM_PRICE = 40
+STANDARD_PRICE = 20
+DAYS_IN_CYCLE = 30
+
+PREMIUM_USAGES = [
+    {
+        "id": "video-quality",
+        "label": "Video quality",
+        "type": "feature",
+        "value": "4K Ultra HD",
+        "help": "The best video resolution available on the Premium plan.",
+    },
+    {
+        "id": "screens",
+        "label": "Watch at the same time",
+        "type": "feature",
+        "value": "Can watch on 4 devices at once",
+        "help": "Number of supported devices that can stream on your account simultaneously.",
+    },
+    {
+        "id": "downloads",
+        "label": "Download on devices",
+        "type": "feature",
+        "value": "Can download on 6 devices",
+        "help": "Number of supported devices you can download titles to for offline viewing.",
+    },
+]
+
+PREMIUM_INCLUDED_USAGE = {
+    "title": "Plan perks",
+    "items": [
+        {"id": "ad-free", "label": "Ad-free streaming", "used_percent": 100},
+        {"id": "spatial-audio", "label": "Spatial audio (select titles)", "used_percent": 100},
+        {"id": "dolby-vision", "label": "Dolby Vision (select titles)", "used_percent": 100},
+    ],
+    "help": "Perks included in your Premium plan.",
+}
+
+
+def calculate_days_remaining(renew_at: str) -> int:
+    renew_date = datetime.strptime(renew_at, "%b %d, %Y").date()
+    today = datetime.today().date()
+    return max(0, min(DAYS_IN_CYCLE, (renew_date - today).days))
+
+
 @app.post("/api/auth/login")
 def login(payload: LoginRequest):
     user = users.get(payload.email)
@@ -155,6 +204,32 @@ def billing(email: str):
     if email not in users:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
     return billing_data.get(email, billing_data["tpg@example.com"])
+
+
+@app.post("/api/billing/upgrade")
+def upgrade_plan(payload: UpgradeRequest):
+    user = users.get(payload.email)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    if user["plan"] == "Premium":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Already on Premium plan"
+        )
+
+    record: dict = billing_data.get(payload.email, billing_data["tpg@example.com"])
+    days_remaining = calculate_days_remaining(record["renew_at"])
+    prorated_charge = round((PREMIUM_PRICE - STANDARD_PRICE) * (days_remaining / DAYS_IN_CYCLE), 2)
+
+    user["plan"] = "Premium"
+    user["price"] = f"${PREMIUM_PRICE}/month"
+
+    record["plan_name"] = "Premium"
+    record["price"] = f"${PREMIUM_PRICE}/month"
+    record["usages"] = PREMIUM_USAGES
+    record["included_usage"] = PREMIUM_INCLUDED_USAGE
+    billing_data[payload.email] = record
+
+    return {**record, "prorated_charge": prorated_charge}
 
 
 # Serve the built frontend if it exists (production build)

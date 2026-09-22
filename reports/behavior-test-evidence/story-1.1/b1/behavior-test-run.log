@@ -1,0 +1,74 @@
+B1 — unit scope: spec/behavior/story-1.1.feature
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python
+cachedir: .pytest_cache
+rootdir: /work
+plugins: cov-7.1.0, bdd-8.1.0, anyio-4.15.1
+collecting ... collected 16 items
+
+tests/behavior/test_story_1_1.py::test_billing_page_plan_display_becomes_dynamic PASSED [  6%]
+tests/behavior/test_story_1_1.py::test_dynamic_plan_display_reflects_premium_after_upgrade PASSED [ 12%]
+tests/behavior/test_story_1_1.py::test_upgrade_cta_is_visible_for_a_standardplan_user PASSED [ 18%]
+tests/behavior/test_story_1_1.py::test_upgrade_cta_is_hidden_for_a_premiumplan_user PASSED [ 25%]
+tests/behavior/test_story_1_1.py::test_confirmation_modal_shows_the_exact_prorated_preview_before_commitment PASSED [ 31%]
+tests/behavior/test_story_1_1.py::test_cancel_does_nothing PASSED        [ 37%]
+tests/behavior/test_story_1_1.py::test_successful_prorated_upgrade PASSED [ 43%]
+tests/behavior/test_story_1_1.py::test_proration_at_the_boundary__renewal_date_today PASSED [ 50%]
+tests/behavior/test_story_1_1.py::test_proration_at_the_boundary__full_cycle_remaining PASSED [ 56%]
+tests/behavior/test_story_1_1.py::test_alreadypremium_guard PASSED       [ 62%]
+tests/behavior/test_story_1_1.py::test_unknownuser_guard PASSED          [ 68%]
+tests/behavior/test_story_1_1.py::test_billing_page_reflects_premium_immediately_no_reload PASSED [ 75%]
+tests/behavior/test_story_1_1.py::test_persistent_postupgrade_success_banner PASSED [ 81%]
+tests/behavior/test_story_1_1.py::test_confirmation_modal_shows_an_inline_error_on_network_failure PASSED [ 87%]
+tests/behavior/test_story_1_1.py::test_confirmation_modal_shows_an_inline_error_on_a_5xx_response PASSED [ 93%]
+tests/behavior/test_story_1_1.py::test_no_regressions_to_existing_flows PASSED [100%]
+
+=============================== warnings summary ===============================
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-1 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-2 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-3 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-4 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-5 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-6 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-7 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-8 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-9 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-10 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+../usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137
+  /usr/local/lib/python3.12/dist-packages/pytest_bdd/plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-11 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+-------------- generated xml file: /work/behavior-test-report.xml --------------
+======================= 16 passed, 11 warnings in 5.61s ========================
+exit: 0

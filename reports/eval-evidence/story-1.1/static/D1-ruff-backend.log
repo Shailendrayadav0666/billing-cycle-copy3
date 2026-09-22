@@ -1,0 +1,97 @@
+main.py:49:101: E501 Line too long (102 > 100)
+   |
+47 |                 "type": "feature",
+48 |                 "value": "Can watch on 2 devices at once",
+49 |                 "help": "Number of supported devices that can stream on your account simultaneously.",
+   |                                                                                                     ^^ E501
+50 |             },
+51 |             {
+   |
+
+main.py:56:101: E501 Line too long (102 > 100)
+   |
+54 |                 "type": "feature",
+55 |                 "value": "Can download on 2 devices",
+56 |                 "help": "Number of supported devices you can download titles to for offline viewing.",
+   |                                                                                                     ^^ E501
+57 |             },
+58 |         ],
+   |
+
+main.py:63:101: E501 Line too long (103 > 100)
+   |
+61 |             "items": [
+62 |                 {"id": "ad-free", "label": "Ad-free streaming", "used_percent": 100},
+63 |                 {"id": "spatial-audio", "label": "Spatial audio (select titles)", "used_percent": 100},
+   |                                                                                                     ^^^ E501
+64 |             ],
+65 |             "help": "Perks included in your Standard plan.",
+   |
+
+main.py:139:101: E501 Line too long (102 > 100)
+    |
+137 |     if not user or user["password"] != payload.password:
+138 |         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+139 |     return {"access_token": payload.email, "user": {k: v for k, v in user.items() if k != "password"}}
+    |                                                                                                     ^^ E501
+    |
+
+main.py:145:101: E501 Line too long (101 > 100)
+    |
+143 | def register(payload: RegisterRequest):
+144 |     if payload.email in users:
+145 |         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Account already exists")
+    |                                                                                                     ^ E501
+146 |     users[payload.email] = {
+147 |         "id": len(users) + 1,
+    |
+
+main.py:172:101: E501 Line too long (102 > 100)
+    |
+170 |                 "type": "feature",
+171 |                 "value": "Can watch on 2 devices at once",
+172 |                 "help": "Number of supported devices that can stream on your account simultaneously.",
+    |                                                                                                     ^^ E501
+173 |             },
+174 |             {
+    |
+
+main.py:179:101: E501 Line too long (102 > 100)
+    |
+177 |                 "type": "feature",
+178 |                 "value": "Can download on 2 devices",
+179 |                 "help": "Number of supported devices you can download titles to for offline viewing.",
+    |                                                                                                     ^^ E501
+180 |             },
+181 |         ],
+    |
+
+main.py:186:101: E501 Line too long (103 > 100)
+    |
+184 |             "items": [
+185 |                 {"id": "ad-free", "label": "Ad-free streaming", "used_percent": 100},
+186 |                 {"id": "spatial-audio", "label": "Spatial audio (select titles)", "used_percent": 100},
+    |                                                                                                     ^^^ E501
+187 |             ],
+188 |             "help": "Perks included in your Standard plan.",
+    |
+
+main.py:191:101: E501 Line too long (118 > 100)
+    |
+189 |         },
+190 |     }
+191 |     return {"access_token": payload.email, "user": {k: v for k, v in users[payload.email].items() if k != "password"}}
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^ E501
+    |
+
+main.py:215:101: E501 Line too long (102 > 100)
+    |
+213 |         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+214 |     if user["plan"] == "Premium":
+215 |         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Already on Premium plan")
+    |                                                                                                     ^^ E501
+216 | 
+217 |     record = billing_data.get(payload.email, billing_data["tpg@example.com"])
+    |
+
+Found 10 errors.

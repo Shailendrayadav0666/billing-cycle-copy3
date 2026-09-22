@@ -1,0 +1,927 @@
+{
+  "@adobe/css-tools@4.5.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/adobe/css-tools",
+    "publisher": "TJ Holowaychuk",
+    "email": "tj@vision-media.ca",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@adobe\\css-tools",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@adobe\\css-tools\\LICENSE"
+  },
+  "@asamuzakjp/css-color@5.1.11": {
+    "licenses": "MIT",
+    "repository": "https://github.com/asamuzaK/cssColor",
+    "publisher": "asamuzaK",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@asamuzakjp\\css-color",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@asamuzakjp\\css-color\\LICENSE"
+  },
+  "@asamuzakjp/dom-selector@7.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/asamuzaK/domSelector",
+    "publisher": "asamuzaK",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@asamuzakjp\\dom-selector",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@asamuzakjp\\dom-selector\\LICENSE"
+  },
+  "@asamuzakjp/generational-cache@1.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/asamuzaK/generationalCache",
+    "publisher": "asamuzaK",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@asamuzakjp\\generational-cache",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@asamuzakjp\\generational-cache\\LICENSE"
+  },
+  "@asamuzakjp/nwsapi@2.3.9": {
+    "licenses": "MIT",
+    "repository": "https://github.com/dperini/nwsapi",
+    "publisher": "Diego Perini",
+    "email": "diego.perini@gmail.com",
+    "url": "http://www.iport.it/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@asamuzakjp\\nwsapi",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@asamuzakjp\\nwsapi\\LICENSE"
+  },
+  "@babel/code-frame@7.29.7": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel",
+    "publisher": "The Babel Team",
+    "url": "https://babel.dev/team",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\code-frame",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\code-frame\\LICENSE"
+  },
+  "@babel/helper-string-parser@7.29.7": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel",
+    "publisher": "The Babel Team",
+    "url": "https://babel.dev/team",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\helper-string-parser",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\helper-string-parser\\LICENSE"
+  },
+  "@babel/helper-validator-identifier@7.29.7": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel",
+    "publisher": "The Babel Team",
+    "url": "https://babel.dev/team",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\helper-validator-identifier",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\helper-validator-identifier\\LICENSE"
+  },
+  "@babel/parser@7.29.9": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel",
+    "publisher": "The Babel Team",
+    "url": "https://babel.dev/team",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\parser",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\parser\\LICENSE"
+  },
+  "@babel/runtime@7.29.7": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel",
+    "publisher": "The Babel Team",
+    "url": "https://babel.dev/team",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\runtime",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\runtime\\LICENSE"
+  },
+  "@babel/types@7.29.8": {
+    "licenses": "MIT",
+    "repository": "https://github.com/babel/babel",
+    "publisher": "The Babel Team",
+    "url": "https://babel.dev/team",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\types",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@babel\\types\\LICENSE"
+  },
+  "@bcoe/v8-coverage@1.0.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/bcoe/v8-coverage",
+    "publisher": "Charles Samborski",
+    "email": "demurgos@demurgos.net",
+    "url": "https://demurgos.net",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@bcoe\\v8-coverage",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@bcoe\\v8-coverage\\LICENSE.md"
+  },
+  "@bramus/specificity@2.4.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/bramus/specificity",
+    "publisher": "Bramus Van Damme",
+    "email": "bramus@bram.us",
+    "url": "https://www.bram.us/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@bramus\\specificity",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@bramus\\specificity\\LICENSE"
+  },
+  "@csstools/color-helpers@6.1.1": {
+    "licenses": "MIT-0",
+    "repository": "https://github.com/csstools/postcss-plugins",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\color-helpers",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\color-helpers\\LICENSE.md"
+  },
+  "@csstools/css-calc@3.4.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/csstools/postcss-plugins",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\css-calc",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\css-calc\\LICENSE.md"
+  },
+  "@csstools/css-color-parser@4.2.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/csstools/postcss-plugins",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\css-color-parser",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\css-color-parser\\LICENSE.md"
+  },
+  "@csstools/css-parser-algorithms@4.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/csstools/postcss-plugins",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\css-parser-algorithms",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\css-parser-algorithms\\LICENSE.md"
+  },
+  "@csstools/css-syntax-patches-for-csstree@1.1.14": {
+    "licenses": "MIT-0",
+    "repository": "https://github.com/csstools/postcss-plugins",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\css-syntax-patches-for-csstree",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\css-syntax-patches-for-csstree\\LICENSE.md"
+  },
+  "@csstools/css-tokenizer@4.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/csstools/postcss-plugins",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\css-tokenizer",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@csstools\\css-tokenizer\\LICENSE.md"
+  },
+  "@exodus/bytes@1.16.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ExodusOSS/bytes",
+    "publisher": "Exodus Movement, Inc.",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@exodus\\bytes",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@exodus\\bytes\\LICENSE"
+  },
+  "@jridgewell/resolve-uri@3.1.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jridgewell/resolve-uri",
+    "publisher": "Justin Ridgewell",
+    "email": "justin@ridgewell.name",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@jridgewell\\resolve-uri",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@jridgewell\\resolve-uri\\LICENSE"
+  },
+  "@jridgewell/sourcemap-codec@1.6.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jridgewell/sourcemaps",
+    "publisher": "Justin Ridgewell",
+    "email": "justin@ridgewell.name",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@jridgewell\\sourcemap-codec",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@jridgewell\\sourcemap-codec\\LICENSE"
+  },
+  "@jridgewell/trace-mapping@0.3.31": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jridgewell/sourcemaps",
+    "publisher": "Justin Ridgewell",
+    "email": "justin@ridgewell.name",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@jridgewell\\trace-mapping",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@jridgewell\\trace-mapping\\LICENSE"
+  },
+  "@oxc-project/types@0.150.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/oxc-project/oxc",
+    "publisher": "Boshen and oxc contributors",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@oxc-project\\types",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@oxc-project\\types\\LICENSE"
+  },
+  "@oxlint/binding-win32-x64-msvc@1.85.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/oxc-project/oxc",
+    "publisher": "Boshen and oxc contributors",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@oxlint\\binding-win32-x64-msvc",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@oxlint\\binding-win32-x64-msvc\\README.md"
+  },
+  "@rolldown/binding-win32-x64-msvc@1.2.9": {
+    "licenses": "MIT",
+    "repository": "https://github.com/rolldown/rolldown",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@rolldown\\binding-win32-x64-msvc",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@rolldown\\binding-win32-x64-msvc\\README.md"
+  },
+  "@rolldown/pluginutils@1.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/rolldown/plugins",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@rolldown\\pluginutils",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@rolldown\\pluginutils\\LICENSE"
+  },
+  "@testing-library/dom@10.4.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/testing-library/dom-testing-library",
+    "publisher": "Kent C. Dodds",
+    "email": "me@kentcdodds.com",
+    "url": "https://kentcdodds.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@testing-library\\dom",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@testing-library\\dom\\LICENSE"
+  },
+  "@testing-library/jest-dom@7.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/testing-library/jest-dom",
+    "publisher": "Ernesto Garcia",
+    "email": "gnapse@gmail.com",
+    "url": "http://gnapse.github.io",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@testing-library\\jest-dom",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@testing-library\\jest-dom\\LICENSE"
+  },
+  "@testing-library/react@16.3.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/testing-library/react-testing-library",
+    "publisher": "Kent C. Dodds",
+    "email": "me@kentcdodds.com",
+    "url": "https://kentcdodds.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@testing-library\\react",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@testing-library\\react\\LICENSE"
+  },
+  "@testing-library/user-event@14.6.7": {
+    "licenses": "MIT",
+    "repository": "https://github.com/testing-library/user-event",
+    "publisher": "Giorgio Polvara",
+    "email": "polvara@gmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@testing-library\\user-event",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@testing-library\\user-event\\LICENSE"
+  },
+  "@types/aria-query@5.0.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\aria-query",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\aria-query\\LICENSE"
+  },
+  "@types/chai@5.2.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\chai",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\chai\\LICENSE"
+  },
+  "@types/deep-eql@4.0.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\deep-eql",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\deep-eql\\LICENSE"
+  },
+  "@types/estree@1.0.9": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\estree",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\estree\\LICENSE"
+  },
+  "@types/react-dom@19.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\react-dom",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\react-dom\\LICENSE"
+  },
+  "@types/react@19.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\react",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@types\\react\\LICENSE"
+  },
+  "@vitejs/plugin-react@6.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/vitejs/vite-plugin-react",
+    "publisher": "Evan You",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitejs\\plugin-react",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitejs\\plugin-react\\LICENSE"
+  },
+  "@vitest/coverage-v8@5.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/vitest-dev/vitest",
+    "publisher": "Anthony Fu",
+    "email": "anthonyfu117@hotmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitest\\coverage-v8",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitest\\coverage-v8\\LICENSE"
+  },
+  "@vitest/istanbul-lib-coverage@1.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/vitest-dev/istanbuljs",
+    "publisher": "Vitest Team",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitest\\istanbul-lib-coverage",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitest\\istanbul-lib-coverage\\LICENSE"
+  },
+  "@vitest/istanbul-lib-report@1.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/vitest-dev/istanbuljs",
+    "publisher": "Vitest Team",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitest\\istanbul-lib-report",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitest\\istanbul-lib-report\\LICENSE"
+  },
+  "@vitest/mocker@5.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/vitest-dev/vitest",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitest\\mocker",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitest\\mocker\\LICENSE"
+  },
+  "@vitest/spy@5.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/vitest-dev/vitest",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitest\\spy",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@vitest\\spy\\LICENSE"
+  },
+  "ansi-regex@5.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chalk/ansi-regex",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\ansi-regex",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\ansi-regex\\license"
+  },
+  "ansi-styles@5.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chalk/ansi-styles",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "https://sindresorhus.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\ansi-styles",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\ansi-styles\\license"
+  },
+  "aria-query@5.3.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/A11yance/aria-query",
+    "publisher": "Jesse Beach",
+    "email": "splendidnoise@gmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\aria-query",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\aria-query\\LICENSE"
+  },
+  "assertion-error@2.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chaijs/assertion-error",
+    "publisher": "Jake Luer",
+    "email": "jake@qualiancy.com",
+    "url": "http://qualiancy.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\assertion-error",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\assertion-error\\LICENSE"
+  },
+  "ast-v8-to-istanbul@1.0.7": {
+    "licenses": "MIT",
+    "repository": "https://github.com/AriPerkkio/ast-v8-to-istanbul",
+    "publisher": "Ari Perkkiö",
+    "email": "ari.perkkio@gmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\ast-v8-to-istanbul",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\ast-v8-to-istanbul\\LICENSE"
+  },
+  "bidi-js@1.1.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lojjic/bidi-js",
+    "publisher": "Jason Johnston",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\bidi-js",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\bidi-js\\LICENSE.txt"
+  },
+  "chai@6.2.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/chaijs/chai",
+    "publisher": "Jake Luer",
+    "email": "jake@alogicalparadox.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\chai",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\chai\\LICENSE"
+  },
+  "cookie@1.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jshttp/cookie",
+    "publisher": "Roman Shtylman",
+    "email": "shtylman@gmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\cookie",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\cookie\\LICENSE"
+  },
+  "css-tree@3.2.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/csstree/csstree",
+    "publisher": "Roman Dvornov",
+    "email": "rdvornov@gmail.com",
+    "url": "https://github.com/lahmatiy",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\css-tree",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\css-tree\\LICENSE"
+  },
+  "css.escape@1.5.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mathiasbynens/CSS.escape",
+    "publisher": "Mathias Bynens",
+    "url": "https://mathiasbynens.be/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\css.escape",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\css.escape\\LICENSE-MIT.txt"
+  },
+  "csstype@3.2.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/frenic/csstype",
+    "publisher": "Fredrik Nicol",
+    "email": "fredrik.nicol@gmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\csstype",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\csstype\\LICENSE"
+  },
+  "data-urls@7.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jsdom/data-urls",
+    "publisher": "Domenic Denicola",
+    "email": "d@domenic.me",
+    "url": "https://domenic.me/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\data-urls",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\data-urls\\LICENSE.txt"
+  },
+  "decimal.js@10.6.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/MikeMcl/decimal.js",
+    "publisher": "Michael Mclaughlin",
+    "email": "M8ch88l@gmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\decimal.js",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\decimal.js\\LICENCE.md"
+  },
+  "dequal@2.0.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lukeed/dequal",
+    "publisher": "Luke Edwards",
+    "email": "luke.edwards05@gmail.com",
+    "url": "https://lukeed.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\dequal",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\dequal\\license"
+  },
+  "detect-libc@2.1.2": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/lovell/detect-libc",
+    "publisher": "Lovell Fuller",
+    "email": "npm@lovell.info",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\detect-libc",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\detect-libc\\LICENSE"
+  },
+  "dom-accessibility-api@0.5.16": {
+    "licenses": "MIT",
+    "repository": "https://github.com/eps1lon/dom-accessibility-api",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\dom-accessibility-api",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\dom-accessibility-api\\LICENSE.md"
+  },
+  "dom-accessibility-api@0.6.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/eps1lon/dom-accessibility-api",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@testing-library\\jest-dom\\node_modules\\dom-accessibility-api",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\@testing-library\\jest-dom\\node_modules\\dom-accessibility-api\\LICENSE.md"
+  },
+  "entities@8.1.0": {
+    "licenses": "BSD-2-Clause",
+    "repository": "https://github.com/fb55/entities",
+    "publisher": "Felix Boehm",
+    "email": "me@feedic.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\entities",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\entities\\LICENSE"
+  },
+  "es-module-lexer@2.3.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/guybedford/es-module-lexer",
+    "publisher": "Guy Bedford",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\es-module-lexer",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\es-module-lexer\\LICENSE"
+  },
+  "estree-walker@3.0.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/Rich-Harris/estree-walker",
+    "publisher": "Rich Harris",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\estree-walker",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\estree-walker\\LICENSE"
+  },
+  "expect-type@1.4.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/mmkal/expect-type",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\expect-type",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\expect-type\\LICENSE"
+  },
+  "fdir@6.5.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/thecodrr/fdir",
+    "publisher": "thecodrr",
+    "email": "thecodrr@protonmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\fdir",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\fdir\\LICENSE"
+  },
+  "frontend@0.0.0": {
+    "licenses": "UNLICENSED",
+    "private": true,
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\README.md"
+  },
+  "html-encoding-sniffer@6.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jsdom/html-encoding-sniffer",
+    "publisher": "Domenic Denicola",
+    "email": "d@domenic.me",
+    "url": "https://domenic.me/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\html-encoding-sniffer",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\html-encoding-sniffer\\LICENSE.txt"
+  },
+  "indent-string@4.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/indent-string",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\indent-string",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\indent-string\\license"
+  },
+  "is-potential-custom-element-name@1.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mathiasbynens/is-potential-custom-element-name",
+    "publisher": "Mathias Bynens",
+    "url": "https://mathiasbynens.be/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\is-potential-custom-element-name",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\is-potential-custom-element-name\\LICENSE-MIT.txt"
+  },
+  "js-tokens@10.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lydell/js-tokens",
+    "publisher": "Simon Lydell",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\ast-v8-to-istanbul\\node_modules\\js-tokens",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\ast-v8-to-istanbul\\node_modules\\js-tokens\\LICENSE"
+  },
+  "js-tokens@4.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lydell/js-tokens",
+    "publisher": "Simon Lydell",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\js-tokens",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\js-tokens\\LICENSE"
+  },
+  "jsdom@29.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jsdom/jsdom",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\jsdom",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\jsdom\\LICENSE.txt"
+  },
+  "lightningcss-win32-x64-msvc@1.33.0": {
+    "licenses": "MPL-2.0",
+    "repository": "https://github.com/parcel-bundler/lightningcss",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\lightningcss-win32-x64-msvc",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\lightningcss-win32-x64-msvc\\LICENSE"
+  },
+  "lightningcss@1.33.0": {
+    "licenses": "MPL-2.0",
+    "repository": "https://github.com/parcel-bundler/lightningcss",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\lightningcss",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\lightningcss\\LICENSE"
+  },
+  "lru-cache@11.5.3": {
+    "licenses": "BlueOak-1.0.0",
+    "repository": "https://github.com/isaacs/node-lru-cache",
+    "publisher": "Isaac Z. Schlueter",
+    "email": "i@izs.me",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\lru-cache",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\lru-cache\\LICENSE.md"
+  },
+  "lz-string@1.5.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/pieroxy/lz-string",
+    "publisher": "pieroxy",
+    "email": "pieroxy@pieroxy.net",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\lz-string",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\lz-string\\LICENSE"
+  },
+  "magic-string@1.4.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/Rich-Harris/magic-string",
+    "publisher": "Rich Harris",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\magic-string",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\magic-string\\LICENSE"
+  },
+  "magicast@0.5.5": {
+    "licenses": "MIT",
+    "repository": "https://github.com/unjs/magicast",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\magicast",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\magicast\\LICENSE"
+  },
+  "mdn-data@2.27.1": {
+    "licenses": "CC0-1.0",
+    "repository": "https://github.com/mdn/data",
+    "publisher": "Mozilla Developer Network",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\mdn-data",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\mdn-data\\LICENSE"
+  },
+  "min-indent@1.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/thejameskyle/min-indent",
+    "publisher": "James Kyle",
+    "email": "me@thejameskyle.com",
+    "url": "thejameskyle.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\min-indent",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\min-indent\\license"
+  },
+  "nanoid@3.3.19": {
+    "licenses": "MIT",
+    "repository": "https://github.com/ai/nanoid",
+    "publisher": "Andrey Sitnik",
+    "email": "andrey@sitnik.ru",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\nanoid",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\nanoid\\LICENSE"
+  },
+  "obug@2.2.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sxzz/obug",
+    "publisher": "Kevin Deng",
+    "email": "sxzz@sxzz.moe",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\obug",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\obug\\LICENSE"
+  },
+  "oxlint@1.85.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/oxc-project/oxc",
+    "publisher": "Boshen and oxc contributors",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\oxlint",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\oxlint\\LICENSE"
+  },
+  "parse5@8.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/inikulin/parse5",
+    "publisher": "Ivan Nikulin",
+    "email": "ifaaan@gmail.com",
+    "url": "https://github.com/inikulin",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\parse5",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\parse5\\LICENSE"
+  },
+  "picocolors@1.1.1": {
+    "licenses": "ISC",
+    "repository": "https://github.com/alexeyraspopov/picocolors",
+    "publisher": "Alexey Raspopov",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\picocolors",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\picocolors\\LICENSE"
+  },
+  "picomatch@4.0.7": {
+    "licenses": "MIT",
+    "repository": "https://github.com/micromatch/picomatch",
+    "publisher": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\picomatch",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\picomatch\\LICENSE"
+  },
+  "postcss@8.5.28": {
+    "licenses": "MIT",
+    "repository": "https://github.com/postcss/postcss",
+    "publisher": "Andrey Sitnik",
+    "email": "andrey@sitnik.es",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\postcss",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\postcss\\LICENSE"
+  },
+  "pretty-format@27.5.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/facebook/jest",
+    "publisher": "James Kyle",
+    "email": "me@thejameskyle.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\pretty-format",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\pretty-format\\LICENSE"
+  },
+  "punycode@2.3.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mathiasbynens/punycode.js",
+    "publisher": "Mathias Bynens",
+    "url": "https://mathiasbynens.be/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\punycode",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\punycode\\LICENSE-MIT.txt"
+  },
+  "react-dom@19.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/react/react",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\react-dom",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\react-dom\\LICENSE"
+  },
+  "react-is@17.0.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/facebook/react",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\react-is",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\react-is\\LICENSE"
+  },
+  "react-router-dom@7.18.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/remix-run/react-router",
+    "publisher": "Remix Software",
+    "email": "hello@remix.run",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\react-router-dom",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\react-router-dom\\LICENSE.md"
+  },
+  "react-router@7.18.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/remix-run/react-router",
+    "publisher": "Remix Software",
+    "email": "hello@remix.run",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\react-router",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\react-router\\LICENSE.md"
+  },
+  "react@19.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/react/react",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\react",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\react\\LICENSE"
+  },
+  "redent@3.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/redent",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\redent",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\redent\\license"
+  },
+  "require-from-string@2.0.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/floatdrop/require-from-string",
+    "publisher": "Vsevolod Strukchinsky",
+    "email": "floatdrop@gmail.com",
+    "url": "github.com/floatdrop",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\require-from-string",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\require-from-string\\license"
+  },
+  "rolldown@1.2.9": {
+    "licenses": "MIT",
+    "repository": "https://github.com/rolldown/rolldown",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\rolldown",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\rolldown\\LICENSE"
+  },
+  "saxes@6.0.0": {
+    "licenses": "ISC",
+    "repository": "https://github.com/lddubeau/saxes",
+    "publisher": "Louis-Dominique Dubeau",
+    "email": "ldd@lddubeau.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\saxes",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\saxes\\README.md"
+  },
+  "scheduler@0.28.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/react/react",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\scheduler",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\scheduler\\LICENSE"
+  },
+  "set-cookie-parser@2.7.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/nfriedly/set-cookie-parser",
+    "publisher": "Nathan Friedly",
+    "url": "http://nfriedly.com/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\set-cookie-parser",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\set-cookie-parser\\LICENSE"
+  },
+  "siginfo@2.0.0": {
+    "licenses": "ISC",
+    "repository": "https://github.com/emilbayes/siginfo",
+    "publisher": "Emil Bay",
+    "email": "github@tixz.dk",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\siginfo",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\siginfo\\LICENSE"
+  },
+  "source-map-js@1.2.1": {
+    "licenses": "BSD-3-Clause",
+    "repository": "https://github.com/7rulnik/source-map-js",
+    "publisher": "Valentin 7rulnik Semirulnik",
+    "email": "v7rulnik@gmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\source-map-js",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\source-map-js\\LICENSE"
+  },
+  "stackback@0.0.2": {
+    "licenses": "MIT",
+    "repository": "https://github.com/shtylman/node-stackback",
+    "publisher": "Roman Shtylman",
+    "email": "shtylman@gmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\stackback",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\stackback\\README.md"
+  },
+  "std-env@4.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/unjs/std-env",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\std-env",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\std-env\\LICENCE"
+  },
+  "strip-indent@3.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/sindresorhus/strip-indent",
+    "publisher": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\strip-indent",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\strip-indent\\license"
+  },
+  "symbol-tree@3.2.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jsdom/js-symbol-tree",
+    "publisher": "Joris van der Wel",
+    "email": "joris@jorisvanderwel.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\symbol-tree",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\symbol-tree\\LICENSE"
+  },
+  "tinybench@6.1.4": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tinylibs/tinybench",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tinybench",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tinybench\\LICENSE"
+  },
+  "tinyexec@1.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tinylibs/tinyexec",
+    "publisher": "James Garbutt",
+    "url": "https://github.com/43081j",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tinyexec",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tinyexec\\LICENSE"
+  },
+  "tinyglobby@0.2.17": {
+    "licenses": "MIT",
+    "repository": "https://github.com/SuperchupuDev/tinyglobby",
+    "publisher": "Superchupu",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tinyglobby",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tinyglobby\\LICENSE"
+  },
+  "tinyrainbow@3.1.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/tinylibs/tinyrainbow",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tinyrainbow",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tinyrainbow\\LICENCE"
+  },
+  "tldts-core@7.4.14": {
+    "licenses": "MIT",
+    "repository": "https://github.com/remusao/tldts",
+    "publisher": "Rémi Berson",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tldts-core",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tldts-core\\LICENSE"
+  },
+  "tldts@7.4.14": {
+    "licenses": "MIT",
+    "repository": "https://github.com/remusao/tldts",
+    "publisher": "Rémi Berson",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tldts",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tldts\\LICENSE"
+  },
+  "tough-cookie@6.0.2": {
+    "licenses": "BSD-3-Clause",
+    "repository": "https://github.com/salesforce/tough-cookie",
+    "publisher": "Jeremy Stashewsky",
+    "email": "jstash@gmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tough-cookie",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tough-cookie\\LICENSE"
+  },
+  "tr46@6.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jsdom/tr46",
+    "publisher": "Sebastian Mayr",
+    "email": "npm@smayr.name",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tr46",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\tr46\\LICENSE.md"
+  },
+  "undici@7.29.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/nodejs/undici",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\undici",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\undici\\LICENSE"
+  },
+  "vite@8.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/vitejs/vite",
+    "publisher": "Evan You",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\vite",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\vite\\LICENSE.md"
+  },
+  "vitest@5.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/vitest-dev/vitest",
+    "publisher": "Anthony Fu",
+    "email": "anthonyfu117@hotmail.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\vitest",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\vitest\\LICENSE.md"
+  },
+  "w3c-xmlserializer@5.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jsdom/w3c-xmlserializer",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\w3c-xmlserializer",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\w3c-xmlserializer\\LICENSE.md"
+  },
+  "webidl-conversions@8.0.1": {
+    "licenses": "BSD-2-Clause",
+    "repository": "https://github.com/jsdom/webidl-conversions",
+    "publisher": "Domenic Denicola",
+    "email": "d@domenic.me",
+    "url": "https://domenic.me/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\webidl-conversions",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\webidl-conversions\\LICENSE.md"
+  },
+  "whatwg-mimetype@5.0.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jsdom/whatwg-mimetype",
+    "publisher": "Domenic Denicola",
+    "email": "d@domenic.me",
+    "url": "https://domenic.me/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\whatwg-mimetype",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\whatwg-mimetype\\LICENSE.txt"
+  },
+  "whatwg-url@16.0.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/jsdom/whatwg-url",
+    "publisher": "Sebastian Mayr",
+    "email": "github@smayr.name",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\whatwg-url",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\whatwg-url\\LICENSE.txt"
+  },
+  "why-is-node-running@2.3.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/mafintosh/why-is-node-running",
+    "publisher": "Mathias Buus",
+    "url": "@mafintosh",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\why-is-node-running",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\why-is-node-running\\LICENSE"
+  },
+  "xml-name-validator@5.0.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/jsdom/xml-name-validator",
+    "publisher": "Domenic Denicola",
+    "email": "d@domenic.me",
+    "url": "https://domenic.me/",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\xml-name-validator",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\xml-name-validator\\LICENSE.txt"
+  },
+  "xmlchars@2.2.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lddubeau/xmlchars",
+    "publisher": "Louis-Dominique Dubeau",
+    "email": "ldd@lddubeau.com",
+    "path": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\xmlchars",
+    "licenseFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\src\\frontend\\node_modules\\xmlchars\\LICENSE"
+  }
+}
+

@@ -1,0 +1,87 @@
+main.py:49:101: E501 Line too long (102 > 100)
+   |
+47 |                 "type": "feature",
+48 |                 "value": "Can watch on 2 devices at once",
+49 |                 "help": "Number of supported devices that can stream on your account simultaneously.",
+   |                                                                                                     ^^ E501
+50 |             },
+51 |             {
+   |
+
+main.py:56:101: E501 Line too long (102 > 100)
+   |
+54 |                 "type": "feature",
+55 |                 "value": "Can download on 2 devices",
+56 |                 "help": "Number of supported devices you can download titles to for offline viewing.",
+   |                                                                                                     ^^ E501
+57 |             },
+58 |         ],
+   |
+
+main.py:63:101: E501 Line too long (103 > 100)
+   |
+61 |             "items": [
+62 |                 {"id": "ad-free", "label": "Ad-free streaming", "used_percent": 100},
+63 |                 {"id": "spatial-audio", "label": "Spatial audio (select titles)", "used_percent": 100},
+   |                                                                                                     ^^^ E501
+64 |             ],
+65 |             "help": "Perks included in your Standard plan.",
+   |
+
+main.py:90:101: E501 Line too long (102 > 100)
+   |
+88 |     if not user or user["password"] != payload.password:
+89 |         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+90 |     return {"access_token": payload.email, "user": {k: v for k, v in user.items() if k != "password"}}
+   |                                                                                                     ^^ E501
+   |
+
+main.py:96:101: E501 Line too long (101 > 100)
+   |
+94 | def register(payload: RegisterRequest):
+95 |     if payload.email in users:
+96 |         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Account already exists")
+   |                                                                                                     ^ E501
+97 |     users[payload.email] = {
+98 |         "id": len(users) + 1,
+   |
+
+main.py:123:101: E501 Line too long (102 > 100)
+    |
+121 |                 "type": "feature",
+122 |                 "value": "Can watch on 2 devices at once",
+123 |                 "help": "Number of supported devices that can stream on your account simultaneously.",
+    |                                                                                                     ^^ E501
+124 |             },
+125 |             {
+    |
+
+main.py:130:101: E501 Line too long (102 > 100)
+    |
+128 |                 "type": "feature",
+129 |                 "value": "Can download on 2 devices",
+130 |                 "help": "Number of supported devices you can download titles to for offline viewing.",
+    |                                                                                                     ^^ E501
+131 |             },
+132 |         ],
+    |
+
+main.py:137:101: E501 Line too long (103 > 100)
+    |
+135 |             "items": [
+136 |                 {"id": "ad-free", "label": "Ad-free streaming", "used_percent": 100},
+137 |                 {"id": "spatial-audio", "label": "Spatial audio (select titles)", "used_percent": 100},
+    |                                                                                                     ^^^ E501
+138 |             ],
+139 |             "help": "Perks included in your Standard plan.",
+    |
+
+main.py:142:101: E501 Line too long (118 > 100)
+    |
+140 |         },
+141 |     }
+142 |     return {"access_token": payload.email, "user": {k: v for k, v in users[payload.email].items() if k != "password"}}
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^ E501
+    |
+
+Found 9 errors.

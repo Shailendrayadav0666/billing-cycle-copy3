@@ -1,0 +1,55 @@
+{
+  "storyId": "1.1",
+  "generatedAt": "2026-09-22T15:04:53Z",
+  "evalFrameworkVersion": "1.0.0",
+  "scope": "changed-files",
+  "toolchain": [
+    { "tool": "ruff", "version": "0.8.4" },
+    { "tool": "mypy", "version": "1.14.1" },
+    { "tool": "semgrep", "version": "1.127.0" },
+    { "tool": "pip-audit", "version": "2.9.0" },
+    { "tool": "pip-licenses", "version": "5.5.5" },
+    { "tool": "gitleaks", "version": "8.21.2" },
+    { "tool": "oxlint", "version": "1.79.0 (project devDependency)" },
+    { "tool": "npm audit", "version": "bundled with npm" },
+    { "tool": "license-checker", "version": "via npx" },
+    { "tool": "pytest", "version": "9.1.1" },
+    { "tool": "pytest-cov", "version": "7.1.0" },
+    { "tool": "pytest-bdd", "version": "8.1.0" },
+    { "tool": "vitest", "version": "5.0.1" },
+    { "tool": "playwright", "version": "1.56.0" },
+    { "tool": "podman", "version": "5.8.7" }
+  ],
+  "bootstrap": [
+    { "file": "src/backend/ruff.toml", "reason": "no lint config existed for the backend" },
+    { "file": "src/backend/mypy.ini", "reason": "no type-check config existed for the backend" },
+    { "file": "src/backend/requirements-dev.txt", "reason": "no test/dev dependency group existed" }
+  ],
+  "gates": {
+    "D1_lint": { "status": "PASS", "backend": "9 findings, all pre-existing (baseline-matched)", "frontend": "3 findings, all pre-existing (baseline-matched)" },
+    "D2_types": { "status": "PASS", "backend": "0 findings (1 new finding fixed this run)", "frontend": "N/A - plain JS/JSX, no type checker in the ecosystem" },
+    "D3_sast": { "status": "PASS", "backend": "1 finding, pre-existing (baseline-matched)", "frontend": "0 findings" },
+    "D4_deps": { "status": "PASS", "backend": "0 vulnerabilities", "frontend": "0 vulnerabilities" },
+    "D5_licenses": { "status": "PASS", "backend": "0 disallowed (unchanged dependency set)", "frontend": "0 disallowed across 124 packages" },
+    "D6_complexity": { "status": "PASS", "backend": "0 functions over maxCyclomaticComplexity=12", "frontend": "N/A - no complexity rule configured, no concern" },
+    "D7_secrets": { "status": "PASS", "backend": "0 leaks", "frontend": "0 leaks" },
+    "unitCoverage": { "status": "PASS", "backend": "100% of new/changed lines (12/12 tests)", "frontend": "92.85% stmts / 94.54% lines (7/7 tests), exceeds unitTestCoverageMin=90.0" },
+    "behaviorB1": { "status": "PASS", "scenarios": "16/16 passed", "containerised": true, "image": "9073c98c4e03663f4fec99246328bf7f6b403d8050019eae1c29a6805dd9f7cc" },
+    "behaviorB2": { "status": "N/A", "reason": "no other feature file exists yet (single-story cycle)" },
+    "behaviorB3": { "status": "PASS", "scenarios": "16/16 passed", "reason": "single-unit cycle - condition satisfied vacuously, ran per common/behavior-spec.md Section 6.1", "containerised": true, "image": "9073c98c4e03663f4fec99246328bf7f6b403d8050019eae1c29a6805dd9f7cc" },
+    "apiContract": { "status": "PASS", "checklist": "14/14 applicable items pass, 1 N/A (role-based 403 - no RBAC exists in this app)" },
+    "playwright": { "status": "PASS", "scenarios": "2/2 passed (seed + TC-E2E-01)", "headed": true, "report": "reports/playwright-test-evidence/story-1.1/playwright-test-report.json" },
+    "J1_architecture": { "status": "PASS", "score": 1.0, "threshold": 0.85, "rubricVersion": "1.0.0", "report": "reports/eval-evidence/story-1.1/judge/architecture-score.json" },
+    "J2_security": { "status": "PASS", "score": 1.0, "threshold": 0.85, "rubricVersion": "1.0.0", "report": "reports/eval-evidence/story-1.1/judge/security-score.json" }
+  },
+  "ci": {
+    "playwright": {
+      "startCommand": { "backend": "python -m uvicorn main:app --host 0.0.0.0 --port 8000 (cwd: src/backend)", "frontend": "npm run dev (cwd: src/frontend)" },
+      "readinessUrl": { "backend": "http://localhost:8000/docs", "frontend": "http://localhost:5173" }
+    }
+  },
+  "checksRun": 15,
+  "checksTotal": 15,
+  "checksNA": ["behaviorB2", "D6_complexity (frontend half)"],
+  "overall": "PASS - all applicable gates green (J1 1.0, J2 1.0, both >= 0.85)"
+}

@@ -1,0 +1,7 @@
+
+> frontend@0.0.0 lint
+> oxlint
+
+src/context/AuthContext.jsx:19:14: warning react(immutability): Cannot access variable while it is being initialized help: `logout` is read while its declaration is still being initialized. Move the access after initialization. For a recursive callback, use a named function expression or restructure the callback so it does not capture itself during initialization
+src/context/AuthContext.jsx:66:14: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+src/context/AuthContext.jsx:19:14: warning react-hooks(exhaustive-deps): React Hook useEffect has a missing dependency: 'logout' help: Either include it or remove the dependency array.

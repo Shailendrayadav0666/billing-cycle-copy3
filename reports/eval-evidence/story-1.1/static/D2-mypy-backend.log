@@ -1,0 +1,2 @@
+main.py:220: error: Argument 1 to "calculate_days_remaining" has incompatible type "Collection[Collection[str]]"; expected "str"  [arg-type]
+Found 1 error in 1 file (checked 1 source file)

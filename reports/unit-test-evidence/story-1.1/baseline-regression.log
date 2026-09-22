@@ -1,0 +1,13 @@
+BASELINE REGRESSION RUN — Story 1.1 (self-serve-premium-upgrade)
+Timestamp: 2026-09-22T13:22:04Z
+Branch: story/1.1-self-serve-premium-upgrade (cut from epic/self-serve-premium-upgrade)
+
+Repo-wide search for existing tests (excluding node_modules/venv):
+  find . -iname "*test*"  ->  no test files under src/, no tests/unit/, no tests/behavior/, no tests/api/, no tests/e2e/
+
+RESULT: No test suite exists in this repo at this point in the cycle (brand-new POC, no prior story
+has run yet). Per common/eval-framework.md / dev-implement.md Step 1.5 Item 4.5: "If the repo has no
+test suite at all, record that explicitly — the post-implementation gate then covers only this
+story's new tests."
+
+Baseline pass/fail counts: N/A — 0 tests collected, 0 test files found.

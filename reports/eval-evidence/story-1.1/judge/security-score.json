@@ -1,0 +1,16 @@
+{
+  "storyId": "1.1",
+  "rubricVersion": "1.0.0",
+  "judgeModel": "claude-sonnet-5",
+  "scoredAt": "2026-09-22T15:52:00Z",
+  "criteria": [
+    { "id": "SEC-01", "owasp": "A01:2025", "metric": "Broken access control", "weight": 0.25, "score": 1.0, "evidence": "main.py:210-217 (upgrade_plan) looks up the user strictly by the request's own email (no second identifier bypassing the lookup), never returns another user's billing_data (main.py:219 falls back to the SAME email's default only when absent), and both guard checks (already-Premium 400 at :214-217, unknown-user 401 at :212-213) are present — introduces no gap beyond the existing GET /api/billing pattern it deliberately mirrors." },
+    { "id": "SEC-02", "owasp": "A02:2025", "metric": "Security misconfiguration", "weight": 0.10, "score": 1.0, "evidence": "No CORS/header/debug-mode change in the diff; the new endpoint sits under the same app-level CORSMiddleware (main.py:10-16, unchanged) as every other endpoint in the file — no per-endpoint config divergence." },
+    { "id": "SEC-03", "owasp": "A03:2025", "metric": "Software supply chain failures", "weight": 0.10, "score": 1.0, "evidence": "src/backend/requirements.txt: no diff. src/frontend/package.json diff adds only devDependencies (test tooling), no production dependency added or downgraded — satisfies REQ-NF-01." },
+    { "id": "SEC-04", "owasp": "A06:2025", "metric": "Insecure design", "weight": 0.20, "score": 1.0, "evidence": "already-Premium guard present and not bypassable (main.py:214-217, checked before any mutation); unknown-user guard present (main.py:212-213); days_remaining clamped to [0,30] by calculate_days_remaining's `max(0, min(DAYS_IN_CYCLE, ...))` (main.py:128-131) before use in the proration formula; the dict mutation (main.py:223-230) and the returned response (main.py:232, `{**record, ...}`) read from the SAME just-mutated `record`/`user` objects, so they cannot disagree." },
+    { "id": "SEC-05", "owasp": "A07:2025", "metric": "Authentication failures", "weight": 0.20, "score": 1.0, "evidence": "No plaintext password or hardcoded credential introduced in the new endpoint; no email or credential-like value is logged anywhere in the diff (the app has no logging framework at all, pre-existing and unchanged) — introduces no weakness beyond the existing, documented (REQ-NF-03) email-as-identifier posture." },
+    { "id": "SEC-06", "owasp": "A10:2025", "metric": "Mishandling of exceptional conditions", "weight": 0.15, "score": 1.0, "evidence": "Both error paths return the documented `{\"detail\": \"...\"}` shape (main.py:215-217, :212-213) with generic messages, no stack trace/internal object leaked. Frontend's new failure path (Billing.jsx UpgradeModal, handleConfirm's .catch) sets `error` state and renders it via `.upgrade-modal-error` role=\"alert\" (AC-10) — never silently swallowed." }
+  ],
+  "weightedScore": 1.0,
+  "gate": { "threshold": 0.85, "result": "PASS" }
+}

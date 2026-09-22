@@ -1,0 +1,15 @@
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests/e2e',
+  fullyParallel: false,
+  retries: 0,
+  reporter: [['list'], ['json', { outputFile: 'reports/playwright-test-evidence/story-1.1/playwright-test-report.json' }]],
+  use: {
+    baseURL: 'http://localhost:5173',
+    trace: 'retain-on-failure',
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
+});

@@ -287,7 +287,7 @@
   font-weight: 600;
 }
 
-.standard-badge {
+.plan-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -576,4 +576,169 @@
   font-size: 0.85rem;
   line-height: 1.4;
   margin: 0;
+}
+
+/* Self-serve upgrade */
+.upgrade-cta {
+  border: none;
+  cursor: pointer;
+  background: #0d9488;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.4rem;
+  border-radius: 0.625rem;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.upgrade-cta:hover {
+  background: #0f766e;
+}
+
+.upgrade-success-banner {
+  margin-top: 1.5rem;
+  border: 1px solid #99f6e4;
+  background: #f0fdfa;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.upgrade-success-title {
+  font-size: 1.1rem;
+  color: #0f766e;
+}
+
+.upgrade-success-text {
+  margin: 0;
+  color: #334155;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.upgrade-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 50;
+}
+
+.upgrade-modal {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 460px;
+}
+
+.upgrade-modal-title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.upgrade-modal-subtitle {
+  margin: 0.625rem 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.upgrade-modal-stats {
+  margin-top: 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.1rem;
+}
+
+.upgrade-modal-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.upgrade-modal-stat-row + .upgrade-modal-stat-row {
+  margin-top: 0.625rem;
+}
+
+.upgrade-modal-stat-value {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.upgrade-modal-charge {
+  font-size: 1.1rem;
+}
+
+.upgrade-modal-highlights {
+  margin: 1.1rem 0 0;
+  padding-left: 1.25rem;
+  color: #334155;
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+.upgrade-modal-error {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.upgrade-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.upgrade-modal-confirm {
+  flex: 1;
+  border: none;
+  cursor: pointer;
+  background: #0d9488;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.85rem;
+  border-radius: 0.625rem;
+  transition: background 0.2s;
+}
+
+.upgrade-modal-confirm:hover:not(:disabled) {
+  background: #0f766e;
+}
+
+.upgrade-modal-confirm:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.upgrade-modal-cancel {
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  background: #fff;
+  color: #334155;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 0.625rem;
+  transition: background 0.2s;
+}
+
+.upgrade-modal-cancel:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.upgrade-modal-cancel:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

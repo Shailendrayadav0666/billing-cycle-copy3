@@ -1,0 +1,152 @@
+=== Backend unit tests ===
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.1.1, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\shailendra.yadav\Desktop\projects\helix-aire-v1-demo2\billing-cycle-copy3
+plugins: anyio-4.14.2, asyncio-1.4.0, bdd-8.1.0, cov-7.1.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 12 items
+
+tests/unit/backend/test_billing_upgrade.py::test_calculate_days_remaining_clamps_to_zero_when_past PASSED [  8%]
+tests/unit/backend/test_billing_upgrade.py::test_calculate_days_remaining_clamps_to_thirty_when_far_future PASSED [ 16%]
+tests/unit/backend/test_billing_upgrade.py::test_calculate_days_remaining_normal_case PASSED [ 25%]
+tests/unit/backend/test_billing_upgrade.py::test_successful_upgrade_returns_full_billing_contract PASSED [ 33%]
+tests/unit/backend/test_billing_upgrade.py::test_upgrade_leaves_renew_at_unchanged PASSED [ 41%]
+tests/unit/backend/test_billing_upgrade.py::test_upgrade_boundary_zero_days_remaining PASSED [ 50%]
+tests/unit/backend/test_billing_upgrade.py::test_upgrade_boundary_full_cycle_remaining PASSED [ 58%]
+tests/unit/backend/test_billing_upgrade.py::test_already_premium_guard PASSED [ 66%]
+tests/unit/backend/test_billing_upgrade.py::test_unknown_user_guard PASSED [ 75%]
+tests/unit/backend/test_billing_upgrade.py::test_malformed_request_missing_email PASSED [ 83%]
+tests/unit/backend/test_billing_upgrade.py::test_malformed_request_wrong_type PASSED [ 91%]
+tests/unit/backend/test_billing_upgrade.py::test_response_never_includes_password PASSED [100%]
+
+============================== warnings summary ===============================
+..\..\..\..\..\..\Python313\Lib\site-packages\fastapi\testclient.py:1
+  C:\Python313\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 12 passed, 1 warning in 0.47s ========================
+=== API contract tests ===
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.1.1, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\shailendra.yadav\Desktop\projects\helix-aire-v1-demo2\billing-cycle-copy3
+plugins: anyio-4.14.2, asyncio-1.4.0, bdd-8.1.0, cov-7.1.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 15 items
+
+tests/api/test_billing_upgrade_api.py::test_happy_path_upgrade PASSED    [  6%]
+tests/api/test_billing_upgrade_api.py::test_response_codes[api-200@example.com-Standard-200] PASSED [ 13%]
+tests/api/test_billing_upgrade_api.py::test_response_codes[api-400@example.com-Premium-400] PASSED [ 20%]
+tests/api/test_billing_upgrade_api.py::test_response_code_401_unknown_user PASSED [ 26%]
+tests/api/test_billing_upgrade_api.py::test_response_code_422_malformed_body PASSED [ 33%]
+tests/api/test_billing_upgrade_api.py::test_401_unauthenticated_identity PASSED [ 40%]
+tests/api/test_billing_upgrade_api.py::test_403_role_based_denial_not_applicable SKIPPED [ 46%]
+tests/api/test_billing_upgrade_api.py::test_error_response_shape_already_premium PASSED [ 53%]
+tests/api/test_billing_upgrade_api.py::test_error_response_shape_unknown_user PASSED [ 60%]
+tests/api/test_billing_upgrade_api.py::test_error_response_no_stack_trace_leak PASSED [ 66%]
+tests/api/test_billing_upgrade_api.py::test_request_validation_missing_required_field PASSED [ 73%]
+tests/api/test_billing_upgrade_api.py::test_request_validation_wrong_type PASSED [ 80%]
+tests/api/test_billing_upgrade_api.py::test_request_validation_extra_fields_ignored PASSED [ 86%]
+tests/api/test_billing_upgrade_api.py::test_response_schema_success PASSED [ 93%]
+tests/api/test_billing_upgrade_api.py::test_response_schema_matches_get_billing_contract PASSED [100%]
+
+============================== warnings summary ===============================
+..\..\..\..\..\..\Python313\Lib\site-packages\fastapi\testclient.py:1
+  C:\Python313\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 14 passed, 1 skipped, 1 warning in 0.52s ===================
+=== Behavior tests (native) ===
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.1.1, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\shailendra.yadav\Desktop\projects\helix-aire-v1-demo2\billing-cycle-copy3
+plugins: anyio-4.14.2, asyncio-1.4.0, bdd-8.1.0, cov-7.1.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 16 items
+
+tests/behavior/test_story_1_1.py::test_billing_page_plan_display_becomes_dynamic PASSED [  6%]
+tests/behavior/test_story_1_1.py::test_dynamic_plan_display_reflects_premium_after_upgrade PASSED [ 12%]
+tests/behavior/test_story_1_1.py::test_upgrade_cta_is_visible_for_a_standardplan_user PASSED [ 18%]
+tests/behavior/test_story_1_1.py::test_upgrade_cta_is_hidden_for_a_premiumplan_user PASSED [ 25%]
+tests/behavior/test_story_1_1.py::test_confirmation_modal_shows_the_exact_prorated_preview_before_commitment PASSED [ 31%]
+tests/behavior/test_story_1_1.py::test_cancel_does_nothing PASSED        [ 37%]
+tests/behavior/test_story_1_1.py::test_successful_prorated_upgrade PASSED [ 43%]
+tests/behavior/test_story_1_1.py::test_proration_at_the_boundary__renewal_date_today PASSED [ 50%]
+tests/behavior/test_story_1_1.py::test_proration_at_the_boundary__full_cycle_remaining PASSED [ 56%]
+tests/behavior/test_story_1_1.py::test_alreadypremium_guard PASSED       [ 62%]
+tests/behavior/test_story_1_1.py::test_unknownuser_guard PASSED          [ 68%]
+tests/behavior/test_story_1_1.py::test_billing_page_reflects_premium_immediately_no_reload PASSED [ 75%]
+tests/behavior/test_story_1_1.py::test_persistent_postupgrade_success_banner PASSED [ 81%]
+tests/behavior/test_story_1_1.py::test_confirmation_modal_shows_an_inline_error_on_network_failure PASSED [ 87%]
+tests/behavior/test_story_1_1.py::test_confirmation_modal_shows_an_inline_error_on_a_5xx_response PASSED [ 93%]
+tests/behavior/test_story_1_1.py::test_no_regressions_to_existing_flows PASSED [100%]
+
+============================== warnings summary ===============================
+..\..\..\..\..\..\Python313\Lib\site-packages\gherkin\gherkin_line.py:79: 31 warnings
+  C:\Python313\Lib\site-packages\gherkin\gherkin_line.py:79: DeprecationWarning: 'maxsplit' is passed as positional argument
+    uncommented_line = re.split(r"\s#", self._trimmed_line_text.strip(), 2)[0]
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-1 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-2 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-3 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-4 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-5 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-6 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-7 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-8 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-9 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-10 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+..\..\..\..\..\..\Python313\Lib\site-packages\pytest_bdd\plugin.py:137
+  C:\Python313\Lib\site-packages\pytest_bdd\plugin.py:137: PytestUnknownMarkWarning: Unknown pytest.mark.AC-11 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    mark = getattr(pytest.mark, tag)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+====================== 16 passed, 42 warnings in 16.86s =======================
+exit: 0
+
+> frontend@0.0.0 test
+> vitest run
+
+
+ RUN  v5.0.1 C:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/billing-cycle-copy3/src/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  20:30:18
+   Duration  6.43s (environment 64%, setup 15%, tests 10%, import 7%, transform 3%)
+

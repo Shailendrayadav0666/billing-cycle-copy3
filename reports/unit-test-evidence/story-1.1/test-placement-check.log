@@ -1,0 +1,24 @@
+TEST PLACEMENT VERIFICATION — Story 1.1
+Timestamp: 2026-09-22T14:56:44Z
+
+New/changed test files this story introduced:
+  tests/unit/backend/test_billing_upgrade.py          -> mirrors src/backend/               OK
+  tests/unit/frontend/pages/Billing.test.jsx          -> mirrors src/frontend/src/pages/     OK
+  tests/api/test_billing_upgrade_api.py               -> API/contract test, tests/api/       OK
+  tests/behavior/conftest.py                          -> Gherkin step definitions            OK
+  tests/behavior/test_story_1_1.py                    -> pytest-bdd scenario loader          OK
+  tests/behavior/test_cycle_behavior.py               -> pytest-bdd scenario loader          OK
+
+Checklist (dev-implement.md Step 6.3 / common/directory-structure.md rules 4a/4b):
+  [x] No unit/UI-component test under src/ or ## Code Root                — none found
+  [x] No unit test under tests/ outside tests/unit/<mirror-of-src>/       — both unit tests correctly mirror their src/ counterpart
+  [x] No API/contract test under tests/unit/ instead of tests/api/        — test_billing_upgrade_api.py correctly lives under tests/api/
+
+VERDICT: PASS — zero violations.
+
+Note (non-blocking, recorded for transparency): common/behavior-spec.md Section 4 prescribes step
+definitions at tests/behavior/steps/*.py, imported via conftest.py. This story's step definitions
+were written directly inside tests/behavior/conftest.py rather than a separate steps/ file —
+functionally correct and verified working (pytest auto-discovers conftest.py; the containerised B1/
+B3 runs both passed 16/16), but a structural deviation from that convention. Left as-is given the
+size of the file; flagged here rather than silently accepted.
