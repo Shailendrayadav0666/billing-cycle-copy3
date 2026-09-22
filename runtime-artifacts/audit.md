@@ -264,3 +264,30 @@
 **User Input**: "Continue to Next Stage"
 **AI Response**: "Approval recorded. Updating runtime-artifacts/aire-state.md: 'Approved: 2026-09-22T12:18:05Z' under ## Behaviour Specs & Test Plans, and Current Stage: Design complete -- awaiting dev-implement. Proceeding to Step 2 (state mark), Step 3 (design commit + push), Step 4 (SKIPPED -- CI disabled, no smoke test), Step 5 (Development Handoff), Step 6 (HALT)."
 **Context**: implementation/specs-and-test-plans.md Section 4 -- GATE passed
+
+---
+
+## STOP CHECKPOINT — Design Commit & Push
+**Timestamp**: 2026-09-22T12:18:05Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: N/A (automatic step)
+**AI Response**: "Confirmed active branch is epic/self-serve-premium-upgrade. Reviewed git status before staging -- only the expected 12 new/modified files (spec/behavior.feature, spec/behavior/story-1.1.feature, spec/plans/architecture.md, spec/plans/executions.md, 5 files under spec/test-plans/story-1.1-self-serve-premium-upgrade/, 3 files under tests/.evals/, plus aire-state.md and audit.md). Committed 51283c334eae6261a32d5a74bc128a0451e6d2b7 with AIRE-Version: 1.0 trailer. Pushed via `git push origin epic/self-serve-premium-upgrade` -- confirmed 2a06da8..51283c3 landed on origin. Step 4 (epic-level pre-handoff smoke test) SKIPPED and announced -- CI/CD Configuration: Enabled: No."
+**Context**: CLAUDE.md MANDATORY STOP Steps 2-4
+
+---
+
+## Development Handoff — HALT
+**Timestamp**: 2026-09-22T12:18:05Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: N/A (presenting the mandatory handoff message)
+**AI Response**: "Emitted common/development-handoff.md verbatim with all placeholders substituted (1 story, LOCAL tracker, epic branch epic/self-serve-premium-upgrade, commit 51283c3, 1 of 1 stories with behaviour specs + test plans). HALTING per CLAUDE.md MANDATORY STOP Step 6 -- Code Generation will not start until the user types dev-implement."
+**Context**: CLAUDE.md MANDATORY STOP Step 5-6 -- HALT
+
+---
+
+## Post-Approval Amendment — E2E Test Plan Reduced to Happy Path Only
+**Timestamp**: 2026-09-22T13:11:45Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "i want to chanbge the test plan to only keep one e2e test case for happy path - TC-E2E-01 and discard the other test cases and update the test-summary" -- followed, after AskUserQuestion flagged the AC-11 coverage consequence with three resolution options, by: "just keep TC-E2E-01 and discard every other test case and update the test summary"
+**AI Response**: "Interrupt honored -- a change volunteered after approval is still applied (user-stories.md Step 21's general pattern, applied here to the test-plan artifact). Scope: e2e-test-steps.md only (the clarifying question was scoped to the E2E plan; API/Security/Accessibility were never mentioned and are untouched). Removed TC-E2E-02 (Cancel), TC-E2E-03 (CTA hidden for Premium), TC-E2E-04 (modal failure handling), TC-E2E-05 (no-regressions sweep) from spec/test-plans/story-1.1-self-serve-premium-upgrade/e2e-test-steps.md, leaving only TC-E2E-01. Checked coverage impact before applying: AC-2/AC-4/AC-10 remain covered by TC-A11Y-01/TC-SEC-02; AC-11 (No regressions) had ONLY TC-E2E-05 and now has ZERO manual test-case coverage. Flagged this via AskUserQuestion with 3 resolution options; user explicitly reconfirmed discarding it anyway. Updated test-plan-summary.md: E2E case count 5->1, AC-11 coverage row marked (NONE / deliberately discarded), overall coverage check changed from '11/11' to '10/11 -- AC-11 has zero coverage, a known user-confirmed exception.' spec/behavior/story-1.1.feature (the Gherkin behavior contract) was NOT touched -- AC-11 still has its @AC-11 scenario there; only the ve manual-test-plan side lost coverage, by explicit user instruction."
+**Context**: implementation/specs-and-test-plans.md Section 4.1 -- post-approval interrupt, deliberate coverage exception recorded (not silently applied)

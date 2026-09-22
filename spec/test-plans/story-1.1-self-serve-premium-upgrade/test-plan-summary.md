@@ -12,29 +12,36 @@
 | Test Plan | Artifact | Cases | Status |
 |-----------|----------|-------|--------|
 | Integration | — | — | N/A — single monolith calling its own in-memory dict, no separate service/datastore/queue/3rd-party boundary |
-| E2E | e2e-test-steps.md | 5 | ⬜ Not run |
+| E2E | e2e-test-steps.md | 1 | ⬜ Not run |
 | API | api-test-steps.md | 6 | ⬜ Not run |
 | Contract | — | — | N/A — no microservices, no consumer/provider schema |
 | Security | security-test-steps.md | 3 | ⬜ Not run |
 | Performance | — | — | N/A — no NFR Requirements stage ran; no latency/throughput target exists for this cycle |
 | Accessibility | accessibility-test-steps.md | 3 | ⬜ Not run |
 
+> **2026-09-22 update**: per explicit user request, TC-E2E-02 (Cancel), TC-E2E-03 (CTA hidden for
+> Premium), TC-E2E-04 (modal failure handling), and TC-E2E-05 (no-regressions sweep) were discarded,
+> keeping only TC-E2E-01 (the E2E happy path). The user was told this leaves AC-11 with zero
+> test-case coverage — a violation of the mandatory AC-coverage rule
+> (`implementation/specs-and-test-plans.md` Section 4.1) — and confirmed discarding it anyway. This is
+> a deliberate, disclosed exception, not an oversight.
+
 ## Acceptance Criteria → Test Case Coverage
 | AC | Criterion (short) | Test cases | Covered |
 |----|-----------|------------|---------|
 | AC-1 | Dynamic plan-name rendering | TC-E2E-01 | ✅ |
-| AC-2 | Upgrade CTA visible only for Standard | TC-E2E-01, TC-E2E-03, TC-A11Y-01 | ✅ |
+| AC-2 | Upgrade CTA visible only for Standard | TC-E2E-01, TC-A11Y-01 | ✅ |
 | AC-3 | Confirmation modal preview | TC-E2E-01, TC-A11Y-01, TC-A11Y-02 | ✅ |
-| AC-4 | Cancel does nothing | TC-E2E-02, TC-A11Y-01 | ✅ |
+| AC-4 | Cancel does nothing | TC-A11Y-01 | ✅ |
 | AC-5 | Backend applies the upgrade | TC-API-01, TC-API-02, TC-API-03, TC-API-06, TC-SEC-01, TC-SEC-03 | ✅ |
 | AC-6 | Already-Premium guard | TC-API-04, TC-SEC-02 | ✅ |
 | AC-7 | Unknown-user guard | TC-API-05, TC-SEC-01, TC-SEC-02 | ✅ |
 | AC-8 | Immediate UI update, no reload | TC-E2E-01 | ✅ |
 | AC-9 | Persistent success banner | TC-E2E-01, TC-A11Y-02, TC-A11Y-03 | ✅ |
-| AC-10 | Modal failure handling | TC-E2E-04, TC-SEC-02 | ✅ |
-| AC-11 | No regressions | TC-E2E-05 | ✅ |
+| AC-10 | Modal failure handling | TC-SEC-02 | ✅ |
+| AC-11 | No regressions | — NONE | ❌ Deliberately discarded — see the 2026-09-22 update above |
 
-**Coverage check**: 11/11 acceptance criteria have at least one test case. ✅
+**Coverage check**: 10/11 acceptance criteria have at least one test case. ❌ AC-11 has zero coverage — a known, user-confirmed exception, not a gap to silently fix.
 
 ## Execution Record (filled in by ve when the story is tested)
 | Test case | Run date | Result | Defect raised |
@@ -46,10 +53,6 @@
 | TC-API-05 | | ⬜ Pass / Fail | |
 | TC-API-06 | | ⬜ Pass / Fail | |
 | TC-E2E-01 | | ⬜ Pass / Fail | |
-| TC-E2E-02 | | ⬜ Pass / Fail | |
-| TC-E2E-03 | | ⬜ Pass / Fail | |
-| TC-E2E-04 | | ⬜ Pass / Fail | |
-| TC-E2E-05 | | ⬜ Pass / Fail | |
 | TC-SEC-01 | | ⬜ Pass / Fail | |
 | TC-SEC-02 | | ⬜ Pass / Fail | |
 | TC-SEC-03 | | ⬜ Pass / Fail | |
