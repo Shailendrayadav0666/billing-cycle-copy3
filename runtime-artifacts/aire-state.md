@@ -91,7 +91,7 @@
 ## Story Tracker
 | Story ID | Title | Requires | Tracker ID | Status | PR | Merged | Start | End | Recorded |
 |---|---|---|---|---|---|---|---|---|---|
-| 1.1 | Self-Serve Premium Upgrade — End-to-End Mid-Cycle Upgrade Flow | none | LOCAL | 🟢 Ready for Development | — | — | — | — | 2026-09-22T11:52:29Z |
+| 1.1 | Self-Serve Premium Upgrade — End-to-End Mid-Cycle Upgrade Flow | none | LOCAL | 🔵 In Development | — | — | 2026-09-22 | — | 2026-09-22T13:21:06Z |
 
 ## Behaviour Specs & Test Plans
 - **Work units covered**: 1 (Story 1.1)
