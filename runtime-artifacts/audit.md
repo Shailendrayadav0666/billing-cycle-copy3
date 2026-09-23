@@ -320,3 +320,205 @@
 **Context**: IMPLEMENTATION PHASE - STOP CHECKPOINT Step 5/6 (HALT)
 
 ---
+
+## dev-implement invoked — Story 1.1
+**Timestamp**: 2026-09-23T10:57:52Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "dev-implement 1.1"
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Loaded workflows/dev-implement.md, implementation/story-selection.md, implementation/code-generation.md, common/branching-strategy.md, common/eval-framework.md, common/requirements-traceability.md. Execution-context check: this session can call the Agent tool, so Step 6.7's Playwright gate is possible if a story's plan needs it (not needed for Story 1.1, which has no Frontend Components Generation... actually Story 1.1 IS the frontend component story — noting for Step 6.7 below). Displayed the sequential-development banner. Read ## Branching: Base Branch=main, Epic Branch=epic/EPIC-LOCAL-1-self-serve-premium-upgrade."
+**Context**: IMPLEMENTATION PHASE - dev-implement Step 1 / Step 1.7 / Step 1.75
+
+---
+
+## Story Selection + Doability Gate — Story 1.1
+**Timestamp**: 2026-09-23T10:58:12Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "dev-implement 1.1"
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Type: LOCAL, no integration to verify. Resolved Story 1.1 from spec/plans/stories.md / Story Tracker: 'Upgrade CTA & Confirmation Modal (Frontend)'. dependency-graph.yml: requires: [] -> doable immediately, no live PR check needed. Moved Story 1.1 Ready for Development -> In Development in the Story Tracker (Start=2026-09-23). LOCAL tracker: no external transition, no assignee concept. First story picked -> Parent Epic (EPIC-LOCAL-1) would move to In Development, but Type: LOCAL has no external Epic object to transition -> skipped silently per rule."
+**Context**: IMPLEMENTATION PHASE - dev-implement Steps 2-6 (story-selection.md)
+
+---
+
+## Gate Rigor Decision
+**Timestamp**: 2026-09-23T10:59:00Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "Full rigor, install everything (Recommended by framework)"
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "User chose full rigor per dev-implement.md: real unit tests, Podman/Gherkin behaviour tests, semgrep/gitleaks/license scans, J1/J2 judge scoring, and a real GitHub PR via gh. Proceeding accordingly."
+**Context**: IMPLEMENTATION PHASE - dev-implement pre-Step-1.5 clarification
+
+---
+
+## Story Branch Created + Baseline Captured — Story 1.1
+**Timestamp**: 2026-09-23T11:07:53Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — dev-implement Step 1.5)"
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Refreshed epic branch, cut story/1.1-upgrade-cta-confirmation-modal from it (requires: none, no dependency-merge check needed). Baseline regression (Step 1.5 Item 4.5): NO test suite exists anywhere in the repo — recorded explicitly in reports/unit-test-evidence/story-1.1/baseline-regression.log; the post-implementation gate will cover only this story's new tests. Baseline static eval D1-D7 (Step 1.5 Item 4.6), scoped to src/frontend (the only root this story touches): bootstrapped a minimal eslint.config.js (complexity rule only, threshold 12) since oxlint has no complexity rule — installed eslint@10.11.0 as a pinned devDependency. All other tools (oxlint 1.85.0, semgrep 1.127.0, gitleaks 8.21.2, license-checker via npx) were already present/pinned. Baseline results: D1 1 pre-existing exhaustive-deps warning in AuthContext.jsx (untouched by this story), D2 N/A (plain JS), D3/D4/D5/D6/D7 all 0 findings. Full evidence at reports/eval-evidence/story-1.1/static/baseline/evidence-manifest.md."
+**Context**: IMPLEMENTATION PHASE - dev-implement Step 1.5 Items 4-4.6
+
+---
+
+## Code Generation Part 1 — Plan Finalized (auto-approved, no gate) (Story 1.1)
+**Timestamp**: 2026-09-23T11:10:07Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Wrote spec/spec-generation/story-1.1-code-generation.md (10 steps). Design reference grounding: re-opened StreamPlex Billing.html for this story's components — no reconciliations table exists yet (first story), grounded directly. REQ/AC trace self-check: all 5 ACs and all 5 Covers REQ-IDs appear in >=1 step. API & Contract Testing Gate: N/A (no API Layer Generation step in this story's plan). No approval gate — proceeding directly to Part 2 Generation."
+**Context**: IMPLEMENTATION PHASE - dev-implement Code Generation Part 1 (code-generation.md Steps 1-9)
+
+---
+
+## Code Generation Part 2 — Implementation + Gates (Story 1.1)
+**Timestamp**: 2026-09-23T11:39:54Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Implemented: src/frontend/src/components/UpgradeModal.jsx (new), src/frontend/src/utils/proration.js (new), src/frontend/src/pages/Billing.jsx (modified — CTA + modal wiring + client proration preview + submit handler), src/frontend/src/App.css (modified — CTA/modal styles). Design reference re-grounded (StreamPlex Billing.html) — exact copy/labels/3-bullet list matched, no reconciliation needed (first grounding for this component).
+
+STEP 6 (Unit Test & Coverage, SH-LOOP-1): bootstrapped vitest 2.1.9 + @testing-library/react/user-event/jest-dom + jsdom (none present before). Wrote tests/unit/frontend/{UpgradeModal.test.jsx, Billing.upgrade.test.jsx, proration.test.js} — 20 tests, all @AC-tagged. Result: 20/20 passing, 100% line coverage, 96.66% branch coverage (>= unitTestCoverageMin 90.0). Evidence: reports/unit-test-evidence/story-1.1/{unit-test-run.log, coverage/, evidence-manifest.md}. No remediation attempts needed (passed on first run after fixing a query ambiguity during authoring, before this was recorded as the gate run).
+
+STEP 6.1 (Behavioural Gherkin, SH-LOOP-7/8): bootstrapped @cucumber/cucumber 11.2.0 + esbuild-register + @sinonjs/fake-timers (none present before); wrote tests/behavior/steps/{_register.cjs, common_steps.cjs} bound to <Billing />'s real rendered DOM (public surface); built tests/.evals/behavior/Containerfile (Node 22-slim, npm ci baked in, repo COPY'd in via .containerignore excluding node_modules) and tests/.evals/behavior/run.sh; built and ran inside Podman (podman-machine-default, WSL). B1: 5/5 scenarios, 38/38 steps PASS, containerised:true (image 32491e7a...88eed). B2: N/A (exit 3) - no other ACTIVE feature file (1.2/1.3/1.4 still Ready for Development). B3: N/A (exit 3) - deferred, no other unit's PR merged. Evidence: reports/behavior-test-evidence/story-1.1/{b1,b2,b3}/.
+
+STEP 6.2 (API & Contract Testing Gate): N/A - this story's plan has no API Layer Generation step.
+
+STEP 6.3 (Test Placement Verification, SH-LOOP-12): diff-scanned all new/changed files - all unit tests under tests/unit/frontend/ (mirrors src/frontend/src/), none under src/, no API test files. 0 violations. Evidence: reports/unit-test-evidence/story-1.1/test-placement-check.log.
+
+STEP 6.5 (Full Regression, SH-LOOP-3): re-ran entire suite (only this story's 20 tests exist in the repo) - 20/20 pass, 0 NEW failures vs baseline (baseline had no suite at all). Evidence: reports/unit-test-evidence/story-1.1/full-regression.log.
+
+STEP 6.6 (Static Eval D1-D7, SH-LOOP-4): re-ran D1-D7 against src/frontend (the only root this story touches), diffed vs static/baseline/. D1 oxlint: 0 NEW (3 baseline findings unchanged, none in changed files). D2: N/A (plain JS). D3 semgrep: 0/0. D4 npm audit (--omit=dev, matching D5's production scope; the 6 vulnerabilities from installing vitest/cucumber devDependencies are all dev-tooling-only, 0 in production dependencies both before and after): 0/0. D5 license-checker: 0 disallowed, 7 prod packages before and after. D6 complexity (bootstrapped eslint.config.js scoped to the complexity rule only, since oxlint has none - installed eslint@10.11.0 pinned): 0/0. D7 gitleaks: 0/0. Zero NEW findings across all gates - no remediation needed. Evidence: reports/eval-evidence/story-1.1/static/."
+**Context**: IMPLEMENTATION PHASE - dev-implement Code Generation Part 2 (code-generation.md Steps 10-11c)
+
+---
+
+## Step 6.7 — Test Plans + Playwright UI Automation Gate — Started
+**Timestamp**: 2026-09-23T11:43:49Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Part A: spec/test-plans/1.1-upgrade-cta-confirmation-modal/ verified present (written at STOP CHECKPOINT) - not regenerated. Part B applies (Frontend Components Generation step in this story's plan). Prerequisite Gate: .claude/agents/playwright-test-{planner,generator,healer}.md and .mcp.json's playwright-test entry already present from a prior setup (session already had these tools connected and working, confirmed by successful earlier mcp__playwright-test__ calls this session) - no install/restart needed. Moved tests/e2e/seed.spec.ts from its bare-root location (confirmed incident per playwright-automation.md) into tests/e2e/. Started backend (uvicorn, :8000) and frontend (vite, :5173) locally. Auto-derived the Seed Test Gate (workflow mode - no ask): login form's email/password fields default to tpg@example.com/password, so the seed just clicks Sign In. Invoked the real Planner agent (Skill/Agent tool, subagent_type: playwright-test-planner), scoped to TC-E2E-01..06 from the approved manual test plan. TC-A11Y-01..03 excluded from this pass (screen-reader/contrast checks not meaningfully automatable via Playwright browser actions alone) - noted as remaining manual-only."
+**Context**: IMPLEMENTATION PHASE - dev-implement Step 6.7 (code-generation.md Step 11d) - Planner invoked, awaiting result
+
+---
+
+## Step 6.7 — Playwright Planner: First attempt blocked, root cause fixed, re-invoked
+**Timestamp**: 2026-09-23T11:50:32Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "The real Planner agent correctly refused to fabricate a plan and reported back: no playwright.config.ts existed anywhere in the workspace (first Playwright automation run in this repo, per playwright-automation.md Step 0a's config-creation-deferred-to-Generator note), so seed.spec.ts's relative page.goto('/login') had no baseURL to resolve against, and Project chromium not found (no projects defined). Root cause fixed: created playwright.config.ts at the workspace root (testDir: ./tests/e2e, use.baseURL: http://127.0.0.1:5173, one chromium project). Verified Chromium browser binary already installed (C:\\Users\\shailendra.yadav\\AppData\\Local\\ms-playwright\\chromium-1243). Re-invoking the Planner agent with the same scope (TC-E2E-01..06)."
+**Context**: IMPLEMENTATION PHASE - dev-implement Step 6.7 - Planner re-invoked after config fix
+
+---
+
+## Step 6.7 — Playwright Gate HALTED — MCP server stale config, session restart required
+**Timestamp**: 2026-09-23T11:51:59Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "After playwright.config.ts was created, the Planner still failed identically (page.goto('/login') invalid URL; 'Project chromium not found' despite the config now defining one). Diagnosis: the playwright-test MCP server subprocess (started via .mcp.json -> npx playwright run-test-mcp-server) was launched before playwright.config.ts existed and has not re-read the project's config since — the same class of 'MCP servers load at session start' constraint playwright-automation.md documents for a freshly-registered .mcp.json entry, here triggered by a new config file the running server process cannot see. This is a sanctioned hard stop per code-generation.md Step 11d Part B and playwright-automation.md Step 0a: nothing is fixable by installing anything further; only a session restart re-spawns the MCP server against the now-current config. HALTING and asking the user to restart the session. Nothing was committed, pushed, or transitioned; no specs were hand-authored (the real Planner explicitly refused to fabricate one, per its own anti-shortcut rules)."
+**Context**: IMPLEMENTATION PHASE - dev-implement Step 6.7 - HALT (session restart required)
+
+## dev-implement resumed — Story 1.1 — Session Restart Completed
+**Timestamp**: 2026-09-23T11:56:58Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "dev-implement 1.1"
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Resuming at Step 6.7 Part B (Playwright UI Automation Gate) exactly where the previous session HALTED for a session restart (MCP server needed to re-read the newly created playwright.config.ts). Verified on disk: playwright.config.ts present (testDir tests/e2e, baseURL http://127.0.0.1:5173, chromium project), .mcp.json playwright-test entry present, .claude/agents/playwright-test-{planner,generator,healer}.md present, tests/e2e/seed.spec.ts present. Backend (uvicorn :8000) and frontend (vite :5173) confirmed responding (HTTP 200) — reused, not restarted. All prior gates (Steps 6, 6.1, 6.2 N/A, 6.3, 6.5, 6.6) remain recorded as passed from the prior session and are NOT re-run. Proceeding to invoke the `playwright-implement` skill (mode: workflow) to resume Part B — Planner scoped to TC-E2E-01..06."
+**Context**: IMPLEMENTATION PHASE - dev-implement Step 6.7 Part B (resume after session restart)
+
+---
+
+## Step 6.7 — Playwright Planner Completed, Plan Auto-Approved (Story 1.1)
+**Timestamp**: 2026-09-23T12:02:58Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — dev-implement Step 6.7 / code-generation.md Step 11d Part B, resumed after session restart)"
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Real Planner agent (subagent_type: playwright-test-planner) completed successfully this time (MCP server now reads the current playwright.config.ts after the session restart). It explored the live app via tests/e2e/seed.spec.ts, inspected source/DOM/network, and saved its plan via planner_save_plan. Plan file relocated from tests/playwright-specs/story-1.1-upgrade-cta-confirmation-modal.md to tests/playwright-specs/1.1-upgrade-cta-confirmation-modal.md to match this project's story-slug convention (spec/test-plans/1.1-upgrade-cta-confirmation-modal/). Plan covers exactly TC-E2E-01..06, no extras. Key Planner finding: remaining-days/charge are computed client-side from the live renew_at relative to the real calendar date (src/frontend/src/utils/proration.js), so the plan mocks GET /api/billing* to pin renew_at to 'now + 15 days' for the tests that assert the exact 15-day/$10.00 figures (TC-E2E-02, 03, 05, 06), matching this story's own client-computed-preview design. POST /api/billing/upgrade confirmed live-not-yet-implemented (currently 405) — plan asserts request-count and button-disabled-state only, never response success, consistent with Story 1.1's scope boundary (submit success/failure handling is Stories 1.3/1.4). Playwright plan Approval Gate (Step 7): SKIPPED per workflow mode (auto-approved, no gate) — 'Playwright plan auto-approved (workflow mode, no gate) — tests/playwright-specs/1.1-upgrade-cta-confirmation-modal.md'. Proceeding to Step 8 (Generator, sequential, one call per scenario)."
+**Context**: IMPLEMENTATION PHASE - dev-implement Step 6.7 Part B (playwright-automation.md Steps 1-2)
+
+---
+
+## Step 6.7 — Playwright Generator Complete (6/6 scenarios), Cross-Scenario Consistency Pass (Story 1.1)
+**Timestamp**: 2026-09-23T12:20:29Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — playwright-automation.md Steps 3 and 3.5, invoked sequentially, one Generator call per scenario)"
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Real Generator agent (subagent_type: playwright-test-generator) invoked 6 times, strictly sequentially (never in parallel), one per TC-E2E scenario, each waited for full completion before the next call. Generated: tests/e2e/1.1-upgrade-cta-confirmation-modal/{tc-e2e-01-upgrade-cta-visible.spec.ts, tc-e2e-02-modal-copy-and-amounts.spec.ts, tc-e2e-03-benefits-list.spec.ts, tc-e2e-04-cancel-no-changes.spec.ts, tc-e2e-05-confirm-button-label.spec.ts, tc-e2e-06-confirm-double-click-guard.spec.ts}. Every filename constructed per the framework's own convention (tc-[plan]-[nn]-<desc>.spec.ts), never copied from the Planner's own file suggestion. Cross-Scenario Consistency Pass (Step 3.5): read all 6 specs together. Found one divergent locator strategy — TC-E2E-02's dialog locator used unscoped page.getByRole('dialog') while TC-03/04/05/06 used the more robust name-scoped page.getByRole('dialog', { name: 'Upgrade to Premium' }) — reconciled TC-02 to match the more robust version. No leftover generic-template/non-grounded assertions found; every selector traces to a data-testid, role, id or class actually observed live in src/frontend/src/components/UpgradeModal.jsx / Billing.jsx during generation. Static Route-Interceptor Pre-Check (Step 3.6): 3 page.route() interceptors found (TC-02, TC-05 on '**/api/billing*' - wildcard-suffixed, correct since the GET always carries a query string; TC-06 on '**/api/billing/upgrade' - exact path, correct since the POST body-only endpoint never carries a query string) — 0 fixes needed. Proceeding to Step 10 (local execution, --headed)."
+**Context**: IMPLEMENTATION PHASE - dev-implement Step 6.7 Part B (playwright-automation.md Steps 3, 3.5, 3.6)
+
+---
+
+## Step 6.7 — Local Execution (Attempt 0), Self-Correction on Remediation Path (Story 1.1)
+**Timestamp**: 2026-09-23T12:29:31Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — playwright-automation.md Step 4, first execution)"
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Ran `npx playwright test tests/e2e/1.1-upgrade-cta-confirmation-modal/ --headed` (attempt 0, initial verification). All 6 generated specs FAILED. Root cause diagnosed: playwright.config.ts (created in the prior halted session) only declared a bare chromium project with no auth-state wiring, and tests/e2e/seed.spec.ts never saved storage state — so every spec's fresh browser context had no session token in localStorage and every /billing navigation redirected to /login. Fixed playwright.config.ts (added a 'setup' project running seed.spec.ts + a 'chromium' project with dependencies:['setup'] and storageState: 'playwright/.auth/user.json') and seed.spec.ts (added page.context().storageState() save) - both are shared project-level infra this framework's own Seed Test Gate/orchestrator owns, not 'the generated spec'. Added playwright/.auth/, test-results/, playwright-report/ to .gitignore. Re-ran: 3/6 passed, 3 still failing (TC-E2E-02/05 off-by-one on the mocked 15-day figure due to a date-only renew_at string losing time-of-day precision; TC-E2E-06 a button-disabled race). SELF-CORRECTION: initially patched those spec-level bugs directly via Edit (against the anti-shortcut discipline — Step 5/playwright-automation.md Step 5 requires the REAL Healer subagent to inspect/patch a failing generated spec, never the orchestrator directly). Caught this before proceeding further: reverted TC-E2E-01, 02, 05, 06 to their original Generator-produced content (Write, verbatim restore) so the Healer performs the actual diagnosis/patch, preserving clean provenance. Proceeding to Step 5 - invoking the real Healer agent (subagent_type: playwright-test-healer) against tests/e2e/1.1-upgrade-cta-confirmation-modal/, providing the diagnostic context already gathered (off-by-one date precision, disabled-state race) as observations for it to verify and act on with its own judgment, not as dictated fixes."
+**Context**: IMPLEMENTATION PHASE - dev-implement Step 6.7 Part B (playwright-automation.md Steps 4-5) - self-corrected before Healer invocation
+
+---
+
+## Playwright Automation (playwright-implement skill) — Story 1.1 Complete
+**Timestamp**: 2026-09-23T12:42:54Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — dev-implement Step 6.7, playwright-implement skill mode: workflow)"
+**Story**: "Story 1.1 — Upgrade CTA & Confirmation Modal — local Story ID 1.1 (LOCAL tracker)"
+**Seed Test Gate**: "no change needed at Planner time; extended at healing time with storageState persistence (page.context().storageState()) to fix a project-wiring gap — auto-applied, workflow mode"
+**Plan approval**: "Approved (automatic — workflow mode, no gate)"
+**UI cases automated**: "6 of 6 manual UI cases (TC-E2E-01..06)"
+**Excluded (backend/API-only)**: "0 cases; TC-A11Y-01..03 excluded as not Playwright-automatable, remain manual-only"
+**Execution**: "0/6 before healing (all 6 failed on attempt 0 due to a missing storageState/project wiring gap in playwright.config.ts, fixed by the orchestrator as project infra, not as 'the generated spec') → after that infra fix, 3/6 passed, 3/6 still failed (2 navigation/date-precision defects, 1 timing race) → all 6 passed after the real Healer subagent's fix (SH-LOOP-11 attempt 1 of 3)"
+**Healer outcome**: "4 healed to passing (tc-e2e-01, 02, 05, 06), 2 needed no healing (tc-e2e-03, 04), 0 marked test.fixme() — no application defects found, all 4 fixes were test-side (missing navigation, lossy mock-date formatting, an assertion-timing race), verified non-flaky across 3 Healer re-runs plus 1 authoritative evidence run"
+**Code location**: `tests/e2e/1.1-upgrade-cta-confirmation-modal/`   **Plan location**: `tests/playwright-specs/1.1-upgrade-cta-confirmation-modal.md`
+**Gate timing**: `Planner: 2026-09-23T11:59:xx→12:02:58 | Generator: 12:03→12:20 (6 scenarios) | Route-glob pre-check: 12:20:29 (instant) | Execution (pre-heal): 12:22→12:24 (attempt 0, infra fix applied) | Execution (attempt 1, self-corrected): 12:26→12:29 | Healer: 12:29:31→12:37 (a811259093d4f833f) | Execution (post-heal, authoritative): 12:39:29→12:39:57`
+**AI Response**: "Playwright UI Automation Gate (SH-LOOP-11) complete for Story 1.1. Wrote reports/playwright-test-evidence/story-1.1/{playwright-test-run.log, playwright-test-report.json, evidence-manifest.md}, spec/test-plans/1.1-upgrade-cta-confirmation-modal/automation-summary.md, reports/eval-evidence/story-1.1/{eval.json, eval-summary.md} (D1-D7/unit/behavior/regression/playwright gates all recorded PASS or N/A with reasons; J1/J2 left pending for the automatic Code Review that follows). Updated tests/.evals/config.json's ci.playwright manifest fragment (enabled:true, resolved startCommand/readinessUrl for both frontend and backend) and .gitignore (playwright/.auth/, test-results/, playwright-report/). Proceeding to Code Generation Step 12 (progress update) then Step 15 (automated Code Review, no user gate)."
+**Context**: `dev-implement` Step 6.7 (`code-generation.md` Step 11d Part B) — playwright-implement skill, mode: workflow — COMPLETE
+
+---
+
+## Automated Code Review — Story 1.1 (INITIAL_REVIEW)
+**Timestamp**: 2026-09-23T12:48:04Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — dev-implement Step 15, auto-triggered after Code Generation, pre-scoped to Story 1.1)"
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Phase 0: no previous review exists -> INITIAL_REVIEW. Phase 1: read Story 1.1's 5 ACs from stories.md, Covers REQ-F-01/02/09/11/NF-05 text from requirements.md, identified changed files via git diff. Phase 2: verified all 5 ACs and all 5 mapped requirements as Met, with file:line evidence, reusing (not re-running) the Unit Test & Coverage, Behavioural, and Static Eval Gate evidence already captured during Code Generation. Phase 2.5 (diff-scoped Security Baseline review, agents/code-security-review-agent.md): 16/16 rules checked, 3 compliant (SECURITY-10 supply chain, SECURITY-11 secure design, SECURITY-15 fail-safe defaults), 13 N/A (mostly because they target Story 1.2's not-yet-built backend endpoint), 0 Critical/High findings -> report reports/code-security-reviews/security-review-2026-09-23.md. Phase 3: zero issues -> report reports/reviews/story-1.1-code-review-v1.md, status APPROVED. Phase 3.5 (J1/J2 judge gates): J1 architecture 1.0/0.85 (ARCH-01/02/03 correctly N/A -> renormalized over ARCH-04/05, both 1.0), J2 security 1.0/0.85 (SEC-01/02 correctly N/A -> renormalized over SEC-03/04/05, all 1.0) -> both PASS, recorded in reports/eval-evidence/story-1.1/{eval.json, eval-summary.md, judge/architecture-score.json, judge/security-score.json}. Phase 4: Story Tracker status left unchanged (still In Development) per Code Review's read-only contract; only Recorded timestamp refreshed."
+**Context**: `dev-implement` Step 15 (`workflows/code-review.md` / `implementation/code-review.md` Phases 0-4) — verdict: APPROVED, 0 findings -> routes straight to commit/push/PR (no remediate loop needed)
+
+---
+
+## Review Verdict — Clean, Proceeding to PR (Story 1.1)
+**Timestamp**: 2026-09-23T12:48:44Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**TRACKER ITEM**: "Story 1.1 (local — no external tracker)"
+**Epic Link**: "none"
+**AIRE VERSION**: "1.0"
+**AI Response**: "Automated Code Review complete for Story 1.1. Report: reports/reviews/story-1.1-code-review-v1.md. Verdict: clean - 5/5 ACs Met, 5/5 requirements Met, 0 findings (0 Blocker, 0 High), J1=1.0 >= 0.85, J2=1.0 >= 0.85. Proceeding directly to D. Commit, Push & Raise PR - no remediate loop needed. CI/CD Configuration Enabled: No -> Manifest Reconciliation (Step 1.5), CI Preflight Gate (Step 2.5), CI Attestation Gate (Step 8) all SKIPPED per that opt-out; proceeding straight from commit to push + PR + PR review."
+**Context**: dev-implement Section B (Review Verdict Routing) -> Section D (Commit, Push & Raise PR)
+
+---

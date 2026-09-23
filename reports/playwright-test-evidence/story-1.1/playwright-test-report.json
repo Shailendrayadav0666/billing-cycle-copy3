@@ -1,0 +1,439 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/1.1-upgrade-cta-confirmation-modal/",
+      "--headed",
+      "--reporter=json"
+    ],
+    "configFile": "C:\\Users\\shailendra.yadav\\Desktop\\projects\\helix-aire-v1-demo2\\billing-cycle-copy3\\playwright.config.ts",
+    "rootDir": "C:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/billing-cycle-copy3/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 6
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/billing-cycle-copy3/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "C:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/billing-cycle-copy3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/seed\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/billing-cycle-copy3/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 6
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/billing-cycle-copy3/tests/e2e",
+        "testIgnore": [
+          "/seed\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 10,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "seed.spec.ts",
+      "file": "seed.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "seed",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "setup",
+              "projectName": "setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1659,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-23T12:39:30.596Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "11ceb7af692008938f3b-d5ed5ef4e23b6f7011ff",
+          "file": "seed.spec.ts",
+          "line": 10,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "1.1-upgrade-cta-confirmation-modal\\tc-e2e-01-upgrade-cta-visible.spec.ts",
+      "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-01-upgrade-cta-visible.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Story 1.1 - Upgrade CTA & Confirmation Modal",
+          "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-01-upgrade-cta-visible.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-E2E-01 - Upgrade CTA is visible on the Billing page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7624,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-23T12:39:37.211Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4d13f0423a90cc080e8f-265c5cad80e8b86862d5",
+              "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-01-upgrade-cta-visible.spec.ts",
+              "line": 7,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "1.1-upgrade-cta-confirmation-modal\\tc-e2e-02-modal-copy-and-amounts.spec.ts",
+      "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-02-modal-copy-and-amounts.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Story 1.1 - Upgrade CTA & Confirmation Modal",
+          "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-02-modal-copy-and-amounts.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-E2E-02 - Clicking the CTA opens the confirmation modal with correct copy and amounts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 7422,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-23T12:39:37.228Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5b5f8b16192879c57208-87c25710ec2fc58d8567",
+              "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-02-modal-copy-and-amounts.spec.ts",
+              "line": 7,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "1.1-upgrade-cta-confirmation-modal\\tc-e2e-03-benefits-list.spec.ts",
+      "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-03-benefits-list.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Story 1.1 - Upgrade CTA & Confirmation Modal",
+          "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-03-benefits-list.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-E2E-03 - Modal lists exactly the 3 approved benefits, never Dolby Vision",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 16695,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-23T12:39:37.214Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "83a53ad4c0e034fd652d-51f971f7fff8c6462bbf",
+              "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-03-benefits-list.spec.ts",
+              "line": 7,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "1.1-upgrade-cta-confirmation-modal\\tc-e2e-04-cancel-no-changes.spec.ts",
+      "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-04-cancel-no-changes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Story 1.1 - Upgrade CTA & Confirmation Modal",
+          "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-04-cancel-no-changes.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-E2E-04 - Cancel closes the modal with no changes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 7506,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-23T12:39:37.225Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1b50d6ee9ced44f9b18f-bf76dc7d13cf482ac532",
+              "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-04-cancel-no-changes.spec.ts",
+              "line": 7,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "1.1-upgrade-cta-confirmation-modal\\tc-e2e-05-confirm-button-label.spec.ts",
+      "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-05-confirm-button-label.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Story 1.1 - Upgrade CTA & Confirmation Modal",
+          "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-05-confirm-button-label.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-E2E-05 - Confirm button labels the exact amount and is present alongside Cancel",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 8915,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-23T12:39:37.606Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "41d65f3f8829a0e251d0-02081e909cea38b0a033",
+              "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-05-confirm-button-label.spec.ts",
+              "line": 7,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "1.1-upgrade-cta-confirmation-modal\\tc-e2e-06-confirm-double-click-guard.spec.ts",
+      "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-06-confirm-double-click-guard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Story 1.1 - Upgrade CTA & Confirmation Modal",
+          "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-06-confirm-double-click-guard.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "TC-E2E-06 - Confirm button disables immediately to block a duplicate submission",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 8303,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-23T12:39:39.287Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "613f446984dadcef05d8-c1127cd62bdcbb364a4a",
+              "file": "1.1-upgrade-cta-confirmation-modal/tc-e2e-06-confirm-double-click-guard.spec.ts",
+              "line": 7,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-23T12:39:29.500Z",
+    "duration": 33308.989,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

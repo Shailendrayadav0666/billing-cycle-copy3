@@ -1,0 +1,16 @@
+FROM docker.io/library/node:22-slim
+
+WORKDIR /work
+
+# Copy only the manifests first so the dependency install layer is reusable, then install
+# (Linux-native node_modules, built inside the image -- never the host's, which would carry
+# Windows-specific native binaries such as esbuild's platform binary).
+COPY src/frontend/package.json src/frontend/package-lock.json src/frontend/
+RUN cd src/frontend && npm ci
+
+# Bake in the rest of the repo (feature files, step definitions, application source) so the
+# image is a faithful, self-contained snapshot -- .containerignore excludes node_modules/
+# (and other host-only build artifacts) so this COPY never overwrites the Linux install above.
+COPY . .
+
+ENTRYPOINT ["/bin/sh", "-c"]

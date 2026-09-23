@@ -1,0 +1,64 @@
+{
+  "key": "story-1.1",
+  "trackerId": "LOCAL",
+  "evalFrameworkVersion": "1.0.0",
+  "rubricVersion": "1.0.0",
+  "judgeModel": "claude-sonnet-5",
+  "scope": "changed-files",
+  "changedFiles": 8,
+  "bootstrap": {
+    "created": [
+      { "check": "D1_lint", "path": "src/frontend/eslint.config.js", "tool": "eslint", "preset": "recommended (complexity rule only, threshold 12)" },
+      { "check": "unitCoverage", "path": "src/frontend (vitest.config via vite.config.js)", "tool": "vitest", "preset": "default" }
+    ],
+    "reused": [
+      { "check": "D1_lint_primary", "path": "src/frontend (oxlint default)", "note": "repo's own linter, used as-is" }
+    ]
+  },
+  "gates": {
+    "D1_lint":        { "status": "PASS", "newFindings": 0, "note": "3 baseline oxlint findings unchanged, none in files this story touched; 0 eslint-complexity findings" },
+    "D2_typecheck":   { "status": "N/A", "reason": "plain JS frontend, no type checker configured" },
+    "D3_sast":        { "status": "PASS", "new": { "critical": 0, "high": 0, "medium": 0 } },
+    "D4_sca":         { "status": "PASS", "new": { "critical": 0, "high": 0 }, "note": "npm audit --omit=dev; 6 dev-tooling-only vulnerabilities from vitest/cucumber devDependencies, 0 in production dependencies before or after" },
+    "D5_license":     { "status": "PASS", "violations": [] },
+    "D6_complexity":  { "status": "PASS", "newFindings": 0, "threshold": 12 },
+    "D7_secrets":     { "status": "PASS", "findings": 0 },
+    "unitCoverage":   { "status": "PASS", "line": 100.0, "branch": 96.66, "threshold": 90.0, "tests": "20/20" },
+    "behaviorB1":     { "status": "PASS", "scenarios": "5/5", "steps": "38/38", "acsCovered": "5/5", "containerised": true, "image": "localhost/aire-behavior:local" },
+    "behaviorB2":     { "status": "N/A", "reason": "no other feature file existed yet — Story 1.1 is the first work unit of this cycle" },
+    "behaviorB3":     { "status": "N/A", "reason": "deferred — not the last work unit, Stories 1.2/1.3/1.4 have no merged PR yet" },
+    "testPlacement":  { "status": "PASS", "violations": 0 },
+    "apiContract":    { "status": "N/A", "reason": "this story's plan has no API Layer Generation step" },
+    "playwright":     { "status": "PASS", "scenarios": "6/6", "headed": true, "healed": 4, "reExecutedInCI": false, "note": "CI/CD Configuration disabled for this project (user opt-out) — no CI trust-gate re-run" },
+    "regression":     { "status": "PASS", "newFailures": 0, "totalTests": 27 },
+    "J1_architecture": { "status": "PASS", "score": 1.0, "min": 0.85,
+                        "rubricSource": "architecture.md#10",
+                        "criteria": [
+                          { "id": "ARCH-01", "status": "N/A", "reason": "targets Story 1.2's not-yet-built endpoint" },
+                          { "id": "ARCH-02", "status": "N/A", "reason": "targets Story 1.2's not-yet-built endpoint" },
+                          { "id": "ARCH-03", "status": "N/A", "reason": "targets Story 1.2's not-yet-built endpoint" },
+                          { "id": "ARCH-04", "weight": 0.5, "score": 1.0 },
+                          { "id": "ARCH-05", "weight": 0.5, "score": 1.0 }
+                        ] },
+    "J2_security":     { "status": "PASS", "score": 1.0, "min": 0.85,
+                        "criteria": [
+                          { "id": "SEC-01", "owasp": "A01:2025", "status": "N/A", "reason": "targets Story 1.2's not-yet-built endpoint" },
+                          { "id": "SEC-02", "owasp": "A06:2025", "status": "N/A", "reason": "targets Story 1.2's not-yet-built endpoint" },
+                          { "id": "SEC-03", "owasp": "A07:2025", "weight": 0.4, "score": 1.0 },
+                          { "id": "SEC-04", "owasp": "A10:2025", "weight": 0.3, "score": 1.0 },
+                          { "id": "SEC-05", "owasp": "A05:2025", "weight": 0.3, "score": 1.0 }
+                        ] }
+  },
+  "selfHealing": {
+    "SH-LOOP-1": { "attempts": 0, "budget": 3 },
+    "SH-LOOP-2": { "attempts": 0, "budget": 3, "note": "N/A gate" },
+    "SH-LOOP-3": { "attempts": 0, "budget": 3 },
+    "SH-LOOP-4": { "attempts": 0, "budget": 3 },
+    "SH-LOOP-6": { "attempts": 0, "budget": 3 },
+    "SH-LOOP-7": { "attempts": 0, "budget": 3 },
+    "SH-LOOP-8": { "attempts": 0, "budget": 3, "note": "N/A gate" },
+    "SH-LOOP-11": { "attempts": 1, "budget": 3, "note": "attempt 0 (initial run) found 4 failing specs — infra/test defects, not app defects; attempt 1 via the real Healer subagent fixed all 4, verified non-flaky across 3 runs" },
+    "SH-LOOP-12": { "attempts": 0, "budget": 3 }
+  },
+  "verdict": "PASS"
+}

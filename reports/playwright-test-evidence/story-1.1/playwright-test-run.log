@@ -1,0 +1,12 @@
+
+Running 7 tests using 6 workers
+
+  ✓  1 [setup] › tests\e2e\seed.spec.ts:10:6 › seed (1.3s)
+  ✓  4 [chromium] › tests\e2e\1.1-upgrade-cta-confirmation-modal\tc-e2e-01-upgrade-cta-visible.spec.ts:7:7 › Story 1.1 - Upgrade CTA & Confirmation Modal › TC-E2E-01 - Upgrade CTA is visible on the Billing page (4.9s)
+  ✓  7 [chromium] › tests\e2e\1.1-upgrade-cta-confirmation-modal\tc-e2e-06-confirm-double-click-guard.spec.ts:7:7 › Story 1.1 - Upgrade CTA & Confirmation Modal › TC-E2E-06 - Confirm button disables immediately to block a duplicate submission (3.4s)
+  ✓  6 [chromium] › tests\e2e\1.1-upgrade-cta-confirmation-modal\tc-e2e-03-benefits-list.spec.ts:7:7 › Story 1.1 - Upgrade CTA & Confirmation Modal › TC-E2E-03 - Modal lists exactly the 3 approved benefits, never Dolby Vision (7.0s)
+  ✓  2 [chromium] › tests\e2e\1.1-upgrade-cta-confirmation-modal\tc-e2e-02-modal-copy-and-amounts.spec.ts:7:7 › Story 1.1 - Upgrade CTA & Confirmation Modal › TC-E2E-02 - Clicking the CTA opens the confirmation modal with correct copy and amounts (13.7s)
+  ✓  5 [chromium] › tests\e2e\1.1-upgrade-cta-confirmation-modal\tc-e2e-05-confirm-button-label.spec.ts:7:7 › Story 1.1 - Upgrade CTA & Confirmation Modal › TC-E2E-05 - Confirm button labels the exact amount and is present alongside Cancel (15.6s)
+  ✓  3 [chromium] › tests\e2e\1.1-upgrade-cta-confirmation-modal\tc-e2e-04-cancel-no-changes.spec.ts:7:7 › Story 1.1 - Upgrade CTA & Confirmation Modal › TC-E2E-04 - Cancel closes the modal with no changes (21.4s)
+
+  7 passed (34.4s)

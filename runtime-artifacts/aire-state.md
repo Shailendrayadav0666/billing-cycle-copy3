@@ -65,7 +65,7 @@
 ## Story Tracker
 | Story | Title | Requires | Tracker ID | Status | PR | Merged | Start | End | Recorded |
 |-------|---------|----------|------------|----------------|------------|--------|------------|------------|--------------------|
-| 1.1 | Upgrade CTA & Confirmation Modal (Frontend) | none | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-23T10:37:00Z |
+| 1.1 | Upgrade CTA & Confirmation Modal (Frontend) | none | LOCAL | 🔵 In Development | — | — | 2026-09-23 | | 2026-09-23T12:42:54Z |
 | 1.2 | Prorated Upgrade Endpoint (Backend) | none | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-23T10:37:00Z |
 | 1.3 | Successful Upgrade — Immediate Plan Update (Frontend) | 1.1, 1.2 | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-23T10:37:00Z |
 | 1.4 | Upgrade Failure Handling (Frontend) | 1.1 | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-23T10:37:00Z |
@@ -129,6 +129,21 @@ graph TD
 - [x] architecture.md + rubric (STOP CHECKPOINT) — v1.0.0, 5 verifiable constraints
 - [x] Behaviour Specs & Test Plans (STOP CHECKPOINT) — Approved
 - [x] MANDATORY STOP — Design complete — awaiting `dev-implement`
+
+### Story 1.1 — Code Generation
+- [x] Story Selection + Doability Gate (no prerequisites)
+- [x] Story Branch: `story/1.1-upgrade-cta-confirmation-modal` (from epic branch)
+- [x] Baseline regression + static eval (Step 1.5)
+- [x] Code Generation Part 1 (plan) + Part 2 (implementation)
+- [x] Unit Test & Coverage Gate — 20/20 passing, 100% line / 96.66% branch
+- [x] Behavioural Gherkin Gate — B1 5/5 PASS, B2/B3 N/A (first work unit)
+- [x] API & Contract Testing Gate — N/A (no API layer in this story)
+- [x] Test Placement Verification — 0 violations
+- [x] Full Regression Gate — 0 new failures
+- [x] Static Eval D1–D7 — 0 new findings
+- [x] Playwright UI Automation Gate (SH-LOOP-11) — 6/6 scenarios PASS after Healer (1/3 attempts)
+- [ ] Automated Code Review + J1/J2 judge gates
+- [ ] Commit, push, PR, PR review
 
 ## Behaviour Specs & Test Plans
 - **Work units covered**: 4 (Story 1.1, 1.2, 1.3, 1.4)

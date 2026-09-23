@@ -1,0 +1,15 @@
+Baseline Regression Run — Story 1.1
+Timestamp: 2026-09-23T10:59:00Z (approx)
+Branch: story/1.1-upgrade-cta-confirmation-modal (freshly cut from epic/EPIC-LOCAL-1-self-serve-premium-upgrade)
+
+RESULT: No test suite exists anywhere in this repository.
+
+Verification performed:
+  find tests -type f            -> only tests/.evals/** (config/rubrics, not test code)
+  find src/backend -iname "test_*" -o -iname "*_test.py"   -> none (outside venv/site-packages, which is third-party)
+  find src/frontend/src -iname "*.test.*" -o -iname "*.spec.*"  -> none
+
+Per workflows/dev-implement.md Step 1.5 Item 4.5: "If the repo has no test suite at all, record that
+explicitly in runtime-artifacts/audit.md — the post-implementation gate then covers only this story's
+new tests." This is that explicit record. There is nothing to diff a post-implementation run against
+except this story's own newly-added tests, which this story is responsible for making pass.

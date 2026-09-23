@@ -1,2 +1,6 @@
 MIGRATION-PLAN-v1.0.md
 node_modules/
+playwright/.auth/
+test-results/
+playwright-report/
+.playwright-mcp/

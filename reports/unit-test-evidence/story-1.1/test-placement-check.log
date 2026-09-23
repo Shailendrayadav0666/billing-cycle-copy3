@@ -1,0 +1,22 @@
+Test Placement Verification Gate — Story 1.1
+Timestamp: 2026-09-23T11:22:31Z
+
+Diff scope (git status --short, uncommitted changes on story/1.1-upgrade-cta-confirmation-modal):
+  M  src/frontend/package.json           -> application (build config)
+  M  src/frontend/src/App.css            -> application
+  M  src/frontend/src/pages/Billing.jsx  -> application
+  M  src/frontend/vite.config.js         -> application (build config)
+  ?? src/frontend/eslint.config.js       -> application (build config)
+  ?? src/frontend/src/components/        -> application (UpgradeModal.jsx)
+  ?? src/frontend/src/utils/             -> application (proration.js)
+  ?? tests/unit/frontend/                -> unit-test (UpgradeModal.test.jsx, Billing.upgrade.test.jsx, proration.test.js, setup.js)
+
+Classification:
+  - All new/changed unit test files (*.test.jsx, *.test.js) live under tests/unit/frontend/,
+    mirroring src/frontend/src/ (rule 4a) -> no violation.
+  - No unit-test file lives under src/ -> no violation.
+  - No API/contract test exists for this story (N/A gate) -> nothing to misplace into tests/unit/.
+  - tests/unit/ gained one new top-level subfolder this run: "frontend" -> corresponds to the
+    real src/frontend/ area (this is a monorepo-style frontend package) -> traceable, not invented.
+
+VERDICT: 0 violations.

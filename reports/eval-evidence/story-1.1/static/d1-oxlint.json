@@ -1,0 +1,9 @@
+{ "diagnostics": [{"message": "Cannot access variable while it is being initialized","code": "react(immutability)","severity": "warning","url": "https://oxc.rs/docs/guide/usage/linter/rules/react/immutability.html","help": "`logout` is read while its declaration is still being initialized. Move the access after initialization. For a recursive callback, use a named function expression or restructure the callback so it does not capture itself during initialization","note": "React Compiler skipped optimizing this component or hook. Additional guidance: https://react.dev/reference/eslint-plugin-react-hooks/lints/immutability","filename": "src/context/AuthContext.jsx","labels": [{"label": "`logout` is read during its own initialization","span": {"offset": 578,"length": 6,"line": 19,"column": 14}}]},
+{"message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.","code": "react(only-export-components)","severity": "warning","url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html","filename": "src/context/AuthContext.jsx","labels": [{"span": {"offset": 1783,"length": 7,"line": 66,"column": 14}}]},
+{"message": "React Hook useEffect has a missing dependency: 'logout'","code": "react-hooks(exhaustive-deps)","severity": "warning","url": "https://oxc.rs/docs/guide/usage/linter/rules/react/exhaustive-deps.html","help": "Either include it or remove the dependency array.","filename": "src/context/AuthContext.jsx","labels": [{"label": "useEffect uses `logout` here","span": {"offset": 578,"length": 6,"line": 19,"column": 14}},{"span": {"offset": 591,"length": 7,"line": 20,"column": 6}}]}],
+              "number_of_files": 7,
+              "number_of_rules": 104,
+              "threads_count": 20,
+              "start_time": 0.0628045
+            }
+            

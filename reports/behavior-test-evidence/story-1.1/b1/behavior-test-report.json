@@ -1,0 +1,667 @@
+[
+  {
+    "description": "",
+    "elements": [
+      {
+        "description": "",
+        "id": "upgrade-cta-&-confirmation-modal-(story-1.1);upgrade-cta-is-visible-for-a-standard-plan-user",
+        "keyword": "Scenario",
+        "line": 10,
+        "name": "Upgrade CTA is visible for a Standard-plan user",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 988750
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "a user \"TPG\" exists with email \"tpg@example.com\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 189732
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 5,
+            "name": "\"TPG\" has an active \"Standard\" subscription at $20/month",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:55"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 91396
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 6,
+            "name": "15 days remain in the 30-day billing cycle, renewing on \"Oct 30, 2026\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:60"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 70735
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "\"TPG\" is viewing the Billing page",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:65"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 33678367
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 11,
+            "name": "an \"Upgrade to Premium\" button is visible, positioned top-right of the \"Plan & Billing\" heading",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:97"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2778233
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1688579
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@AC-1",
+            "line": 9
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "upgrade-cta-&-confirmation-modal-(story-1.1);clicking-the-cta-opens-a-confirmation-modal-with-the-correct-prorated-preview",
+        "keyword": "Scenario",
+        "line": 14,
+        "name": "Clicking the CTA opens a confirmation modal with the correct prorated preview",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 47631
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "a user \"TPG\" exists with email \"tpg@example.com\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 83826
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 5,
+            "name": "\"TPG\" has an active \"Standard\" subscription at $20/month",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:55"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 64027
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 6,
+            "name": "15 days remain in the 30-day billing cycle, renewing on \"Oct 30, 2026\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:60"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 42446
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "\"TPG\" is viewing the Billing page",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:65"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7111798
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 15,
+            "name": "\"TPG\" clicks \"Upgrade to Premium\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:91"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 40849574
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 16,
+            "name": "a modal opens titled \"Upgrade to Premium\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:103"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 5156551
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "the modal shows the body copy \"Premium is $40/month. You'll be charged a prorated amount for the rest of this cycle.\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:108"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 908303
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 18,
+            "name": "the modal shows \"Remaining days\" as \"15 days\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:113"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 659501
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 19,
+            "name": "the modal shows \"Charge today\" as \"$10.00\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:113"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 764222
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1035244
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@AC-2",
+            "line": 13
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "upgrade-cta-&-confirmation-modal-(story-1.1);the-modal-lists-exactly-the-3-approved-benefit-bullets,-no-more",
+        "keyword": "Scenario",
+        "line": 22,
+        "name": "The modal lists exactly the 3 approved benefit bullets, no more",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 27175
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "a user \"TPG\" exists with email \"tpg@example.com\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 62317
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 5,
+            "name": "\"TPG\" has an active \"Standard\" subscription at $20/month",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:55"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 39990
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 6,
+            "name": "15 days remain in the 30-day billing cycle, renewing on \"Oct 30, 2026\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:60"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 29477
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "\"TPG\" is viewing the Billing page",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:65"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 6229723
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 23,
+            "name": "\"TPG\" clicks \"Upgrade to Premium\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:91"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 11099913
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 24,
+            "name": "the modal lists exactly these 3 bullets: \"Stream on 4 devices at once\", \"Download on 4 devices\", \"4K + HDR video quality\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:119"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7799040
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 25,
+            "name": "the modal does not list \"Dolby Vision\" or any other bullet",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:127"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1505832
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 794850
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@AC-3",
+            "line": 21
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "upgrade-cta-&-confirmation-modal-(story-1.1);the-modal-offers-confirm-and-cancel-actions",
+        "keyword": "Scenario",
+        "line": 28,
+        "name": "The modal offers Confirm and Cancel actions",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 29820
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "a user \"TPG\" exists with email \"tpg@example.com\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 58449
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 5,
+            "name": "\"TPG\" has an active \"Standard\" subscription at $20/month",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:55"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 37505
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 6,
+            "name": "15 days remain in the 30-day billing cycle, renewing on \"Oct 30, 2026\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:60"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 26376
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "\"TPG\" is viewing the Billing page",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:65"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 5403578
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 29,
+            "name": "\"TPG\" clicks \"Upgrade to Premium\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:91"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 10031264
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 30,
+            "name": "the modal shows a primary button labeled \"Confirm & pay $10.00\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:132"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 263100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 31,
+            "name": "the modal shows a secondary \"Cancel\" button",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:137"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 147132
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 32,
+            "name": "\"TPG\" clicks \"Cancel\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:91"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 10250553
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 33,
+            "name": "the modal closes and \"TPG\" still shows \"Current plan: Standard\" at \"$20/month\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:142"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 545045
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 473055
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@AC-4",
+            "line": 27
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "upgrade-cta-&-confirmation-modal-(story-1.1);the-confirm-button-disables-immediately-to-prevent-a-duplicate-submission",
+        "keyword": "Scenario",
+        "line": 36,
+        "name": "The Confirm button disables immediately to prevent a duplicate submission",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 23353
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 4,
+            "name": "a user \"TPG\" exists with email \"tpg@example.com\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 49020
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 5,
+            "name": "\"TPG\" has an active \"Standard\" subscription at $20/month",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:55"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 32284
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 6,
+            "name": "15 days remain in the 30-day billing cycle, renewing on \"Oct 30, 2026\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:60"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 25519
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 7,
+            "name": "\"TPG\" is viewing the Billing page",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:65"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 5546592
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 37,
+            "name": "\"TPG\" has opened the upgrade confirmation modal",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:84"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 14158761
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 38,
+            "name": "\"TPG\" clicks \"Confirm & pay $10.00\"",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:91"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 10645353
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 39,
+            "name": "the \"Confirm & pay $10.00\" button becomes disabled immediately",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:149"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 294213
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 40,
+            "name": "a second click on the same button does not submit a second request while the first is in flight",
+            "match": {
+              "location": "tests/behavior/steps/common_steps.cjs:154"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 10043541
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 923529
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@AC-5",
+            "line": 35
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "upgrade-cta-&-confirmation-modal-(story-1.1)",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Upgrade CTA & Confirmation Modal (Story 1.1)",
+    "tags": [],
+    "uri": "spec/behavior/story-1.1.feature"
+  }
+]

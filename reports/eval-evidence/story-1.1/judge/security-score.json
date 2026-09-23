@@ -1,0 +1,18 @@
+{
+  "gate": "J2_security",
+  "story": "1.1",
+  "judgeModel": "claude-sonnet-5",
+  "rubricVersion": "1.0.0",
+  "rubricSource": "tests/.evals/rubrics/security-rubric.json (OWASP Top 10:2025)",
+  "criteria": [
+    { "id": "SEC-01", "owasp": "A01:2025", "status": "N/A", "reason": "Targets the not-yet-implemented POST /api/billing/upgrade handler (Story 1.2's scope)", "originalWeight": 0.25 },
+    { "id": "SEC-02", "owasp": "A06:2025", "status": "N/A", "reason": "Same — targets the endpoint's idempotency/unknown-user handling", "originalWeight": 0.25 },
+    { "id": "SEC-03", "owasp": "A07:2025", "weight": 0.4, "score": 1.0, "citation": "src/frontend/src/pages/Billing.jsx:111-115", "note": "The new POST call reuses the existing `token` value exactly as the sibling GET /api/billing call already does — no new identity-claim path or bypass introduced" },
+    { "id": "SEC-04", "owasp": "A10:2025", "weight": 0.3, "score": 1.0, "citation": "src/frontend/src/pages/Billing.jsx:108-125", "note": "The catch block swallows the error without exposing any internal detail to the client; the finally block always resets isSubmitting, so no state inconsistency (plan never changes without a successful response — success handling doesn't exist yet in this diff)" },
+    { "id": "SEC-05", "owasp": "A05:2025", "weight": 0.3, "score": 1.0, "citation": "src/frontend/src/pages/Billing.jsx:111-115, src/frontend/src/utils/proration.js", "note": "email is passed via JSON.stringify (no string concatenation/interpolation into a query, command, or template); proration.js is pure arithmetic with no injection surface" }
+  ],
+  "renormalization": "SEC-01/02 excluded (N/A, total excluded weight 0.50); SEC-03/04/05 renormalized from 0.20/0.15/0.15 to 0.4/0.3/0.3 over the remaining 0.50 applicable weight",
+  "weightedScore": 1.0,
+  "min": 0.85,
+  "status": "PASS"
+}

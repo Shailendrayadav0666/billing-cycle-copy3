@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import UpgradeModal from '../components/UpgradeModal'
+import { computeProratedCharge, daysRemainingInCycle, formatCurrency } from '../utils/proration'
 import '../App.css'
+
+const STANDARD_PRICE = 20
+const PREMIUM_PRICE = 40
 
 function InfoIcon() {
   return (
@@ -76,6 +81,8 @@ function IncludedUsageCard({ data }) {
 export default function Billing() {
   const { token } = useAuth()
   const [data, setData] = useState(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     fetch(`/api/billing?email=${encodeURIComponent(token)}`)
@@ -91,6 +98,32 @@ export default function Billing() {
     )
   }
 
+  const isStandardPlan = data.plan_name === 'Standard'
+  const remainingDays = isStandardPlan ? daysRemainingInCycle(data.renew_at) : 0
+  const proratedCharge = isStandardPlan
+    ? computeProratedCharge(STANDARD_PRICE, PREMIUM_PRICE, remainingDays)
+    : 0
+  const proratedChargeLabel = formatCurrency(proratedCharge)
+
+  const handleConfirmUpgrade = async () => {
+    setIsSubmitting(true)
+    try {
+      const res = await fetch('/api/billing/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: token }),
+      })
+      // Success handling (closing the modal, refreshing the plan display, showing the
+      // success banner) is added by Story 1.3.
+      void res
+    } catch (err) {
+      // Failure handling (keeping the modal open with an inline error) is added by Story 1.4.
+      void err
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="page-card">
       <div className="billing-header">
@@ -98,6 +131,16 @@ export default function Billing() {
           <h2>Plan & Billing</h2>
           <p>Manage your plan and payments</p>
         </div>
+        {isStandardPlan && (
+          <button
+            type="button"
+            className="btn btn-upgrade"
+            onClick={() => setShowUpgradeModal(true)}
+            data-testid="billing-upgrade-cta-button"
+          >
+            Upgrade to Premium
+          </button>
+        )}
       </div>
 
       <p className="current-label">
@@ -158,6 +201,15 @@ export default function Billing() {
       <div className="usage-extras usage-extras-single">
         <IncludedUsageCard data={data.included_usage} />
       </div>
+
+      <UpgradeModal
+        open={showUpgradeModal}
+        remainingDays={remainingDays}
+        charge={proratedChargeLabel}
+        isSubmitting={isSubmitting}
+        onConfirm={handleConfirmUpgrade}
+        onCancel={() => setShowUpgradeModal(false)}
+      />
     </div>
   )
 }

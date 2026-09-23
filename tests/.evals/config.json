@@ -28,13 +28,13 @@
     "_comment": "Set true when CI generation creates sonar-project.properties and the user answers proceed at the setup gate. Additive to semgrep, never a replacement."
   },
   "playwright": {
-    "enabled": false,
-    "startCommand": null,
-    "readinessUrl": null,
+    "enabled": true,
+    "startCommand": "npm run dev --prefix src/frontend",
+    "readinessUrl": "http://127.0.0.1:5173",
     "testCommand": "npx playwright test tests/e2e/",
-    "backendStartCommand": null,
-    "backendReadinessUrl": null,
-    "_comment": "Set true, with startCommand/readinessUrl resolved and testCommand adjusted if needed, the first time a work unit's manifest fragment runs the Playwright UI Automation Gate for real."
+    "backendStartCommand": "cd src/backend && uvicorn main:app --reload --port 8000",
+    "backendReadinessUrl": "http://127.0.0.1:8000/docs",
+    "_comment": "Resolved by Story 1.1's Playwright UI Automation Gate (dev-implement Step 6.7) — the first work unit to run this gate for real."
   },
   "judge": { "model": "claude-sonnet-5", "rubricVersion": "1.0.0" },
   "ci": {

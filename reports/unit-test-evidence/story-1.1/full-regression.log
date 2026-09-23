@@ -1,0 +1,29 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/billing-cycle-copy3/src/frontend[39m
+
+ [32m✓[39m ../../tests/unit/frontend/proration.test.js[2m > [22mcomputeProratedCharge[2m > [22mcomputes the correct prorated charge for 0 days remaining
+ [32m✓[39m ../../tests/unit/frontend/proration.test.js[2m > [22mcomputeProratedCharge[2m > [22mcomputes the correct prorated charge for 15 days remaining
+ [32m✓[39m ../../tests/unit/frontend/proration.test.js[2m > [22mcomputeProratedCharge[2m > [22mcomputes the correct prorated charge for 30 days remaining
+ [32m✓[39m ../../tests/unit/frontend/proration.test.js[2m > [22mcomputeProratedCharge[2m > [22mcomputes the correct prorated charge for 1 days remaining
+ [32m✓[39m ../../tests/unit/frontend/proration.test.js[2m > [22mcomputeProratedCharge[2m > [22mcomputes the correct prorated charge for 29 days remaining
+ [32m✓[39m ../../tests/unit/frontend/proration.test.js[2m > [22mdaysRemainingInCycle[2m > [22mcomputes the whole-day difference between now and the renewal date
+ [32m✓[39m ../../tests/unit/frontend/proration.test.js[2m > [22mdaysRemainingInCycle[2m > [22mnever returns a negative number
+ [32m✓[39m ../../tests/unit/frontend/proration.test.js[2m > [22mdaysRemainingInCycle[2m > [22mnever exceeds the 30-day cycle length
+ [32m✓[39m ../../tests/unit/frontend/proration.test.js[2m > [22mformatCurrency[2m > [22mformats to 2 decimal places with a dollar sign
+ [32m✓[39m ../../tests/unit/frontend/Billing.upgrade.test.jsx[2m > [22mBilling page — Upgrade CTA & Confirmation Modal (Story 1.1)[2m > [22mshows the Upgrade to Premium CTA for a Standard-plan user
+ [32m✓[39m ../../tests/unit/frontend/UpgradeModal.test.jsx[2m > [22mUpgradeModal[2m > [22mrenders nothing when open is false
+ [32m✓[39m ../../tests/unit/frontend/UpgradeModal.test.jsx[2m > [22mUpgradeModal[2m > [22mshows the correct title, body copy, remaining days and charge
+ [32m✓[39m ../../tests/unit/frontend/UpgradeModal.test.jsx[2m > [22mUpgradeModal[2m > [22mlists exactly the 3 approved benefit bullets and never Dolby Vision
+ [32m✓[39m ../../tests/unit/frontend/Billing.upgrade.test.jsx[2m > [22mBilling page — Upgrade CTA & Confirmation Modal (Story 1.1)[2m > [22mdoes not show the Upgrade to Premium CTA for a Premium-plan user
+ [32m✓[39m ../../tests/unit/frontend/UpgradeModal.test.jsx[2m > [22mUpgradeModal[2m > [22mshows Confirm and Cancel buttons, and Cancel calls onCancel
+ [32m✓[39m ../../tests/unit/frontend/UpgradeModal.test.jsx[2m > [22mUpgradeModal[2m > [22mcalls onConfirm when the Confirm button is clicked
+ [32m✓[39m ../../tests/unit/frontend/UpgradeModal.test.jsx[2m > [22mUpgradeModal[2m > [22mdisables the Confirm and Cancel buttons while isSubmitting is true
+ [32m✓[39m ../../tests/unit/frontend/Billing.upgrade.test.jsx[2m > [22mBilling page — Upgrade CTA & Confirmation Modal (Story 1.1)[2m > [22mopens the confirmation modal with the computed prorated preview when the CTA is clicked
+ [32m✓[39m ../../tests/unit/frontend/Billing.upgrade.test.jsx[2m > [22mBilling page — Upgrade CTA & Confirmation Modal (Story 1.1)[2m > [22mcloses the modal and leaves the plan unchanged when Cancel is clicked
+ [32m✓[39m ../../tests/unit/frontend/Billing.upgrade.test.jsx[2m > [22mBilling page — Upgrade CTA & Confirmation Modal (Story 1.1)[2m > [22mdisables the Confirm button immediately on click and does not double-submit
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m20 passed[39m[22m[90m (20)[39m
+[2m   Start at [22m 16:52:58
+[2m   Duration [22m 12.13s[2m (transform 186ms, setup 2.49s, collect 1.33s, tests 641ms, environment 9.68s, prepare 549ms)[22m
+
