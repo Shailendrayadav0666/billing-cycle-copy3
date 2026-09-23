@@ -62,6 +62,42 @@
 - **Discrepancy noted (DR-6, non-blocking, reported not asked)**: the Epic's plan-comparison table lists **Dolby Vision** as a Premium-exclusive row, but the rendered prototype never surfaces Dolby Vision anywhere (not in the icon-cards, not in the modal's 3-item delta list, not in "Plan perks"). Treated as **the artifact (Epic) and reference both being silent on how Dolby Vision surfaces in UI** — proceeding with the prototype's exact 3-item modal list and 3-card layout as the UI contract; Dolby Vision remains a backend/plan-data attribute per the Epic but is not required to render as its own UI element unless Requirements Analysis decides otherwise. To be carried into Requirements Analysis for an explicit decision (recorded there as a reconciliation, not re-asked here).
 - **Console**: 1 console error observed on load (pre-existing in the static prototype export, unrelated to app code under `src/`) — not investigated further, noted only.
 
+## Story Tracker
+| Story | Title | Requires | Tracker ID | Status | PR | Merged | Start | End | Recorded |
+|-------|---------|----------|------------|----------------|------------|--------|------------|------------|--------------------|
+| 1.1 | Upgrade CTA & Confirmation Modal (Frontend) | none | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-23T10:37:00Z |
+| 1.2 | Prorated Upgrade Endpoint (Backend) | none | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-23T10:37:00Z |
+| 1.3 | Successful Upgrade — Immediate Plan Update (Frontend) | 1.1, 1.2 | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-23T10:37:00Z |
+| 1.4 | Upgrade Failure Handling (Frontend) | 1.1 | LOCAL | 🟢 Ready for Development | — | — | | | 2026-09-23T10:37:00Z |
+
+- **team_size**: 2 (fixed default, never asked)
+- **story_creation_mode**: all-at-once (fixed default, never asked)
+- **target_story_count**: 4 (user-confirmed, with Story 1.1 reordered to frontend-only scope per user steering)
+
+## Dependency Graph
+
+```mermaid
+graph TD
+    S11["1.1 Upgrade CTA and Confirmation Modal (Frontend)"]
+    S12["1.2 Prorated Upgrade Endpoint (Backend)"]
+    S13["1.3 Successful Upgrade UI Update (Frontend)"]
+    S14["1.4 Upgrade Failure Handling (Frontend)"]
+
+    S11 --> S13
+    S12 --> S13
+    S11 --> S14
+```
+
+**Ready now (no prerequisites)**: 1.1, 1.2 — 2 independently startable stories, matching `team_size: 2`.
+**Blocked**: 1.3 (needs 1.1 + 1.2 done), 1.4 (needs 1.1 done).
+
+**Inferred edges and justification**:
+- `1.3 requires 1.1` — needs the real confirmation modal to exist to attach success-state behavior to (R2).
+- `1.3 requires 1.2` — AC-2 asserts the exact values shown come from the real backend response, not a guessed shape (R2).
+- `1.4 requires 1.1` — needs the real modal to exist to attach failure-state behavior to (R2).
+- `1.4` does **not** require 1.2 — a failed request (network error or any non-2xx) can be simulated/mocked without depending on the backend's specific validation logic (R3 Mock rule), so 1.4 stays parallel-startable with 1.2.
+- `1.1` and `1.2` have no prerequisites — fully independent architectural layers (frontend UI vs. backend endpoint), satisfying R5 (≥ team_size stories available at once).
+
 ## Extension Configuration
 | Extension | Enabled | Decided At |
 |---|---|---|
@@ -79,4 +115,7 @@
 ### 🔵 PLANNING PHASE
 - [x] Workspace Detection
 - [x] Reverse Engineering (skipped — sourced from Atlas)
-- [x] Requirements Analysis — awaiting approval
+- [x] Requirements Analysis — approved, committed (76e57b6), pushed
+- [x] User Stories — GATE 1 approved, LOCAL (no push)
+- [x] Dependency Graph — 2/4 stories immediately startable
+- [ ] Workflow Planning
