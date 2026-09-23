@@ -1,0 +1,82 @@
+# aire State Tracking
+
+## Project Information
+- **Project Type**: Brownfield
+- **Start Date**: 2026-09-23T10:08:03Z
+- **Current Stage**: PLANNING - Workspace Detection
+
+## Workspace State
+- **Existing Code**: Yes
+- **Programming Languages**: Python (backend), JavaScript/JSX (frontend, Vite/React)
+- **Build System**: pip (requirements.txt, backend) / npm (package.json, frontend)
+- **Project Structure**: Monolith-style POC — `src/backend` (FastAPI) + `src/frontend` (React/Vite)
+- **Workspace Root**: C:\Users\shailendra.yadav\Desktop\projects\helix-aire-v1-demo2\billing-cycle-copy3
+- **Reverse Engineering Needed**: No — sourced from Atlas (see Existing-System Context below)
+- **Reverse Engineering Artifacts**: spec/plans/atlas-deep-dive.md (pulled from Atlas, not locally generated)
+
+## Helix MCP Binding
+- **Server**: helix
+- **Docs tool(s)**: list_solution_documents_tool, get_solution_document_tool — list/fetch Atlas solution documents (Epic, Deep Dive, Story)
+- **Graph/Search tool(s)**: codebase_agent_query, codebase_cypher_query, graph_change_impact, document_chatbot_query, platform_docs_query
+- **Estate / workspace id**: solution_id 951 ("Billing-Cycle-Helix-Workshop"), repo Billing-Cycle (https://github.com/Shailendrayadav0666/Billing-Cycle, branch main, last ingested commit 69f67f308492a85648aa25a9ff7d8d574031344a)
+- **Resolved**: 2026-09-23T10:09:41Z
+
+## Existing-System Context
+- **Workspace type**: brownfield
+- **Helix MCP**: connected
+- **Source**: atlas
+- **Components in scope**: entire estate (single deep dive document covering the whole system)
+- **Atlas deep dive doc**: spec/plans/atlas-deep-dive.md
+- **Epic brief doc**: spec/plans/epic-brief.md (Atlas document_id 4702, artifact_type: epic)
+- **Recorded**: 2026-09-23T10:09:41Z
+
+## Tracker
+- Type: LOCAL
+- Parent Epic: EPIC-LOCAL-1 — Self-Serve Premium Upgrade (sourced from Atlas via Helix MCP, document_id 4702 — Section 5.4 combined gate: both Epic and Deep Dive found, no gate triggered)
+- Epic URL: — (LOCAL tracker; content sourced from Atlas, not a tracker fetch)
+- Project Key / Repo / Org: —
+
+## Branching
+- Base Branch: main
+- Epic Branch: epic/EPIC-LOCAL-1-self-serve-premium-upgrade
+- Epic PR: (not raised — raised manually at cycle end via pr-generator)
+
+## Context Project
+- **Existing Knowledge**: No
+- **Existing Knowledge Path(s)**: —
+- **New References**: Yes
+- **New Reference Path(s)**: spec/context-project/new-references/StreamPlex Billing.html
+
+## Design References
+| # | Path / Location | Type | Governs | Read? | Read At Stage |
+|---|-----------------|------|---------|-------|---------------|
+| 1 | spec/context-project/new-references/StreamPlex Billing.html | UI prototype (single self-extracting HTML bundle, Billing page — rendered live via local static server + Playwright, source is minified/bundled JS so DOM inspection was required, not static file read) | Self-Serve Premium Upgrade epic — Billing page, Upgrade CTA, confirmation modal, post-upgrade state | ✅ | Workspace Detection |
+
+### Extracted from Design Reference #1 (StreamPlex Billing.html) — rendered and interacted with via Playwright
+- **Standard-plan state**: Header "StreamPlex" / nav "Billing" + user avatar "TPG" + "Logout". Page heading "Plan & Billing", subheading "Manage your plan and payments". Primary CTA top-right: green button **"Upgrade to Premium"**.
+- **Current plan card**: "Current plan:" pill badge "Standard" (light-green pill, dark-green text). Plan description paragraph. Two side-by-side cards: (1) "MONTHLY PLAN" label + "Active" pill + "$20/month" large text; (2) "Renew at" label + "Oct 30, 2026" large text.
+- **"What's included with Standard" section**: heading + subheading "Your plan's streaming features", 3 icon-cards in a row (▶ Video quality "Full HD (1080p)", ▢ Watch at the same time "Can watch on 2 devices at once", ↓ Download on devices "Can download on 2 devices").
+- **"Plan perks" section**: heading, then usage-bar rows for "Ad-free streaming" and "Spatial audio (select titles)", each showing "100% used" with a full green progress bar (these are flat perks already at 100%, not metered/limited — bar is decorative/always-full for included boolean perks).
+- **Upgrade confirmation modal** (opens on "Upgrade to Premium" click, dims background): title "Upgrade to Premium"; body copy "Premium is $40/month. You'll be charged a prorated amount for the rest of this cycle."; a bordered info box with two rows — "Remaining days" → "38 days", "Charge today" → "$25.33" (bold); a bullet list of exactly **3** new capabilities gained ("Stream on 4 devices at once", "Download on 4 devices", "4K + HDR video quality") — **note: this is a 3-item delta list, NOT the Epic's full 6-row comparison table, and it does not mention "Dolby Vision" at all**; two buttons — primary green **"Confirm & pay $25.33"** (amount is dynamically interpolated into the button label itself, not just shown above it) and secondary outline **"Cancel"**.
+- **Post-confirmation state** (immediate, no page reload — confirms Epic Goal #3): "Current plan:" pill now reads "Premium"; plan card now shows "$40/month"; a new green success banner appears: heading "Upgraded to Premium", body "Charged $25.33 for the remaining 38 days of this billing cycle. From Oct 30, 2026 you will be billed $40/month." (renew date unchanged, matching the Epic's proration rule); "What's included" section re-labels to "with Premium" and the 3 icon-cards update in place (4K + HDR / 4 devices / 4 devices); the "Upgrade to Premium" CTA disappears entirely once on Premium (no downgrade path exposed, matching Epic's Out-of-Scope).
+- **Discrepancy noted (DR-6, non-blocking, reported not asked)**: the Epic's plan-comparison table lists **Dolby Vision** as a Premium-exclusive row, but the rendered prototype never surfaces Dolby Vision anywhere (not in the icon-cards, not in the modal's 3-item delta list, not in "Plan perks"). Treated as **the artifact (Epic) and reference both being silent on how Dolby Vision surfaces in UI** — proceeding with the prototype's exact 3-item modal list and 3-card layout as the UI contract; Dolby Vision remains a backend/plan-data attribute per the Epic but is not required to render as its own UI element unless Requirements Analysis decides otherwise. To be carried into Requirements Analysis for an explicit decision (recorded there as a reconciliation, not re-asked here).
+- **Console**: 1 console error observed on load (pre-existing in the static prototype export, unrelated to app code under `src/`) — not investigated further, noted only.
+
+## Extension Configuration
+| Extension | Enabled | Decided At |
+|---|---|---|
+| Security Baseline | Yes (always mandatory) | Workflow Start |
+| Playwright Test Automation | Yes (always mandatory) | Workflow Start |
+| Resiliency Baseline | No | Requirements Analysis |
+| Property-Based Testing | No | Requirements Analysis |
+
+## Code Location Rules
+- **Application Code**: src/ (already the existing convention — src/backend, src/frontend)
+- **Documentation**: spec/ only
+- **Structure patterns**: See code-generation.md Critical Rules
+
+## Stage Progress
+### 🔵 PLANNING PHASE
+- [x] Workspace Detection
+- [x] Reverse Engineering (skipped — sourced from Atlas)
+- [x] Requirements Analysis — awaiting approval
