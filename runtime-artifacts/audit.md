@@ -170,3 +170,135 @@
 **Context**: PLANNING - Dependency Graph - Steps 1-8
 
 ---
+
+## Dependency Graph — Epic Branch Commit & Push
+**Timestamp**: 2026-09-23T10:37:31Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — Dependency Graph Step 9)"
+**AI Response**: "Committed spec/plans/{stories.md, personas.md, dependency-graph.yml}, spec/spec-generation/story-generation.md, runtime-artifacts/{aire-state.md, audit.md} on epic/EPIC-LOCAL-1-self-serve-premium-upgrade — commit b2400ab. Pushed to origin, verified via push output (76e57b6..b2400ab). Proceeding to Workflow Planning."
+**Context**: PLANNING - Dependency Graph - Step 9
+
+---
+
+## Workflow Planning - Plan Finalized (auto-approved, no gate)
+**Timestamp**: 2026-09-23T10:38:50Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**AI Response**: "Execution plan created (spec/plans/executions.md). Risk: Low (isolated, additive, easy rollback). Application Design, Functional Design, NFR Requirements, NFR Design, and Infrastructure Design all SKIP — no new component/service, proration rule and NFRs already fully specified in requirements.md, no infra change. Behaviour Specs & Test Plans and Code Generation EXECUTE (always). Proceeded automatically to the IMPLEMENTATION PHASE (system-level design stages, all skip) without an approval gate."
+**Status**: Auto-approved
+**Context**: Workflow plan created with 2 stages to execute (Behaviour Specs & Test Plans, Code Generation), 5 skipped
+
+---
+
+## IMPLEMENTATION PHASE — System-Level DESIGN Stages Skipped, Reached STOP CHECKPOINT
+**Timestamp**: 2026-09-23T10:39:28Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — decisions already made and logged in Workflow Planning)"
+**AI Response**: "Functional Design, NFR Requirements, NFR Design, and Infrastructure Design all confirmed SKIP per the executions.md rationale already logged — not re-run or re-asked. Proceeding directly to the STOP CHECKPOINT (CLAUDE.md 'MANDATORY STOP' section). Asking the CI/CD Setup Opt-In question (Step 1.2, chat-only, verbatim, no .github/workflows/agentic-eval-pipeline.yml exists yet)."
+**Context**: IMPLEMENTATION PHASE - STOP CHECKPOINT Step 1.2
+
+---
+
+## CI/CD Setup Opt-In — Answered
+**Timestamp**: 2026-09-23T10:40:13Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "no"
+**AI Response**: "Recorded ## CI/CD Configuration: Enabled: No, Source: user opt-out. Per CLAUDE.md Step 1.2, Steps 1.6 (CI pipeline generation) and 4 (epic-level smoke test) are skipped entirely for this cycle — no .github/workflows/agentic-eval-pipeline.yml, no sonar-project.properties, no tests/.evals/scripts/* CI script will be generated. Proceeding to Step 1.3 (spec/behavior.feature)."
+**Context**: IMPLEMENTATION PHASE - STOP CHECKPOINT Step 1.2 (answered)
+
+---
+
+## STOP CHECKPOINT — spec/behavior.feature, architecture.md, rubrics, config.json written
+**Timestamp**: 2026-09-23T10:44:42Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — STOP CHECKPOINT Steps 1.3-1.5)"
+**AI Response**: "Wrote spec/behavior.feature (3 cross-story scenarios: happy-path end-to-end upgrade, failure-then-retry, already-Premium rejection). Wrote spec/plans/architecture.md v1.0.0, assembled from the Atlas Deep Dive + requirements.md + stories.md (all design stages skipped, noted explicitly, no invented decisions) — Section 10 has 5 verifiable constraints (ARCH-01..05, weights sum 1.0). Derived tests/.evals/rubrics/architecture-rubric.json (mechanically, 1:1 from Section 10) and tests/.evals/rubrics/security-rubric.json (5 OWASP Top 10:2025 criteria: A01, A06, A07, A10, A05, weights sum 1.0). Created tests/.evals/config.json (absent before now) with 2 detected roots: src/backend (python 3.11, pytest/semgrep/pip-audit/gitleaks) and src/frontend (node 22.14.0, vitest/semgrep/gitleaks; D2 typecheck N/A — plain JS/JSX, no TypeScript configured). Step 1.6 (CI pipeline generation) and Step 4 (epic-level smoke test) skipped per the user's CI/CD opt-out."
+**Context**: IMPLEMENTATION PHASE - STOP CHECKPOINT Steps 1.3-1.5
+
+---
+
+## STOP CHECKPOINT — Step 1.7 Part A: Behaviour Specs Written
+**Timestamp**: 2026-09-23T10:44:42Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — STOP CHECKPOINT Step 1.7 Part A)"
+**AI Response**: "Wrote spec/behavior/story-1.1.feature (5 scenarios, @AC-1..5), story-1.2.feature (5 scenarios incl. 2 Scenario Outlines, @AC-1..5), story-1.3.feature (4 scenarios, @AC-1..4), story-1.4.feature (4 scenarios, @AC-1..4) — one scenario per acceptance criterion across all 4 stories, 18 ACs total, all covered. Proceeding to Part B — invoking ve-implement in WORKFLOW MODE per story."
+**Context**: IMPLEMENTATION PHASE - STOP CHECKPOINT Step 1.7 Part A
+
+---
+
+## Test Plan (ve-implement skill)
+**Timestamp**: 2026-09-23T10:46:11Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "mode: workflow — invoked by the STOP CHECKPOINT Behaviour Specs & Test Plans stage. Story: 1.1 Upgrade CTA & Confirmation Modal (Frontend only)."
+**Story**: "Story 1.1 — Upgrade CTA & Confirmation Modal — local Story ID 1.1 (LOCAL tracker)"
+**Output folder**: `spec/test-plans/1.1-upgrade-cta-confirmation-modal/`
+**ve branch / PR**: "none — workflow mode, files written on epic/EPIC-LOCAL-1-self-serve-premium-upgrade and carried by the caller's commit"
+**Test plans generated**: "E2E (6 cases), Accessibility (3 cases) — N/A plans: Integration (no service/datastore boundary crossed by this story), API (no endpoint change in this story), Contract (no microservice schema), Security (no auth/authz logic in this story's scope), Performance (no target specified)"
+**Coverage**: "5/5 acceptance criteria covered"
+**Approve / Request Changes checkpoint**: "Approved (automatic — workflow mode, no ve review)"
+**AI Response**: "Generated test-plan-summary.md, e2e-test-steps.md (6 TCs), accessibility-test-steps.md (3 TCs) for Story 1.1. Applicability table announced, not asked (workflow mode). No AC-coverage gaps."
+**Context**: `/ve-implement` skill — Test Plan (`test-plan.md`) — Mode: workflow (invoked by the STOP CHECKPOINT specs & test-plans stage) — no ve approval, no ve branch, no ve PR
+
+---
+
+## Test Plan (ve-implement skill)
+**Timestamp**: 2026-09-23T10:47:57Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "mode: workflow — invoked by the STOP CHECKPOINT Behaviour Specs & Test Plans stage. Story: 1.2 Prorated Upgrade Endpoint (Backend)."
+**Story**: "Story 1.2 — Prorated Upgrade Endpoint — local Story ID 1.2 (LOCAL tracker)"
+**Output folder**: `spec/test-plans/1.2-prorated-upgrade-endpoint/`
+**ve branch / PR**: "none — workflow mode, files written on epic/EPIC-LOCAL-1-self-serve-premium-upgrade and carried by the caller's commit"
+**Test plans generated**: "API (5 cases), Security (5 cases), Integration (2 cases) — N/A plans: E2E (backend-only, no UI journey in this story), Contract (single monolith, no consumer/provider pair), Performance (no target specified), Accessibility (no UI)"
+**Coverage**: "5/5 acceptance criteria covered"
+**Approve / Request Changes checkpoint**: "Approved (automatic — workflow mode, no ve review)"
+**AI Response**: "Generated test-plan-summary.md, api-test-steps.md (5 TCs), security-test-steps.md (5 TCs), integration-test-steps.md (2 TCs) for Story 1.2. No AC-coverage gaps."
+**Context**: `/ve-implement` skill — Test Plan (`test-plan.md`) — Mode: workflow (invoked by the STOP CHECKPOINT specs & test-plans stage) — no ve approval, no ve branch, no ve PR
+
+---
+
+## Test Plan (ve-implement skill)
+**Timestamp**: 2026-09-23T10:49:33Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "mode: workflow — invoked by the STOP CHECKPOINT Behaviour Specs & Test Plans stage. Story: 1.3 Successful Upgrade — Immediate Plan Update (Frontend)."
+**Story**: "Story 1.3 — Successful Upgrade — Immediate Plan Update — local Story ID 1.3 (LOCAL tracker)"
+**Output folder**: `spec/test-plans/1.3-successful-upgrade-immediate-plan-update/`
+**ve branch / PR**: "none — workflow mode, files written on epic/EPIC-LOCAL-1-self-serve-premium-upgrade and carried by the caller's commit"
+**Test plans generated**: "E2E (4 cases), Integration (2 cases), Accessibility (2 cases) — N/A plans: API (no endpoint change, consumes Story 1.2's), Contract (no consumer/provider pair), Security (display-only), Performance (no target)"
+**Coverage**: "4/4 acceptance criteria covered"
+**Approve / Request Changes checkpoint**: "Approved (automatic — workflow mode, no ve review)"
+**AI Response**: "Generated test-plan-summary.md, e2e-test-steps.md (4 TCs), integration-test-steps.md (2 TCs), accessibility-test-steps.md (2 TCs) for Story 1.3. No AC-coverage gaps."
+**Context**: `/ve-implement` skill — Test Plan (`test-plan.md`) — Mode: workflow (invoked by the STOP CHECKPOINT specs & test-plans stage) — no ve approval, no ve branch, no ve PR
+
+---
+
+## Test Plan (ve-implement skill)
+**Timestamp**: 2026-09-23T10:51:07Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "mode: workflow — invoked by the STOP CHECKPOINT Behaviour Specs & Test Plans stage. Story: 1.4 Upgrade Failure Handling (Frontend)."
+**Story**: "Story 1.4 — Upgrade Failure Handling — local Story ID 1.4 (LOCAL tracker)"
+**Output folder**: `spec/test-plans/1.4-upgrade-failure-handling/`
+**ve branch / PR**: "none — workflow mode, files written on epic/EPIC-LOCAL-1-self-serve-premium-upgrade and carried by the caller's commit"
+**Test plans generated**: "E2E (4 cases), Security (2 cases), Accessibility (2 cases) — N/A plans: Integration (failure is simulated/mocked per R3, no real backend dependency), API (no endpoint change), Contract (no consumer/provider pair), Performance (no target)"
+**Coverage**: "4/4 acceptance criteria covered"
+**Approve / Request Changes checkpoint**: "Approved (automatic — workflow mode, no ve review)"
+**AI Response**: "Generated test-plan-summary.md, e2e-test-steps.md (4 TCs), security-test-steps.md (2 TCs), accessibility-test-steps.md (2 TCs) for Story 1.4. No AC-coverage gaps. All 4 stories' Test Plan artifacts now complete (Part B done)."
+**Context**: `/ve-implement` skill — Test Plan (`test-plan.md`) — Mode: workflow (invoked by the STOP CHECKPOINT specs & test-plans stage) — no ve approval, no ve branch, no ve PR
+
+---
+
+## Behaviour Specs & Test Plans — Coverage Check Passed, Approval Requested
+**Timestamp**: 2026-09-23T10:51:49Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(automatic — implementation/specs-and-test-plans.md Section 4.1 blocking check, then Section 4 approval prompt)"
+**AI Response**: "Blocking coverage check: every one of the 18 ACs across 4 stories has >=1 @AC-tagged scenario AND >=1 manual test case; every story has both a .feature file and a spec/test-plans/ folder. Presenting the ONE standardized 2-option completion message for the whole set."
+**Context**: IMPLEMENTATION PHASE - STOP CHECKPOINT Step 1.7 Section 4 (awaiting approval)
+
+---
+
+## Behaviour Specs & Test Plans — Approved
+**Timestamp**: 2026-09-23T10:53:31Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "Continue to Next Stage"
+**AI Response**: "Approved as-is, no changes requested. Marked Design complete - awaiting dev-implement in aire-state.md. Proceeding to Step 3 (design commit and push), Step 4 (epic-level smoke test - SKIPPED, CI disabled), Step 5 (Development Handoff)."
+**Context**: IMPLEMENTATION PHASE - STOP CHECKPOINT Step 1.7 approved
+
+---

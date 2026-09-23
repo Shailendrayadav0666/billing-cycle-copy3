@@ -1,0 +1,42 @@
+{
+  "rubricName": "Security — OWASP Top 10:2025 — Self-Serve Premium Upgrade",
+  "rubricVersion": "1.0.0",
+  "derivedFrom": ["OWASP Top 10:2025", "spec/plans/architecture.md"],
+  "evalCriteria": [
+    {
+      "id": "SEC-01", "owasp": "A01:2025",
+      "metric": "Broken access control",
+      "weight": 0.25,
+      "prompt": "Review the new POST /api/billing/upgrade handler. Score 0 if it mutates a user's plan/billing record without first verifying the email identifies an existing user record AND that the mutation is scoped to that user's own record only. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/"
+    },
+    {
+      "id": "SEC-02", "owasp": "A06:2025",
+      "metric": "Insecure design",
+      "weight": 0.25,
+      "prompt": "Review the upgrade flow's misuse-case handling. Score 0 if the diff allows a duplicate/replayed upgrade request to mutate state again (missing idempotency guard) or omits a defined behavior for an unknown-user request. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A06_2025-Insecure_Design/"
+    },
+    {
+      "id": "SEC-03", "owasp": "A07:2025",
+      "metric": "Authentication failures",
+      "weight": 0.20,
+      "prompt": "Review any new authentication/identification logic introduced by this diff. Score 0 if the diff introduces a NEW, additional authentication weakness beyond the already-documented, pre-existing email-as-token pattern (e.g., accepting an unvalidated header as an identity claim, or a new bypass path) — do not score down for continuing the existing, already-approved pattern itself (Requirements Analysis Question 1). Cite the file and line for any new weakness found.",
+      "source": "https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/"
+    },
+    {
+      "id": "SEC-04", "owasp": "A10:2025",
+      "metric": "Mishandling of exceptional conditions",
+      "weight": 0.15,
+      "prompt": "Review error handling in the new endpoint and the frontend's handling of a failed upgrade call. Score 0 if any error path exposes internal details (stack trace, file paths, framework version) to the client, or if a failure leaves the UI in an inconsistent state (plan changed without a successful response, or vice versa). Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/"
+    },
+    {
+      "id": "SEC-05", "owasp": "A05:2025",
+      "metric": "Injection",
+      "weight": 0.15,
+      "prompt": "Review how the email parameter and any other input to the new endpoint is used. Score 0 if any changed code path concatenates or interpolates the input into a query, command, or template string instead of using direct dict-key lookups/parameterized access. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A05_2025-Injection/"
+    }
+  ]
+}

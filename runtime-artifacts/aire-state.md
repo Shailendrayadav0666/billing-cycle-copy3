@@ -118,4 +118,36 @@ graph TD
 - [x] Requirements Analysis — approved, committed (76e57b6), pushed
 - [x] User Stories — GATE 1 approved, LOCAL (no push)
 - [x] Dependency Graph — 2/4 stories immediately startable
-- [ ] Workflow Planning
+- [x] Workflow Planning — Application Design SKIP (no new component/service)
+- [x] Application Design — SKIP (decided in Workflow Planning)
+
+### 🟢 IMPLEMENTATION PHASE
+- [x] Functional Design — SKIP (proration rule fully specified already)
+- [x] NFR Requirements — SKIP (no new stack/NFR beyond requirements.md)
+- [x] NFR Design — SKIP (NFR Requirements skipped)
+- [x] Infrastructure Design — SKIP (no infra/deployment change)
+- [x] architecture.md + rubric (STOP CHECKPOINT) — v1.0.0, 5 verifiable constraints
+- [x] Behaviour Specs & Test Plans (STOP CHECKPOINT) — Approved
+- [x] MANDATORY STOP — Design complete — awaiting `dev-implement`
+
+## Behaviour Specs & Test Plans
+- **Work units covered**: 4 (Story 1.1, 1.2, 1.3, 1.4)
+- **Behaviour contracts**: spec/behavior/ — 4 files, 18 scenarios (one per AC, 2 as Scenario Outlines) — plus spec/behavior.feature (3 cross-story scenarios)
+- **Manual test plans**: spec/test-plans/ — 4 folders, 37 test cases
+- **AC coverage**: 18/18 (scenarios) · 18/18 (test cases)
+- **Approved**: 2026-09-23T10:53:31Z
+
+## Current Status
+- **Lifecycle Phase**: IMPLEMENTATION
+- **Current Stage**: Design complete — awaiting dev-implement
+- **Next Stage**: Code Generation (per story, via `dev-implement`)
+- **Status**: Ready to proceed
+
+## CI/CD Configuration
+- Enabled: No
+- Source: user opt-out
+- Decided At: STOP CHECKPOINT (2026-09-23T10:40:13Z)
+
+### 🧪 ve TRACK (parallel, ve-initiated — not scheduled here)
+- Test Plan per story — `/ve-implement`
+- ve Sign-off — `ve-list-work`

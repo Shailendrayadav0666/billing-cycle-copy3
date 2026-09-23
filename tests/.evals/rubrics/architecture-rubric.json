@@ -1,0 +1,42 @@
+{
+  "rubricName": "Architectural Alignment — Self-Serve Premium Upgrade",
+  "rubricVersion": "1.0.0",
+  "derivedFrom": ["spec/plans/architecture.md#10-verifiable-constraints"],
+  "evalCriteria": [
+    {
+      "id": "ARCH-01",
+      "metric": "Server-side proration authority",
+      "weight": 0.25,
+      "prompt": "Score 0 if the changed POST /api/billing/upgrade handler reads a charge/amount value from the request body/params and uses it directly instead of recomputing it server-side from plan prices and dates.",
+      "source": "spec/plans/requirements.md (REQ-F-03); spec/plans/stories.md (Story 1.2 AC-1/AC-4)"
+    },
+    {
+      "id": "ARCH-02",
+      "metric": "Idempotent upgrade guard",
+      "weight": 0.25,
+      "prompt": "Score 0 if the changed endpoint code path applies a plan/price mutation without first checking the user's current plan value (must reject when already Premium, no state change).",
+      "source": "spec/plans/requirements.md (REQ-F-08); spec/plans/stories.md (Story 1.2 AC-3)"
+    },
+    {
+      "id": "ARCH-03",
+      "metric": "Unknown-user guard",
+      "weight": 0.20,
+      "prompt": "Score 0 if the changed endpoint code path applies a mutation before verifying the given email exists in the users store (must reject unknown email, no state change).",
+      "source": "spec/plans/requirements.md (REQ-F-07); spec/plans/stories.md (Story 1.2 AC-2)"
+    },
+    {
+      "id": "ARCH-04",
+      "metric": "No new persistence mechanism",
+      "weight": 0.15,
+      "prompt": "Score 0 if any changed file imports a database driver/ORM or writes to a file/external store instead of mutating the existing in-memory dicts.",
+      "source": "spec/plans/requirements.md (REQ-NF-02)"
+    },
+    {
+      "id": "ARCH-05",
+      "metric": "Fail-closed frontend state",
+      "weight": 0.15,
+      "prompt": "Score 0 if any changed frontend code path sets the displayed plan/price to Premium (optimistic update) before the POST /api/billing/upgrade response resolves successfully.",
+      "source": "spec/plans/requirements.md (REQ-F-10); spec/plans/stories.md (Story 1.4 AC-4)"
+    }
+  ]
+}
