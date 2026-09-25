@@ -241,3 +241,175 @@
 **AIRE VERSION**: "1.0"
 
 ---
+
+## Dependency Graph - Inferred Edge List (correction to previous entry)
+**Timestamp**: 2026-09-25T12:05:29Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(none - automatic step)"
+**AI Response**: "The previous Dependency Graph entry's edge list rendered empty (temp-file path error). Complete inferred edges with justifications: - 1.3 requires 1.1 — R1 seed - 1.1 creates the Vitest/React Testing Library setup (package.json, vitest config) and the reworked Billing.jsx title row that 1.3's tests and edits build on - 1.4 requires 1.2 — R2 - the preview endpoint calls the 1.2 proration function and uses the pytest/pytest-bdd setup 1.2 seeds - 1.5 requires 1.2 — R2 - the upgrade endpoint recomputes the charge with the 1.2 proration function - 1.6 requires 1.4 — R2 - the 400/401 rejections are branches inside the preview endpoint, which must exist - 1.6 requires 1.5 — R2 - the 400/401 rejections are branches inside the upgrade endpoint, which must exist - 1.7 requires 1.1 — R2 - adds the charge rows and Confirm button to the dialog 1.1 creates - 1.7 requires 1.4 — R2 - calls GET /api/billing/upgrade-preview at runtime (no R3 drop: its Playwright check runs against the real backend) - 1.8 requires 1.3 — R2 - AC-2 relies on the plan-driven badge/heading from 1.3 to show Premium after the upgrade - 1.8 requires 1.5 — R2 - sends POST /api/billing/upgrade; owns the real end-to-end journey - 1.8 requires 1.7 — R2 - wires the Confirm & pay button that 1.7 renders - 1.9 requires 1.6 — R2 - AC-1 shows the backend's real 400 'Already on Premium plan' detail - 1.9 requires 1.8 — R2 - handles failures of the confirm request that 1.8 sends "
+**Context**: PLANNING - Dependency Graph, Step 8
+**AIRE VERSION**: "1.0"
+
+---
+
+## Dependency Graph - Epic Branch Commit & Push
+**Timestamp**: 2026-09-25T12:05:29Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(none - automatic step)"
+**AI Response**: "Committed b0d9458 '[EPIC] 4702 stories, personas and dependency graph' (AIRE-Version: 1.0) on epic/4702-self-serve-premium-upgrade: stories.md, personas.md, dependency-graph.yml, story-generation.md, aire-state.md, audit.md. Pushed to origin (345a611..b0d9458). No PR raised. These two audit entries ride the next commit."
+**Context**: PLANNING - Dependency Graph, Step 9
+**AIRE VERSION**: "1.0"
+
+---
+
+## Workflow Planning - Plan Finalized (auto-approved, no gate)
+**Timestamp**: 2026-09-25T12:06:39Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(none - automatic stage)"
+**AI Response**: "Execution plan created (spec/plans/executions.md) with Behaviour Specs & Test Plans and Code Generation to execute; Application Design, Functional Design, NFR Requirements, NFR Design and Infrastructure Design skipped (changes stay within existing component boundaries; rules, contracts and NFRs already fixed in requirements.md; no infra change). Risk Low-Medium. Proceeded automatically to the STOP CHECKPOINT without an approval gate."
+**Status**: Auto-approved
+**Context**: Workflow plan created with 2 stages to execute, 5 skipped
+**AIRE VERSION**: "1.0"
+
+---
+
+## STOP CHECKPOINT - Reached
+**Timestamp**: 2026-09-25T12:06:39Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(none - automatic step)"
+**AI Response**: "All system-level design stages skipped; reached the mandatory STOP CHECKPOINT. No code will be generated until dev-implement. .github/workflows/agentic-eval-pipeline.yml does not exist and ## CI/CD Configuration is not recorded - asking Step 1.2 CI/CD opt-in (chat-only)."
+**Context**: IMPLEMENTATION - STOP CHECKPOINT, Steps 1, 1.2
+**AIRE VERSION**: "1.0"
+
+---
+
+## STOP CHECKPOINT - CI/CD Opt-In Prompt
+**Timestamp**: 2026-09-25T12:06:39Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(awaiting answer)"
+**AI Response**: "Set up the CI/CD eval pipeline for this project? (yes/no)"
+**Context**: IMPLEMENTATION - STOP CHECKPOINT, Step 1.2 prompt logged before presentation
+**AIRE VERSION**: "1.0"
+
+---
+
+## STOP CHECKPOINT - CI/CD Opt-In Response
+**Timestamp**: 2026-09-25T12:07:21Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "no"
+**AI Response**: "Recorded ## CI/CD Configuration Enabled: No, Source: user opt-out. Steps 1.6 (CI pipeline generation) and 4 (epic smoke test) will be skipped; common/ci-pipeline-generation.md not loaded; no pipeline, sonar-project.properties or tests/.evals/scripts generated."
+**Context**: IMPLEMENTATION - STOP CHECKPOINT, Step 1.2
+**AIRE VERSION**: "1.0"
+
+---
+
+## STOP CHECKPOINT - Cycle Behaviour Journeys Written (Step 1.3)
+**Timestamp**: 2026-09-25T12:12:51Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(none - automatic step)"
+**AI Response**: "Wrote spec/behavior.feature with 3 genuine cross-story journeys (seeded subscriber upgrades and keeps Premium after reload; newly registered subscriber upgrades at the full-cycle cap; repeat upgrade refused), tagged @REQ-F-02..14. Not copies of per-story scenarios."
+**Context**: IMPLEMENTATION - STOP CHECKPOINT, Step 1.3
+**AIRE VERSION**: "1.0"
+
+---
+
+## STOP CHECKPOINT - Architecture Document Written (Step 1.4)
+**Timestamp**: 2026-09-25T12:12:51Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(none - automatic step)"
+**AI Response**: "Architecture document written - spec/plans/architecture.md v1.0.0, assembled from Atlas deep dive, epic brief, requirements, stories, executions and Design Reference #1 reconciliations; all five design stages recorded as skipped. Components: 12 (5 new, 4 modified, 3 unchanged). Inline Mermaid: C4Context system context, component flowchart with layer subgraphs, erDiagram (store mutated), upgrade sequenceDiagram - all annotated existing/new/modified, each with a text alternative. Section 10: 6 verifiable constraints ARCH-01..06, weights 0.25+0.20+0.15+0.10+0.15+0.15 = 1.00."
+**Context**: IMPLEMENTATION - STOP CHECKPOINT, Step 1.4
+**AIRE VERSION**: "1.0"
+
+---
+
+## STOP CHECKPOINT - Rubrics and Eval Config Derived (Step 1.5)
+**Timestamp**: 2026-09-25T12:12:51Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(none - automatic step)"
+**AI Response**: "tests/.evals/rubrics/architecture-rubric.json v1.0.0 derived mechanically from architecture.md Section 10 - 6 criteria (ARCH-01..06), rubricVersion = architecture.md version. tests/.evals/rubrics/security-rubric.json v1.0.0 created (absent) - 7 OWASP Top 10:2025 criteria (A01 0.25, A06 0.20, A10 0.15, A09 0.15, A05 0.10, A03 0.10, A02 0.05); A04/A07/A08 excluded with reasons. SEC-01 (A01) scores 0 on any new endpoint acting on a client-supplied email without verifying the caller - consistent with the accepted Q3 A risk, expected to block J2 on Story 1.4/1.5 unless the auth decision changes. tests/.evals/config.json created (absent) from the template with detected roots src/backend (python 3.13, requirements.txt) and src/frontend (node 22.14.0, package.json, oxlint); judge model claude-opus-5-5; J1 blocking at llmJudgeArchitectureScoreMin, J2 at llmJudgeSecurityScoreMin. CI disabled - no pipeline or tests/.evals/scripts generated (Step 1.6 skipped)."
+**Context**: IMPLEMENTATION - STOP CHECKPOINT, Steps 1.5, 1.6
+**AIRE VERSION**: "1.0"
+
+---
+
+## STOP CHECKPOINT - Behaviour Specs & Test Plans Part A (Step 1.7)
+**Timestamp**: 2026-09-25T12:12:51Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(none - automatic step)"
+**AI Response**: "Wrote spec/behavior/story-1.1.feature .. story-1.9.feature: 31 scenarios (incl. outlines) for 31 acceptance criteria, every scenario tagged @AC-n, failure paths included. Coverage check: 31/31 ACs have at least one scenario; no untagged or extra tags. Part B: invoked ve-implement skill in WORKFLOW MODE for stories 1.1-1.9 (three parallel runs of 3 stories each; no ve branch, no push, no PR)."
+**Context**: IMPLEMENTATION - STOP CHECKPOINT, Step 1.7 Part A / Part B start
+**AIRE VERSION**: "1.0"
+
+---
+
+## Test Plan (ve-implement skill)
+**Timestamp**: 2026-09-25T12:16:55Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(workflow mode - invoked by the STOP CHECKPOINT specs & test-plans stage)"
+**Mode**: workflow (invoked by the STOP CHECKPOINT specs & test-plans stage) — no ve approval, no ve branch, no ve PR
+**Story**: "Stories 1.1, 1.2, 1.3 — local Story IDs (Tracker LOCAL)"
+**Output folder**: `spec/test-plans/`
+**ve branch / PR**: "none — workflow mode, files written on epic/4702-self-serve-premium-upgrade and carried by the caller's commit"
+**Test plans generated**: "story-1.1-premium-upgrade-dialog-on-the-billing-page (E2E 7, Accessibility 5), story-1.2-prorated-charge-calculation (API 8 via the 1.4 preview endpoint), story-1.3-billing-page-reflects-the-current-plan (E2E 5, Accessibility 2) — N/A plans recorded with reasons in each test-plan-summary.md"
+**Coverage**: "5/5, 4/4, 2/2 acceptance criteria covered"
+**Approve / Request Changes checkpoint**: "Approved (automatic — workflow mode, no ve review)"
+**AI Response**: "Black-box manual test plans generated from ACs, requirements, architecture and Atlas interfaces; no application source read; TO CONFIRM markers for undocumented local URLs/ports, story PR numbers and fixture controls."
+**Context**: `/ve-implement` skill — Test Plan (`test-plan.md`)
+**AIRE VERSION**: "1.0"
+
+---
+
+## Test Plan (ve-implement skill)
+**Timestamp**: 2026-09-25T12:16:55Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(workflow mode - invoked by the STOP CHECKPOINT specs & test-plans stage)"
+**Mode**: workflow (invoked by the STOP CHECKPOINT specs & test-plans stage) — no ve approval, no ve branch, no ve PR
+**Story**: "Stories 1.4, 1.5, 1.6 — local Story IDs (Tracker LOCAL)"
+**Output folder**: `spec/test-plans/`
+**ve branch / PR**: "none — workflow mode, files written on epic/4702-self-serve-premium-upgrade and carried by the caller's commit"
+**Test plans generated**: "story-1.4-upgrade-preview-endpoint (API 5, Integration 3, Security 3), story-1.5-upgrade-endpoint-switches-the-user-to-premium (API 6, Integration 4, Security 4), story-1.6-upgrade-requests-rejected-for-ineligible-users (API 6, Integration 3, Security 4); known-risk observations for cross-account email use recorded, not as passes — N/A plans recorded with reasons in each test-plan-summary.md"
+**Coverage**: "3/3, 4/4, 3/3 acceptance criteria covered"
+**Approve / Request Changes checkpoint**: "Approved (automatic — workflow mode, no ve review)"
+**AI Response**: "Black-box manual test plans generated from ACs, requirements, architecture and Atlas interfaces; no application source read; TO CONFIRM markers for undocumented local URLs/ports, story PR numbers and fixture controls."
+**Context**: `/ve-implement` skill — Test Plan (`test-plan.md`)
+**AIRE VERSION**: "1.0"
+
+---
+
+## Test Plan (ve-implement skill)
+**Timestamp**: 2026-09-25T12:16:55Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(workflow mode - invoked by the STOP CHECKPOINT specs & test-plans stage)"
+**Mode**: workflow (invoked by the STOP CHECKPOINT specs & test-plans stage) — no ve approval, no ve branch, no ve PR
+**Story**: "Stories 1.7, 1.8, 1.9 — local Story IDs (Tracker LOCAL)"
+**Output folder**: `spec/test-plans/`
+**ve branch / PR**: "none — workflow mode, files written on epic/4702-self-serve-premium-upgrade and carried by the caller's commit"
+**Test plans generated**: "story-1.7-dialog-shows-the-server-computed-prorated-charge (E2E 4, Integration 4, Accessibility 3), story-1.8-confirm-the-upgrade-from-the-dialog (E2E 6, Integration 4, Security 2, Accessibility 3), story-1.9-upgrade-failures-shown-in-the-dialog (E2E 8, Security 2, Accessibility 4) — N/A plans recorded with reasons in each test-plan-summary.md"
+**Coverage**: "3/3, 4/4, 3/3 acceptance criteria covered"
+**Approve / Request Changes checkpoint**: "Approved (automatic — workflow mode, no ve review)"
+**AI Response**: "Black-box manual test plans generated from ACs, requirements, architecture and Atlas interfaces; no application source read; TO CONFIRM markers for undocumented local URLs/ports, story PR numbers and fixture controls."
+**Context**: `/ve-implement` skill — Test Plan (`test-plan.md`)
+**AIRE VERSION**: "1.0"
+
+---
+
+## STOP CHECKPOINT - Behaviour Specs & Test Plans Approval Prompt
+**Timestamp**: 2026-09-25T12:16:55Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "(awaiting approval)"
+**AI Response**: "Section 4.1 coverage check passed: 9/9 units have a .feature and a test-plan folder; 31/31 ACs have >=1 @AC scenario; 31/31 ACs have >=1 manual test case (105 cases total, verified by parsing Traces-to fields). Presented standardized 2-option message (Request Changes / Continue to Next Stage)."
+**Context**: IMPLEMENTATION - STOP CHECKPOINT, Step 1.7 Section 4
+**AIRE VERSION**: "1.0"
+
+---
+
+## STOP CHECKPOINT - Behaviour Specs & Test Plans Approval Response
+**Timestamp**: 2026-09-25T12:24:42Z
+**User Email**: shailendra.yadav@3pillarglobal.com
+**User Input**: "proceed"
+**AI Response**: "Interpreted as Continue to Next Stage. Behaviour contracts (9 files, 31 scenarios), spec/behavior.feature and 9 manual test-plan folders (105 cases) approved as scope (not ve sign-off). State marked 'Design complete — awaiting dev-implement'. Committing design artifacts on the epic branch and pushing; Step 4 epic smoke test skipped (CI/CD Enabled: No)."
+**Context**: IMPLEMENTATION - STOP CHECKPOINT, Step 1.7 approval / Step 2
+**AIRE VERSION**: "1.0"
+
+---

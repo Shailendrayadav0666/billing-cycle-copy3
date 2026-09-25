@@ -3,7 +3,7 @@
 ## Project Information
 - **Project Type**: Brownfield
 - **Start Date**: 2026-09-25T10:44:06Z
-- **Current Stage**: PLANNING - Dependency Graph
+- **Current Stage**: Design complete — awaiting dev-implement
 
 ## Tracker
 - Type: LOCAL
@@ -132,9 +132,35 @@ graph TD
 - 1.9 requires 1.6 — R2 - AC-1 shows the backend's real 400 'Already on Premium plan' detail
 - 1.9 requires 1.8 — R2 - handles failures of the confirm request that 1.8 sends
 
+## CI/CD Configuration
+- Enabled: No
+- Source: user opt-out
+- Recorded: 2026-09-25T12:07:21Z
+
+## Execution Plan Summary
+- **Plan**: spec/plans/executions.md (auto-approved 2026-09-25T12:06:39Z)
+- **Stages to Execute**: Behaviour Specs & Test Plans (STOP CHECKPOINT), Code Generation (per story via dev-implement)
+- **Stages to Skip**: Application Design, Functional Design, NFR Requirements, NFR Design, Infrastructure Design (all covered by requirements.md / design reference; no infra change)
+
+## Behaviour Specs & Test Plans
+- **Work units covered**: 9
+- **Behaviour contracts**: spec/behavior/ — 9 file(s), 31 scenarios (+ spec/behavior.feature, 3 cross-story journeys)
+- **Manual test plans**: spec/test-plans/ — 9 folder(s), 105 test cases
+- **AC coverage**: 31/31 (scenarios) · 31/31 (test cases)
+- **Approved**: 2026-09-25T12:24:42Z
+
 ## Stage Progress
 - [x] Workspace Detection
 - [x] Reverse Engineering - SKIPPED (Atlas deep dive found and reused)
 - [x] Requirements Analysis (approved 2026-09-25T11:48:32Z)
 - [x] User Stories (GATE 1 approved 2026-09-25T12:04:21Z; LOCAL - not pushed)
 - [x] Dependency Graph (auto-generated 2026-09-25T12:04:55Z)
+- [x] Workflow Planning (auto-approved 2026-09-25T12:06:39Z)
+- [x] Application Design - SKIP
+- [x] Functional Design - SKIP
+- [x] NFR Requirements - SKIP
+- [x] NFR Design - SKIP
+- [x] Infrastructure Design - SKIP
+- [x] STOP CHECKPOINT (2026-09-25T12:24:42Z)
+- [x] Behaviour Specs & Test Plans (approved 2026-09-25T12:24:42Z)
+- [ ] Code Generation - EXECUTE (per story via dev-implement)

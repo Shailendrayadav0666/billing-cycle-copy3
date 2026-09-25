@@ -1,0 +1,71 @@
+{
+  "rubricName": "Security — OWASP Top 10:2025 — Billing-Cycle (StreamPlex)",
+  "rubricVersion": "1.0.0",
+  "derivedFrom": [
+    "OWASP Top 10:2025",
+    "spec/plans/architecture.md"
+  ],
+  "excludedCategories": {
+    "A04:2025": "No cryptography, secrets or TLS handling is introduced in this cycle; the pre-existing plaintext passwords are unchanged and out of scope",
+    "A07:2025": "No authentication or session code is changed in this cycle; the pre-existing email-token model is out of scope (Q3 A) and its use by new endpoints is scored under SEC-01",
+    "A08:2025": "No deserialization of untrusted objects, signed updates or CI/CD (CI opted out)"
+  },
+  "evalCriteria": [
+    {
+      "id": "SEC-01",
+      "owasp": "A01:2025",
+      "metric": "Broken access control",
+      "weight": 0.25,
+      "prompt": "Review every endpoint added or changed in the diff that reads or mutates a user's plan or billing data. Score 0 if a changed endpoint acts on the account named by a client-supplied email (query or body) without the server verifying that the caller is authenticated as that account. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/"
+    },
+    {
+      "id": "SEC-02",
+      "owasp": "A06:2025",
+      "metric": "Insecure design",
+      "weight": 0.2,
+      "prompt": "Check the upgrade flow in the diff. Score 0 if the server accepts a plan, price, feature set or charge amount from the client, if the preview endpoint writes state, or if a repeated upgrade of an already-Premium account is not rejected server-side. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A06_2025-Insecure_Design/"
+    },
+    {
+      "id": "SEC-03",
+      "owasp": "A10:2025",
+      "metric": "Mishandling of exceptional conditions",
+      "weight": 0.15,
+      "prompt": "Check every error path added or changed in the diff (backend handlers and frontend fetch calls). Score 0 if a response can include a stack trace, exception text or internal state, if an unexpected backend exception is not converted to a generic 500, or if a frontend request failure is left unhandled (unhandled promise rejection) or leaves the page in a half-updated state. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/"
+    },
+    {
+      "id": "SEC-04",
+      "owasp": "A09:2025",
+      "metric": "Security logging and alerting failures",
+      "weight": 0.15,
+      "prompt": "Check logging added or changed in the diff. Score 0 if an upgrade attempt or its outcome is not logged server-side, or if any changed log statement records a password or an entire user record containing the password. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A09_2025-Security_Logging_and_Alerting_Failures/"
+    },
+    {
+      "id": "SEC-05",
+      "owasp": "A05:2025",
+      "metric": "Injection",
+      "weight": 0.1,
+      "prompt": "Check every place in the diff where request input (email, query parameters) or API data reaches the DOM or a string that is interpreted. Score 0 if request input is used without Pydantic/type validation on a new endpoint, or if any changed frontend code renders API or user text with dangerouslySetInnerHTML or equivalent raw HTML insertion. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A05_2025-Injection/"
+    },
+    {
+      "id": "SEC-06",
+      "owasp": "A03:2025",
+      "metric": "Software supply chain failures",
+      "weight": 0.1,
+      "prompt": "Check dependency manifests changed in the diff. Score 0 if a new dependency is added unpinned or with a floating range in a Python requirements file, if a runtime (non-dev) dependency is added, or if a package with a known critical or high vulnerability is introduced. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A03_2025-Software_Supply_Chain_Failures/"
+    },
+    {
+      "id": "SEC-07",
+      "owasp": "A02:2025",
+      "metric": "Security misconfiguration",
+      "weight": 0.05,
+      "prompt": "Check configuration changed in the diff. Score 0 if the diff widens CORS, enables a debug mode, or adds an endpoint that bypasses the existing FastAPI app and middleware. Pre-existing wildcard CORS that the diff does not touch is not scored. Cite the file and line.",
+      "source": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+    }
+  ]
+}

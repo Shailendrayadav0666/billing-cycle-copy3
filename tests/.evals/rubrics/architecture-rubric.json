@@ -1,0 +1,51 @@
+{
+  "rubricName": "Architectural Alignment — Billing-Cycle (StreamPlex)",
+  "rubricVersion": "1.0.0",
+  "derivedFrom": [
+    "spec/plans/architecture.md#10-verifiable-constraints"
+  ],
+  "evalCriteria": [
+    {
+      "id": "ARCH-01",
+      "metric": "Single source of pricing math",
+      "weight": 0.25,
+      "prompt": "Score 0 if any changed file other than that function performs the proration arithmetic (price difference × days / 30, or a days-remaining date difference used for charging) — including any frontend file that calculates a charge or days value instead of displaying the API's — or if either endpoint computes the charge without calling the function.",
+      "source": "spec/plans/requirements.md REQ-NF-01, REQ-F-02"
+    },
+    {
+      "id": "ARCH-02",
+      "metric": "Server decides plan, price and charge",
+      "weight": 0.2,
+      "prompt": "Score 0 if the upgrade request model declares any field besides `email`, or if any changed endpoint reads a plan, price, charge, usages or perks value from the request.",
+      "source": "spec/plans/requirements.md REQ-NF-05, REQ-F-04"
+    },
+    {
+      "id": "ARCH-03",
+      "metric": "Renewal date is never modified by an upgrade",
+      "weight": 0.15,
+      "prompt": "Score 0 if any changed code path in the upgrade flow assigns to `renew_at` or returns a `renew_at` different from the stored value.",
+      "source": "spec/plans/requirements.md REQ-F-06"
+    },
+    {
+      "id": "ARCH-04",
+      "metric": "Preview is read-only",
+      "weight": 0.1,
+      "prompt": "Score 0 if the preview handler, or anything it calls, assigns to `users` or `billing_data`.",
+      "source": "spec/plans/requirements.md REQ-F-03"
+    },
+    {
+      "id": "ARCH-05",
+      "metric": "Plan data defined once",
+      "weight": 0.15,
+      "prompt": "Score 0 if a changed endpoint handler builds Premium usages or perks inline, or if a changed frontend file hardcodes Premium feature values that the API already returns (the dialog's static benefit list and \"Premium is $40/month\" copy from the design reference are the only permitted frontend constants).",
+      "source": "spec/plans/requirements.md REQ-F-01, REQ-F-09; Design Reference #1 reconciliations"
+    },
+    {
+      "id": "ARCH-06",
+      "metric": "No new runtime dependencies",
+      "weight": 0.15,
+      "prompt": "Score 0 if the diff adds an entry to `requirements.txt` or to the `dependencies` block of `package.json`.",
+      "source": "spec/plans/requirements.md REQ-NF-06"
+    }
+  ]
+}
