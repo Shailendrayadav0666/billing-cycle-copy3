@@ -1,0 +1,292 @@
+{
+  "key": "story-1.1",
+  "trackerId": "LOCAL",
+  "evalFrameworkVersion": "1.0.0",
+  "rubricVersion": "1.0.0",
+  "judgeModel": "claude-opus-5-5",
+  "scope": "changed-files",
+  "base": "ce9c3c2",
+  "bootstrap": {
+    "created": [
+      {
+        "check": "D6_complexity",
+        "path": "tests/.evals/lint/oxlint-complexity.json",
+        "tool": "oxlint",
+        "preset": "eslint/complexity at maxCyclomaticComplexity"
+      },
+      {
+        "check": "D7_secrets",
+        "path": ".gitleaks.toml",
+        "tool": "gitleaks",
+        "preset": "default ruleset"
+      },
+      {
+        "check": "unitCoverage",
+        "path": "src/frontend/vitest.config.js",
+        "tool": "vitest + @vitest/coverage-v8"
+      },
+      {
+        "check": "behaviorB1",
+        "path": "src/frontend/vitest.behavior.config.js, tests/.evals/behavior/{Containerfile,run.sh,resolve-tiers.mjs}",
+        "tool": "vitest + @amiceli/vitest-cucumber in podman"
+      },
+      {
+        "check": "playwright",
+        "path": "playwright.config.ts, tests/e2e/seed.spec.ts",
+        "tool": "@playwright/test"
+      }
+    ],
+    "reused": [
+      {
+        "check": "D1_lint",
+        "path": "src/frontend/.oxlintrc.json",
+        "note": "repo's own config, used as-is"
+      }
+    ]
+  },
+  "toolchain": {
+    "node": "22.14.0",
+    "python": "3.13.3",
+    "oxlint": "1.85.0",
+    "semgrep": "1.127.0",
+    "license-checker-rseidelsohn": "4.3.0",
+    "gitleaks": "8.21.2",
+    "vitest": "5.0.2",
+    "@playwright/test": "1.63.0",
+    "podman": "5.8.7"
+  },
+  "gates": {
+    "D1_lint": {
+      "status": "PASS",
+      "newFindings": 0,
+      "baseline": 3,
+      "tool": "oxlint 1.85.0"
+    },
+    "D2_types": {
+      "status": "N/A",
+      "reason": "src/frontend is plain JavaScript/JSX with no TypeScript sources and no tsconfig or jsconfig; no type checker applies to this stack (eval-framework.md Section 2.5.1 reason 1)"
+    },
+    "D3_sast": {
+      "status": "PASS",
+      "new": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0
+      },
+      "rules": 200,
+      "tool": "semgrep 1.127.0 --config auto",
+      "sonarqube": {
+        "enabled": false
+      }
+    },
+    "D4_deps": {
+      "status": "PASS",
+      "new": {
+        "critical": 0,
+        "high": 0
+      },
+      "tool": "npm audit"
+    },
+    "D5_licenses": {
+      "status": "PASS",
+      "violations": [],
+      "packages": 132,
+      "tool": "license-checker-rseidelsohn 4.3.0"
+    },
+    "D6_complexity": {
+      "status": "PASS",
+      "newFindings": 0,
+      "threshold": 12,
+      "tool": "oxlint eslint/complexity"
+    },
+    "D7_secrets": {
+      "status": "PASS",
+      "findings": 0,
+      "tool": "gitleaks 8.21.2 (staged diff)"
+    },
+    "unitCoverage": {
+      "status": "PASS",
+      "value": 100.0,
+      "branch": 100.0,
+      "threshold": 90.0,
+      "tests": "18/18"
+    },
+    "behaviorB1": {
+      "status": "PASS",
+      "scenarios": "5/5",
+      "scenarioRuns": "7/7",
+      "steps": "44/44",
+      "acsCovered": "5/5",
+      "containerised": true,
+      "image": "localhost/aire-behavior:local@sha256:0463ec00334f43b993db42726bbdbc7eb95888337c2317ecb911ac0ba7ed468f"
+    },
+    "behaviorB2": {
+      "status": "N/A",
+      "reason": "active set empty: every other feature file (story-1.2 to story-1.9) belongs to a Ready for Development unit (behavior-spec.md Section 6.0; run.sh exit 3)"
+    },
+    "behaviorB3": {
+      "status": "N/A",
+      "reason": "not the last work unit — stories 1.2 to 1.9 have no merged PR (none raised)"
+    },
+    "apiContract": {
+      "status": "N/A",
+      "reason": "the code-generation plan has no API Layer Generation step (no endpoint added or changed)"
+    },
+    "playwright": {
+      "status": "PASS",
+      "scenarios": "10/10",
+      "headed": true,
+      "fixme": 0,
+      "reExecutedInCI": false,
+      "note": "CI/CD disabled for this project"
+    },
+    "playwrightRegression": {
+      "status": "N/A",
+      "reason": "tests/e2e/ held no spec files at baseline"
+    },
+    "regression": {
+      "status": "PASS",
+      "newFailures": 0,
+      "baseline": "0 tests",
+      "post": "18/18"
+    },
+    "J1_architecture": {
+      "status": "PASS",
+      "score": 1.0,
+      "min": 0.85,
+      "rubricSource": "architecture.md#10",
+      "criteria": [
+        {
+          "id": "ARCH-01",
+          "weight": 0.25,
+          "score": 1.0
+        },
+        {
+          "id": "ARCH-02",
+          "weight": 0.2,
+          "score": "N/A"
+        },
+        {
+          "id": "ARCH-03",
+          "weight": 0.15,
+          "score": "N/A"
+        },
+        {
+          "id": "ARCH-04",
+          "weight": 0.1,
+          "score": "N/A"
+        },
+        {
+          "id": "ARCH-05",
+          "weight": 0.15,
+          "score": 1.0
+        },
+        {
+          "id": "ARCH-06",
+          "weight": 0.15,
+          "score": 1.0
+        }
+      ]
+    },
+    "J2_security": {
+      "status": "PASS",
+      "score": 1.0,
+      "min": 0.85,
+      "criteria": [
+        {
+          "id": "SEC-01",
+          "owasp": "A01:2025",
+          "weight": 0.25,
+          "score": "N/A"
+        },
+        {
+          "id": "SEC-02",
+          "owasp": "A06:2025",
+          "weight": 0.2,
+          "score": "N/A"
+        },
+        {
+          "id": "SEC-03",
+          "owasp": "A10:2025",
+          "weight": 0.15,
+          "score": "N/A"
+        },
+        {
+          "id": "SEC-04",
+          "owasp": "A09:2025",
+          "weight": 0.15,
+          "score": "N/A"
+        },
+        {
+          "id": "SEC-05",
+          "owasp": "A05:2025",
+          "weight": 0.1,
+          "score": 1.0
+        },
+        {
+          "id": "SEC-06",
+          "owasp": "A03:2025",
+          "weight": 0.1,
+          "score": 1.0
+        },
+        {
+          "id": "SEC-07",
+          "owasp": "A02:2025",
+          "weight": 0.05,
+          "score": 1.0
+        }
+      ]
+    }
+  },
+  "selfHealing": {
+    "SH-LOOP-1": {
+      "attempts": 0,
+      "budget": 3
+    },
+    "SH-LOOP-2": {
+      "attempts": 0,
+      "budget": 3
+    },
+    "SH-LOOP-3": {
+      "attempts": 0,
+      "budget": 3
+    },
+    "SH-LOOP-4": {
+      "attempts": 0,
+      "budget": 3
+    },
+    "SH-LOOP-5": {
+      "attempts": 0,
+      "budget": 3
+    },
+    "SH-LOOP-6": {
+      "attempts": 0,
+      "budget": 3
+    },
+    "SH-LOOP-7": {
+      "attempts": 0,
+      "budget": 3
+    },
+    "SH-LOOP-8": {
+      "attempts": 0,
+      "budget": 3
+    },
+    "SH-LOOP-11": {
+      "attempts": 0,
+      "budget": 3
+    },
+    "SH-LOOP-12": {
+      "attempts": 1,
+      "budget": 3
+    },
+    "SH-LOOP-13": {
+      "attempts": 0,
+      "budget": 3
+    },
+    "SH-LOOP-16": {
+      "attempts": 0,
+      "budget": 3
+    }
+  },
+  "verdict": "PASS"
+}

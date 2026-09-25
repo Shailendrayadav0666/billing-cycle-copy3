@@ -577,3 +577,115 @@
   line-height: 1.4;
   margin: 0;
 }
+
+/* Premium upgrade — CTA and dialog (design reference: StreamPlex Billing prototype) */
+.upgrade-cta {
+  border: 0;
+  cursor: pointer;
+  background: #0d9b74;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 22px;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.upgrade-cta:hover {
+  background: #0a7a5b;
+}
+
+.upgrade-cta:focus-visible,
+.upgrade-cancel:focus-visible,
+.upgrade-dialog:focus-visible {
+  outline: 3px solid #0a6a4f;
+  outline-offset: 2px;
+}
+
+.upgrade-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 18, 32, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+}
+
+.upgrade-dialog {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 460px;
+  color: #0b1220;
+}
+
+.upgrade-dialog-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.upgrade-dialog-text {
+  margin: 10px 0 0;
+  color: #5b6577;
+  font-size: 15px;
+}
+
+.upgrade-summary {
+  margin: 20px 0 0;
+  border: 1px solid #e6e9ee;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.upgrade-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+  color: #3d4759;
+}
+
+.upgrade-summary-row + .upgrade-summary-row {
+  margin-top: 10px;
+}
+
+.upgrade-summary-row dd {
+  margin: 0;
+  font-weight: 700;
+  color: #0b1220;
+}
+
+.upgrade-benefits {
+  margin: 18px 0 0;
+  padding-left: 20px;
+  color: #3d4759;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.upgrade-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.upgrade-cancel {
+  border: 1px solid #d7dbe2;
+  cursor: pointer;
+  background: #fff;
+  color: #3d4759;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 18px;
+  border-radius: 10px;
+}
+
+.upgrade-cancel:hover {
+  background: #f2f4f7;
+}

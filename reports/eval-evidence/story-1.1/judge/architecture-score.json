@@ -1,0 +1,57 @@
+{
+  "key": "story-1.1",
+  "judgeModel": "claude-opus-5-5",
+  "rubric": "tests/.evals/rubrics/architecture-rubric.json",
+  "rubricVersion": "1.0.0",
+  "rubricSource": "architecture.md#10",
+  "scoredOnce": true,
+  "applicableWeight": 0.55,
+  "renormalised": true,
+  "score": 1.0,
+  "min": 0.85,
+  "status": "PASS",
+  "criteria": [
+    {
+      "id": "ARCH-01",
+      "metric": "Single source of pricing math",
+      "weight": 0.25,
+      "score": 1.0,
+      "note": "No proration arithmetic or days-remaining computation anywhere in the diff; the dialog shows no charge (src/frontend/src/components/UpgradeDialog.jsx)."
+    },
+    {
+      "id": "ARCH-02",
+      "metric": "Server decides plan, price and charge",
+      "weight": 0.2,
+      "score": "N/A",
+      "note": "The diff adds no upgrade request model and no endpoint — no server-side decision to judge."
+    },
+    {
+      "id": "ARCH-03",
+      "metric": "Renewal date is never modified by an upgrade",
+      "weight": 0.15,
+      "score": "N/A",
+      "note": "The diff contains no upgrade flow that could assign renew_at."
+    },
+    {
+      "id": "ARCH-04",
+      "metric": "Preview is read-only",
+      "weight": 0.1,
+      "score": "N/A",
+      "note": "The diff adds no preview handler."
+    },
+    {
+      "id": "ARCH-05",
+      "metric": "Plan data defined once",
+      "weight": 0.15,
+      "score": 1.0,
+      "note": "Frontend constants are limited to the dialog's static benefit list and Premium $40 copy; the current plan comes from the billing payload (src/frontend/src/pages/Billing.jsx:182). The API does not yet return Premium plan values, so nothing it returns is re-typed."
+    },
+    {
+      "id": "ARCH-06",
+      "metric": "No new runtime dependencies",
+      "weight": 0.15,
+      "score": 1.0,
+      "note": "Only devDependencies added (src/frontend/package.json devDependencies; root package.json devDependencies @playwright/test); requirements.txt and dependencies blocks unchanged."
+    }
+  ]
+}

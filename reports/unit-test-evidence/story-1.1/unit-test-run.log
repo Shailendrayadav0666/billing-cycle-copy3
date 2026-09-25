@@ -1,0 +1,48 @@
+
+ RUN  v5.0.2 C:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/src/frontend
+      Coverage enabled with v8
+
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > shows a loading message until the billing data arrives 58ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > requests the billing data for the signed-in user 60ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > is an accessible modal dialog labelled by its title 209ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > moves keyboard focus into the dialog when it opens 16ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > shows the explainer, the plan comparison and the Premium benefits 48ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > offers Cancel as its only action 22ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > shows the Upgrade to Premium button in the title row for a Standard subscriber 155ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > does not offer an upgrade to a Premium subscriber 28ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > closes when Cancel is clicked 21ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > closes when Escape is pressed 14ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > ignores other keys 12ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > closes when the backdrop is clicked 7ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > stays open when the dialog card itself is clicked 14ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > opens the dialog with the current plan taken from the billing data, without any request 71ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > closes on clicking Cancel, returns focus to the button and changes nothing 60ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > closes on pressing Escape, returns focus to the button and changes nothing 47ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > closes on clicking the backdrop, returns focus to the button and changes nothing 28ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > still renders usage-style cards with their progress bars 24ms
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  18:25:23
+   Duration  5.96s (environment 73%, setup 15%, tests 9%, transform 2%, worker 1%, import 1%)
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   34.69 |    30.76 |   44.11 |   37.36 |                   
+ src               |       0 |        0 |       0 |       0 |                   
+  App.jsx          |       0 |        0 |       0 |       0 | 8-40              
+  main.jsx         |       0 |      100 |     100 |       0 | 6                 
+ src/context       |       0 |        0 |       0 |       0 |                   
+  AuthContext.jsx  |       0 |        0 |       0 |       0 | 4-66              
+ src/pages         |   53.48 |    42.85 |   58.82 |   56.09 |                   
+  Login.jsx        |       0 |        0 |       0 |       0 | 6-127             
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 34.69% ( 34/98 )
+Branches     : 30.76% ( 16/52 )
+Functions    : 44.11% ( 15/34 )
+Lines        : 37.36% ( 34/91 )
+================================================================================

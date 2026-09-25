@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import UpgradeDialog from '../components/UpgradeDialog'
 import '../App.css'
 
 function InfoIcon() {
@@ -76,6 +77,13 @@ function IncludedUsageCard({ data }) {
 export default function Billing() {
   const { token } = useAuth()
   const [data, setData] = useState(null)
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const upgradeButtonRef = useRef(null)
+
+  function closeUpgrade() {
+    setUpgradeOpen(false)
+    upgradeButtonRef.current?.focus()
+  }
 
   useEffect(() => {
     fetch(`/api/billing?email=${encodeURIComponent(token)}`)
@@ -98,6 +106,16 @@ export default function Billing() {
           <h2>Plan & Billing</h2>
           <p>Manage your plan and payments</p>
         </div>
+        {data.plan_name === 'Standard' && (
+          <button
+            type="button"
+            ref={upgradeButtonRef}
+            className="upgrade-cta"
+            onClick={() => setUpgradeOpen(true)}
+          >
+            Upgrade to Premium
+          </button>
+        )}
       </div>
 
       <p className="current-label">
@@ -158,6 +176,13 @@ export default function Billing() {
       <div className="usage-extras usage-extras-single">
         <IncludedUsageCard data={data.included_usage} />
       </div>
+
+      {upgradeOpen && (
+        <UpgradeDialog
+          currentPlan={`${data.plan_name} (${data.price.replace('/month', '/mo')})`}
+          onClose={closeUpgrade}
+        />
+      )}
     </div>
   )
 }
