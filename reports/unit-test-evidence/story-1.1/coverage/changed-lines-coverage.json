@@ -1,0 +1,26 @@
+{
+  "key": "story-1.1",
+  "base": "ce9c3c2",
+  "threshold": 90.0,
+  "files": [
+    {
+      "path": "src/frontend/src/components/UpgradeDialog.jsx",
+      "changedExecutableLines": 11,
+      "coveredLines": 11,
+      "changedBranches": 4,
+      "coveredBranches": 4,
+      "uncoveredLines": []
+    },
+    {
+      "path": "src/frontend/src/pages/Billing.jsx",
+      "changedExecutableLines": 5,
+      "coveredLines": 5,
+      "changedBranches": 4,
+      "coveredBranches": 4,
+      "uncoveredLines": []
+    }
+  ],
+  "lineCoverage": 100.0,
+  "branchCoverage": 100.0,
+  "status": "PASS"
+}

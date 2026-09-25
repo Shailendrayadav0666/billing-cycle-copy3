@@ -1,0 +1,33 @@
+# Full regression — whole repo suite — story-1.1 (2026-09-25T13:00:28Z)
+## src/frontend: npx vitest run --config vitest.config.js
+
+ RUN  v5.0.2 C:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/src/frontend
+
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > shows a loading message until the billing data arrives 36ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > requests the billing data for the signed-in user 47ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > is an accessible modal dialog labelled by its title 142ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > moves keyboard focus into the dialog when it opens 11ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > shows the explainer, the plan comparison and the Premium benefits 34ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > offers Cancel as its only action 13ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > closes when Cancel is clicked 14ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > closes when Escape is pressed 7ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > ignores other keys 5ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > closes when the backdrop is clicked 7ms
+ ✓ ../../tests/unit/frontend/src/components/UpgradeDialog.test.jsx > UpgradeDialog > stays open when the dialog card itself is clicked 9ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > shows the Upgrade to Premium button in the title row for a Standard subscriber 108ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > does not offer an upgrade to a Premium subscriber 18ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > opens the dialog with the current plan taken from the billing data, without any request 38ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > closes on clicking Cancel, returns focus to the button and changes nothing 35ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > closes on pressing Escape, returns focus to the button and changes nothing 21ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > closes on clicking the backdrop, returns focus to the button and changes nothing 38ms
+ ✓ ../../tests/unit/frontend/src/pages/Billing.test.jsx > Billing page — Premium upgrade entry point > still renders usage-style cards with their progress bars 17ms
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  18:30:36
+   Duration  4.71s (environment 78%, setup 12%, tests 7%, transform 2%, import 1%)
+
+exit=0
+## src/backend: Python test discovery
+no Python test files exist in the repo
+## tests/e2e: 0 Playwright spec entries (Playwright regression is Step 6.8)

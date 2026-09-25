@@ -1,0 +1,79 @@
+{
+  "D1_lint": {
+    "tool": "oxlint 1.85.0 (repo .oxlintrc.json as-is)",
+    "baseline": 3,
+    "post": 3,
+    "new": 0,
+    "threshold": 0,
+    "status": "PASS",
+    "newFindings": []
+  },
+  "D6_complexity": {
+    "tool": "oxlint eslint/complexity at maxCyclomaticComplexity",
+    "baseline": 0,
+    "post": 0,
+    "new": 0,
+    "threshold": 12,
+    "status": "PASS",
+    "newFindings": []
+  },
+  "D3_sast": {
+    "tool": "semgrep 1.127.0 --config auto",
+    "baseline": 0,
+    "post": 0,
+    "new": 0,
+    "newBySeverity": {},
+    "threshold": {
+      "critical": 0,
+      "high": 0,
+      "medium": 5
+    },
+    "status": "PASS",
+    "newFindings": []
+  },
+  "D4_deps": {
+    "tool": "npm audit",
+    "baseline": 0,
+    "post": 0,
+    "new": 0,
+    "postBySeverity": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "threshold": {
+      "critical": 0,
+      "high": 0
+    },
+    "status": "PASS"
+  },
+  "D5_licenses": {
+    "tool": "license-checker-rseidelsohn 4.3.0",
+    "baseline": 132,
+    "post": 132,
+    "new": 0,
+    "disallowedFound": [],
+    "threshold": [
+      "GPL-2.0",
+      "GPL-3.0",
+      "AGPL-3.0",
+      "SSPL-1.0"
+    ],
+    "status": "PASS"
+  },
+  "D7_secrets": {
+    "tool": "gitleaks 8.21.2 (git --pre-commit --staged = this unit's diff)",
+    "baseline": 0,
+    "post": 0,
+    "new": 0,
+    "threshold": 0,
+    "status": "PASS"
+  },
+  "D2_types": {
+    "status": "N/A",
+    "reason": "src/frontend is plain JavaScript/JSX with no TypeScript sources and no tsconfig or jsconfig; no type checker applies to this stack (eval-framework.md Section 2.5.1 reason 1)"
+  }
+}

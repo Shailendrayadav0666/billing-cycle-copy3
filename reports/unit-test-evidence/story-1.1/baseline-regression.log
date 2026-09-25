@@ -1,0 +1,14 @@
+# Baseline regression — whole repo suite — story-1.1 @ ce9c3c2 (2026-09-25T12:47:57Z)
+## src/frontend: npx vitest run --config vitest.config.js --passWithNoTests
+
+ RUN  v5.0.2 C:/Users/shailendra.yadav/Desktop/projects/helix-aire-v1-demo2/src/frontend
+
+No test files found, exiting with code 0
+
+include: tests/unit/frontend/**/*.test.{js,jsx}
+exclude:  **/node_modules/**, **/.git/**
+
+exit=0
+## src/backend: Python test discovery
+no Python test files exist in the repo (tests/ holds none; src/backend has none)
+## tests/e2e: 0 Playwright spec entries

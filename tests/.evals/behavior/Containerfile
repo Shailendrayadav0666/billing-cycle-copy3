@@ -1,0 +1,14 @@
+# Behaviour gate image (common/behavior-spec.md Section 5). Build from the repo root:
+#   podman build -t aire-behavior:local -f tests/.evals/behavior/Containerfile .
+# The repo is mounted at /work at run time; the frontend's node_modules come from this
+# image (an anonymous volume over /work/src/frontend/node_modules), never from the host.
+FROM docker.io/library/node:22.14.0-bookworm-slim
+
+WORKDIR /work/src/frontend
+# The frontend tracks no lockfile (src/frontend/.gitignore), so package.json is the
+# whole install closure.
+COPY src/frontend/package.json /work/src/frontend/package.json
+RUN npm install --no-audit --no-fund
+
+WORKDIR /work
+ENTRYPOINT ["/bin/sh", "-c"]

@@ -1,0 +1,15 @@
+
+Running 10 tests using 1 worker
+
+  ✓   1 [chromium] › tests\e2e\story-1.1-premium-upgrade-dialog-on-the-billing-page\tc-acc-01-keyboard-open-focus.spec.ts:7:7 › Upgrade Dialog Accessibility › TC-ACC-01 - Dialog opens from the keyboard and receives focus (1.6s)
+  ✓   2 [chromium] › tests\e2e\story-1.1-premium-upgrade-dialog-on-the-billing-page\tc-acc-02-dialog-role-aria.spec.ts:7:7 › Upgrade Dialog Accessibility › TC-ACC-02 - Dialog is exposed as a labelled modal dialog (1.5s)
+  ✓   3 [chromium] › tests\e2e\story-1.1-premium-upgrade-dialog-on-the-billing-page\tc-acc-03-focus-return.spec.ts:7:7 › Upgrade Dialog Accessibility › TC-ACC-03 - Focus returns to the Upgrade button on close (1.3s)
+  ✓   4 [chromium] › tests\e2e\story-1.1-premium-upgrade-dialog-on-the-billing-page\tc-e2e-01-upgrade-button-visible.spec.ts:7:7 › Billing Page and Upgrade Dialog (E2E) › TC-E2E-01 - Standard subscriber sees the Upgrade to Premium button (1.5s)
+  ✓   5 [chromium] › tests\e2e\story-1.1-premium-upgrade-dialog-on-the-billing-page\tc-e2e-02-premium-subscriber-no-upgrade.spec.ts:7:7 › Billing Page and Upgrade Dialog (E2E) › TC-E2E-02 - Premium subscriber is not offered the upgrade (1.2s)
+  ✓   6 [chromium] › tests\e2e\story-1.1-premium-upgrade-dialog-on-the-billing-page\tc-e2e-03-dialog-content.spec.ts:7:7 › Billing Page and Upgrade Dialog (E2E) › TC-E2E-03 - Opening the dialog shows the plan comparison and Premium benefits (1.5s)
+  ✓   7 [chromium] › tests\e2e\story-1.1-premium-upgrade-dialog-on-the-billing-page\tc-e2e-04-dialog-boundary-no-charge-controls.spec.ts:7:7 › Billing Page and Upgrade Dialog (E2E) › TC-E2E-04 - Dialog shell shows no charge or confirm controls yet (boundary) (1.5s)
+  ✓   8 [chromium] › tests\e2e\story-1.1-premium-upgrade-dialog-on-the-billing-page\tc-e2e-05-dismiss-cancel.spec.ts:7:7 › Billing Page and Upgrade Dialog (E2E) › TC-E2E-05 - Dismiss with Cancel leaves the page unchanged (1.2s)
+  ✓   9 [chromium] › tests\e2e\story-1.1-premium-upgrade-dialog-on-the-billing-page\tc-e2e-06-dismiss-escape-backdrop.spec.ts:7:7 › Billing Page and Upgrade Dialog (E2E) › TC-E2E-06 - Dismiss with Escape and with a backdrop click (and non-dismissal on inside click) (1.5s)
+  ✓  10 [chromium] › tests\e2e\story-1.1-premium-upgrade-dialog-on-the-billing-page\tc-e2e-07-reopen-consistency.spec.ts:7:7 › Billing Page and Upgrade Dialog (E2E) › TC-E2E-07 - Reopening after dismissal shows the same dialog (boundary) (1.8s)
+
+  10 passed (18.1s)

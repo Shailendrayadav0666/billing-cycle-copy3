@@ -1,0 +1,70 @@
+{
+  "key": "story-1.1",
+  "judgeModel": "claude-opus-5-5",
+  "rubric": "tests/.evals/rubrics/security-rubric.json",
+  "rubricVersion": "1.0.0",
+  "scoredOnce": true,
+  "applicableWeight": 0.25,
+  "renormalised": true,
+  "score": 1.0,
+  "min": 0.85,
+  "status": "PASS",
+  "criteria": [
+    {
+      "id": "SEC-01",
+      "owasp": "A01:2025",
+      "metric": "Broken access control",
+      "weight": 0.25,
+      "score": "N/A",
+      "note": "No endpoint added or changed; the diff reads no user-owned data server-side."
+    },
+    {
+      "id": "SEC-02",
+      "owasp": "A06:2025",
+      "metric": "Insecure design",
+      "weight": 0.2,
+      "score": "N/A",
+      "note": "No server-side upgrade flow in the diff."
+    },
+    {
+      "id": "SEC-03",
+      "owasp": "A10:2025",
+      "metric": "Mishandling of exceptional conditions",
+      "weight": 0.15,
+      "score": "N/A",
+      "note": "The diff adds no error path — no new backend handler and no new fetch call (the existing Billing fetch is unchanged)."
+    },
+    {
+      "id": "SEC-04",
+      "owasp": "A09:2025",
+      "metric": "Security logging and alerting failures",
+      "weight": 0.15,
+      "score": "N/A",
+      "note": "No upgrade attempt exists in this story, so there is nothing to log; no log statement added."
+    },
+    {
+      "id": "SEC-05",
+      "owasp": "A05:2025",
+      "metric": "Injection",
+      "weight": 0.1,
+      "score": 1.0,
+      "note": "API text (plan_name, price) is rendered through React JSX escaping (src/frontend/src/pages/Billing.jsx:182); no dangerouslySetInnerHTML or raw HTML insertion in the diff."
+    },
+    {
+      "id": "SEC-06",
+      "owasp": "A03:2025",
+      "metric": "Software supply chain failures",
+      "weight": 0.1,
+      "score": 1.0,
+      "note": "Only JS devDependencies added (no Python requirements change, no runtime dependency); npm audit 0 vulnerabilities (static/npm-audit.json)."
+    },
+    {
+      "id": "SEC-07",
+      "owasp": "A02:2025",
+      "metric": "Security misconfiguration",
+      "weight": 0.05,
+      "score": 1.0,
+      "note": "No CORS, debug-mode or middleware change; new configs are test-tooling only (vitest configs, playwright.config.ts)."
+    }
+  ]
+}

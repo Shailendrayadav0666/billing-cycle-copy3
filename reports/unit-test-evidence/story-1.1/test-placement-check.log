@@ -1,0 +1,33 @@
+# Test Placement Check - story-1.1 - 2026-09-25T12:59:57Z
+Diff scope: git diff --cached --name-only --diff-filter=ACMR ce9c3c2 (the files this unit adds or modifies; reports/ and runtime-artifacts/ excluded)
+Rules (common/directory-structure.md 4a/4b, implementation/code-generation.md Step 11a.6): (1) no unit/api test under src/; (2) unit tests only under tests/unit/; (3) api tests only under tests/api/; (4) a new tests/unit/<top> folder must mirror src/<top>
+
+| Path | Classification | Rule checked | Verdict |
+|---|---|---|---|
+| .claude/agents/playwright-test-generator.md | other | - | ok |
+| .claude/agents/playwright-test-healer.md | other | - | ok |
+| .claude/agents/playwright-test-planner.md | other | - | ok |
+| .gitignore | other | - | ok |
+| .gitleaks.toml | other | - | ok |
+| .mcp.json | other | - | ok |
+| package-lock.json | other | - | ok |
+| package.json | other | - | ok |
+| spec/spec-generation/story-1.1-code-generation.md | other | - | ok |
+| src/frontend/package.json | application | - | ok |
+| src/frontend/src/App.css | application | - | ok |
+| src/frontend/src/components/UpgradeDialog.jsx | application | - | ok |
+| src/frontend/src/pages/Billing.jsx | application | - | ok |
+| src/frontend/vitest.behavior.config.js | application | - | ok |
+| src/frontend/vitest.config.js | application | - | ok |
+| tests/.evals/behavior/Containerfile | other | - | ok |
+| tests/.evals/behavior/resolve-tiers.mjs | other | - | ok |
+| tests/.evals/behavior/run.sh | other | - | ok |
+| tests/.evals/lint/oxlint-complexity.json | other | - | ok |
+| tests/behavior/steps/story-1.1.steps.jsx | other | - | ok |
+| tests/behavior/support/billing-api.js | other | - | ok |
+| tests/behavior/support/setup.js | other | - | ok |
+| tests/unit/frontend/setup.js | other | - | ok |
+| tests/unit/frontend/src/components/UpgradeDialog.test.jsx | unit-test | 2/3; 4 (tests/unit/frontend mirrors src/frontend: True) | ok |
+| tests/unit/frontend/src/pages/Billing.test.jsx | unit-test | 2/3; 4 (tests/unit/frontend mirrors src/frontend: True) | ok |
+
+Verdict: PASS - 0 violation(s)
