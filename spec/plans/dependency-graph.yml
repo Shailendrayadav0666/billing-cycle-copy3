@@ -1,0 +1,57 @@
+version: 1
+generated_at: 2026-09-25
+team_size: 2
+
+shared_files:
+  - src/frontend/src/pages/Billing.jsx   # 1.1, 1.3, 1.7, 1.8, 1.9
+  - src/frontend/src/App.css             # 1.1, 1.7, 1.8, 1.9
+  - src/frontend/package.json            # 1.1 (Vitest, RTL, Playwright dev dependencies)
+  - src/backend/main.py                  # 1.2, 1.4, 1.5, 1.6 (1.4 and 1.5 add separate endpoints in parallel)
+  - src/backend/requirements-dev.txt     # 1.2 (pytest, pytest-bdd, httpx - test only, pinned)
+
+stories:
+  - id: "1.1"
+    title: "Premium upgrade dialog on the Billing page"
+    tracker_id: LOCAL
+    requires: []
+    enables: ["1.3", "1.7"]
+  - id: "1.2"
+    title: "Prorated charge calculation"
+    tracker_id: LOCAL
+    requires: []
+    enables: ["1.4", "1.5"]
+  - id: "1.3"
+    title: "Billing page reflects the current plan"
+    tracker_id: LOCAL
+    requires: ["1.1"]
+    enables: ["1.8"]
+  - id: "1.4"
+    title: "Upgrade preview endpoint"
+    tracker_id: LOCAL
+    requires: ["1.2"]
+    enables: ["1.6", "1.7"]
+  - id: "1.5"
+    title: "Upgrade endpoint switches the user to Premium"
+    tracker_id: LOCAL
+    requires: ["1.2"]
+    enables: ["1.6", "1.8"]
+  - id: "1.6"
+    title: "Upgrade requests rejected for ineligible users"
+    tracker_id: LOCAL
+    requires: ["1.4", "1.5"]
+    enables: ["1.9"]
+  - id: "1.7"
+    title: "Dialog shows the server-computed prorated charge"
+    tracker_id: LOCAL
+    requires: ["1.1", "1.4"]
+    enables: ["1.8"]
+  - id: "1.8"
+    title: "Confirm the upgrade from the dialog"
+    tracker_id: LOCAL
+    requires: ["1.3", "1.5", "1.7"]
+    enables: ["1.9"]
+  - id: "1.9"
+    title: "Upgrade failures shown in the dialog"
+    tracker_id: LOCAL
+    requires: ["1.6", "1.8"]
+    enables: []
